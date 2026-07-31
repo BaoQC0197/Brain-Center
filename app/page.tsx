@@ -44,6 +44,7 @@ function EditProjectModal({
           prodAdminUrl: prodAdminUrl.trim(),
           bugListUrl: bugListUrl.trim(),
           figmaUrl: figmaUrl.trim(),
+          createdAt: project.createdAt,
         }),
       })
       const updated = await res.json()

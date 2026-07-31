@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { storage } from '@/lib/storage'
 
+export const dynamic = 'force-dynamic'
+
+
 export async function GET(_: Request, { params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params
   const project = await storage.getProject(projectId)
@@ -10,19 +13,16 @@ export async function GET(_: Request, { params }: { params: Promise<{ projectId:
 
 export async function PUT(req: Request, { params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params
-  const existing = await storage.getProject(projectId)
-  if (!existing) return NextResponse.json({ error: 'Project không tồn tại' }, { status: 404 })
-
   try {
     const body = await req.json()
-    const { name, description, techStack, stagingUrl, stagingAdminUrl, prodUrl, prodAdminUrl, bugListUrl, figmaUrl } = body
+    const { name, description, techStack, stagingUrl, stagingAdminUrl, prodUrl, prodAdminUrl, bugListUrl, figmaUrl, createdAt } = body
 
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Tên project không được để trống' }, { status: 400 })
     }
 
     const updatedProject = {
-      ...existing,
+      id: projectId,
       name: name.trim(),
       description: (description || '').trim(),
       techStack: (techStack || '').trim(),
@@ -32,9 +32,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ projectI
       prodAdminUrl: (prodAdminUrl || '').trim(),
       bugListUrl: (bugListUrl || '').trim(),
       figmaUrl: (figmaUrl || '').trim(),
+      createdAt: createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
-
 
     await storage.saveProject(updatedProject)
     return NextResponse.json(updatedProject)
@@ -48,4 +48,3 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ project
   await storage.deleteProject(projectId)
   return NextResponse.json({ ok: true })
 }
-

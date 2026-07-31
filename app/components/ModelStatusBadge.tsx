@@ -12,13 +12,30 @@ interface ModelStatusResponse {
   tokenCost?: number
 }
 
+const CACHE_KEY = 'qa_brain_model_status'
+const CACHE_TTL = 60_000 // 60 seconds
+
 export default function ModelStatusBadge() {
   const [data, setData] = useState<ModelStatusResponse | null>(null)
 
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY)
+      if (cached) {
+        const { ts, payload } = JSON.parse(cached)
+        if (Date.now() - ts < CACHE_TTL) {
+          setData(payload)
+          return
+        }
+      }
+    } catch {}
+
     fetch('/api/model-status')
       .then(r => r.json())
-      .then(d => setData(d))
+      .then(d => {
+        setData(d)
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), payload: d })) } catch {}
+      })
       .catch(() => {})
   }, [])
 
