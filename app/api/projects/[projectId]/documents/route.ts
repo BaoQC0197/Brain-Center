@@ -3,11 +3,14 @@ import { storage } from '@/lib/storage'
 import { GeneratedDocument } from '@/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(_: Request, { params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params
   const docs = await storage.getDocuments(projectId)
   return NextResponse.json(docs)
 }
+
 
 export async function POST(req: Request, { params }: { params: Promise<{ projectId: string }> }) {
   try {

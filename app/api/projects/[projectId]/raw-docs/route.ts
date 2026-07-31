@@ -3,12 +3,15 @@ import { storage } from '@/lib/storage'
 import { RawDocument, RawDocType } from '@/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(_: Request, { params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params
   // strip imageBase64 from list response to keep payload small
   const docs = (await storage.getRawDocuments(projectId)).map(({ imageBase64: _, ...rest }) => rest)
   return NextResponse.json(docs)
 }
+
 
 export async function POST(request: Request, { params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params
