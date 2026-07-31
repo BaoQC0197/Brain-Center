@@ -70,12 +70,23 @@ export const storage = {
 
   async getProjects(): Promise<Project[]> {
     if (isSupabaseConfigured && supabase) {
+      // 1. Try selecting with sortOrder
       const { data, error } = await supabase
         .from('projects')
         .select('id, name, description, "techStack", "stagingUrl", "stagingAdminUrl", "prodUrl", "prodAdminUrl", "figmaUrl", "bugListUrl", "sortOrder", "createdAt", "updatedAt"')
         .order('sortOrder', { ascending: true })
         .order('createdAt', { ascending: false })
+
       if (!error && data) return data as Project[]
+
+      // 2. Fallback query if sortOrder column is not in DB schema yet
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('projects')
+        .select('*')
+        .order('createdAt', { ascending: false })
+
+      if (!fallbackError && fallbackData) return fallbackData as Project[]
+      if (error || fallbackError) console.error('Supabase getProjects error:', error || fallbackError)
     }
     return readProjects().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
   },
