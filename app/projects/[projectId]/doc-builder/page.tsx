@@ -450,23 +450,7 @@ export default function DocBuilderPage() {
             />
           </div>
 
-          {/* Optional Image Upload */}
-          <div className="space-y-2">
-            <label className="block text-sm md:text-base font-extrabold text-slate-900">4. Upload Wireframe / Screenshot đính kèm (Tuỳ chọn)</label>
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-purple-300 rounded-xl p-5 text-center cursor-pointer hover:border-purple-600 transition-all bg-white shadow-xs"
-            >
-              {imagePreview ? (
-                <img src={imagePreview} alt="preview" className="max-h-40 mx-auto rounded-lg object-contain" />
-              ) : (
-                <div className="text-slate-700 text-xs md:text-sm font-bold flex items-center justify-center gap-2 py-2">
-                  <span>Click để chọn ảnh wireframe / UI nếu có</span>
-                </div>
-              )}
-            </div>
-            <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} className="hidden" />
-          </div>
+
 
           {/* Action Button */}
           <div className="pt-2 flex justify-end">
