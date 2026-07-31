@@ -383,21 +383,24 @@ qa-recommendations|📋 Khuyên nghị cho Đội ngũ Dev/PO (Actionable QA Rec
 };
 
 export function initConfigsStorage() {
-  if (!fs.existsSync(CONFIGS_DIR)) fs.mkdirSync(CONFIGS_DIR, { recursive: true })
-  if (!fs.existsSync(TASK_PROMPTS_DIR)) fs.mkdirSync(TASK_PROMPTS_DIR, { recursive: true })
+  if (isSupabaseConfigured) return // Never attempt fs operations on Serverless when Supabase is active
+  try {
+    if (!fs.existsSync(CONFIGS_DIR)) fs.mkdirSync(CONFIGS_DIR, { recursive: true })
+    if (!fs.existsSync(TASK_PROMPTS_DIR)) fs.mkdirSync(TASK_PROMPTS_DIR, { recursive: true })
 
-  const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
-  if (!fs.existsSync(sysPath)) {
-    fs.writeFileSync(sysPath, DEFAULT_SYSTEM_INSTRUCTION, 'utf-8')
-  }
-
-  for (const [key, value] of Object.entries(DEFAULT_TASK_PROMPTS)) {
-    if (key === 'system_instruction') continue
-    const taskPath = path.join(TASK_PROMPTS_DIR, `${key}.txt`)
-    if (!fs.existsSync(taskPath)) {
-      fs.writeFileSync(taskPath, value.content, 'utf-8')
+    const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
+    if (!fs.existsSync(sysPath)) {
+      fs.writeFileSync(sysPath, DEFAULT_SYSTEM_INSTRUCTION, 'utf-8')
     }
-  }
+
+    for (const [key, value] of Object.entries(DEFAULT_TASK_PROMPTS)) {
+      if (key === 'system_instruction') continue
+      const taskPath = path.join(TASK_PROMPTS_DIR, `${key}.txt`)
+      if (!fs.existsSync(taskPath)) {
+        fs.writeFileSync(taskPath, value.content, 'utf-8')
+      }
+    }
+  } catch {}
 }
 
 export async function getSystemInstruction(): Promise<string> {
@@ -411,8 +414,11 @@ export async function getSystemInstruction(): Promise<string> {
     return DEFAULT_SYSTEM_INSTRUCTION
   }
   initConfigsStorage()
-  const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
-  return fs.readFileSync(sysPath, 'utf-8')
+  try {
+    const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
+    if (fs.existsSync(sysPath)) return fs.readFileSync(sysPath, 'utf-8')
+  } catch {}
+  return DEFAULT_SYSTEM_INSTRUCTION
 }
 
 export async function saveSystemInstruction(content: string): Promise<void> {
@@ -425,18 +431,32 @@ export async function saveSystemInstruction(content: string): Promise<void> {
     return
   }
   initConfigsStorage()
-  const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
-  fs.writeFileSync(sysPath, content, 'utf-8')
+  try {
+    const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
+    fs.writeFileSync(sysPath, content, 'utf-8')
+  } catch {}
 }
-
 
 export async function getTaskPrompt(taskKey: string): Promise<string> {
   if (taskKey === 'system_instruction') return getSystemInstruction()
-  initConfigsStorage()
-  const taskPath = path.join(TASK_PROMPTS_DIR, `${taskKey}.txt`)
-  if (fs.existsSync(taskPath)) {
-    return fs.readFileSync(taskPath, 'utf-8')
+
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('global_configs')
+      .select('value')
+      .eq('key', taskKey)
+      .single()
+    if (!error && data?.value) return data.value
+    return DEFAULT_TASK_PROMPTS[taskKey]?.content || ''
   }
+
+  initConfigsStorage()
+  try {
+    const taskPath = path.join(TASK_PROMPTS_DIR, `${taskKey}.txt`)
+    if (fs.existsSync(taskPath)) {
+      return fs.readFileSync(taskPath, 'utf-8')
+    }
+  } catch {}
   return DEFAULT_TASK_PROMPTS[taskKey]?.content || ''
 }
 
@@ -445,9 +465,21 @@ export async function saveTaskPrompt(taskKey: string, content: string): Promise<
     await saveSystemInstruction(content)
     return
   }
+
+  if (isSupabaseConfigured && supabase) {
+    await supabase.from('global_configs').upsert({
+      key: taskKey,
+      value: content,
+      updatedAt: new Date().toISOString(),
+    })
+    return
+  }
+
   initConfigsStorage()
-  const taskPath = path.join(TASK_PROMPTS_DIR, `${taskKey}.txt`)
-  fs.writeFileSync(taskPath, content, 'utf-8')
+  try {
+    const taskPath = path.join(TASK_PROMPTS_DIR, `${taskKey}.txt`)
+    fs.writeFileSync(taskPath, content, 'utf-8')
+  } catch {}
 }
 
 export async function resetTaskPrompt(taskKey: string): Promise<string> {
@@ -457,13 +489,25 @@ export async function resetTaskPrompt(taskKey: string): Promise<string> {
 }
 
 export async function getAllConfigs(): Promise<Record<string, { label: string; desc: string; content: string; phase?: string; step?: string; standard?: string }>> {
-  initConfigsStorage()
+  let dbConfigsMap: Record<string, string> = {}
+
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase.from('global_configs').select('key, value')
+    if (!error && data) {
+      dbConfigsMap = Object.fromEntries(data.map(d => [d.key, d.value]))
+    }
+  }
+
   const result: Record<string, { label: string; desc: string; content: string; phase?: string; step?: string; standard?: string }> = {}
 
   for (const [key, meta] of Object.entries(DEFAULT_TASK_PROMPTS)) {
+    let content = dbConfigsMap[key]
+    if (!content) {
+      content = await getTaskPrompt(key)
+    }
     result[key] = {
       ...meta,
-      content: await getTaskPrompt(key),
+      content,
     }
   }
 
