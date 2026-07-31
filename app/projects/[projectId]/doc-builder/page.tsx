@@ -461,14 +461,35 @@ export default function DocBuilderPage() {
             <button
               onClick={generateQuestions}
               disabled={loading}
-              className="bg-purple-600 text-white px-7 py-3 rounded-xl text-sm md:text-base font-extrabold hover:bg-purple-500 disabled:opacity-50 transition-all shadow-md"
+              className="bg-purple-600 text-white px-7 py-3 rounded-xl text-sm md:text-base font-extrabold hover:bg-purple-500 disabled:opacity-50 transition-all shadow-md flex items-center gap-2"
             >
               {loading ? (
-                <>Đang sinh bộ câu hỏi đặc tả yêu cầu...</>
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Đang sinh bộ câu hỏi đặc tả yêu cầu...</span>
+                </>
               ) : (
                 <>AI sinh bộ câu hỏi cho {DOC_BUILDER_TYPES[docType]?.label} ➔</>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Progress Loading Overlay Banner when generating questions */}
+      {loading && step === 1 && (
+        <div className="bg-white border-2 border-purple-400 rounded-2xl p-8 text-center space-y-4 shadow-xl animate-pulse">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <h3 className="text-lg md:text-xl font-extrabold text-slate-900">
+              Requirements Analyst Sub-agent đang phân tích & sinh Bộ câu hỏi...
+            </h3>
+          </div>
+          <p className="text-xs md:text-sm text-slate-600 font-semibold max-w-lg mx-auto">
+            AI đang áp dụng các khung bẫy lỗi nghiệp vụ của <strong className="text-purple-900">{DOC_BUILDER_TYPES[docType]?.label}</strong> theo tiêu chuẩn <strong className="text-indigo-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> để phát hiện toàn bộ các khía cạnh còn mơ hồ.
+          </p>
+          <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 h-full w-3/4 rounded-full animate-pulse" />
           </div>
         </div>
       )}
@@ -561,11 +582,18 @@ export default function DocBuilderPage() {
 
       {/* BƯỚC 3: Đang Sinh Tài Liệu */}
       {step === 3 && (
-        <div className="bg-purple-50/70 border-2 border-purple-300 rounded-2xl p-12 text-center space-y-4 shadow-md text-slate-900">
-          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">AI đang biên soạn tài liệu Yêu cầu Phase 1...</h2>
-          <p className="text-xs md:text-sm font-semibold text-slate-700 max-w-md mx-auto">
-            AI đang áp dụng các chuẩn của {DOC_BUILDER_STANDARDS[standard]?.label} để tạo file {docType.toUpperCase()} gốc cho project.
+        <div className="bg-white border-2 border-purple-400 rounded-2xl p-10 text-center space-y-5 shadow-xl animate-pulse text-slate-900">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">AI đang biên soạn tài liệu Yêu cầu Phase 1...</h2>
+          </div>
+          <p className="text-xs md:text-sm font-semibold text-slate-700 max-w-lg mx-auto leading-relaxed">
+            AI đang áp dụng các khung chuẩn của <strong className="text-purple-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> kết hợp câu trả lời phỏng vấn để tổng hợp tạo file <strong className="text-indigo-900">{docType.toUpperCase()} Baseline</strong> hoàn chỉnh.
           </p>
+          <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
+            <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500 h-full w-4/5 rounded-full animate-pulse" />
+          </div>
+          <p className="text-xs font-mono font-bold text-slate-500">Tiến trình: Đang tổng hợp các giả định nghiệp vụ & cấu trúc tiêu chuẩn...</p>
         </div>
       )}
 
