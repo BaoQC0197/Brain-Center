@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { SystemConfigsSkeleton } from '@/app/components/Skeletons'
 
 interface ConfigItem {
   label: string
@@ -102,9 +103,7 @@ export default function SystemConfigsPage() {
     setSaving(false)
   }
 
-  if (loading) {
-    return <div className="text-slate-500 text-xs py-12 text-center font-mono">Đang tải danh mục cấu hình hệ thống...</div>
-  }
+  if (loading) return <SystemConfigsSkeleton />
 
   const currentConfig = configs[activeTab] || { label: activeTab, desc: '', content: '' }
 

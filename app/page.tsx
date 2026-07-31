@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Project } from '@/lib/types'
+import { ProjectSkeletonGrid } from '@/app/components/Skeletons'
 import Link from 'next/link'
 
 function EditProjectModal({
@@ -284,7 +285,7 @@ export default function DashboardPage() {
 
       {/* Project Grid Cards */}
       {loading ? (
-        <div className="py-16 text-center text-slate-600 text-sm font-mono font-bold">Đang tải danh sách dự án...</div>
+        <ProjectSkeletonGrid />
       ) : filteredProjects.length === 0 ? (
         <div className="bg-white border-2 border-slate-300 rounded-2xl p-12 text-center space-y-4 shadow-md">
           <div>

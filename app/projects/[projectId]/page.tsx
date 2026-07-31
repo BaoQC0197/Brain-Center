@@ -15,6 +15,7 @@ import {
 import RawDocsManager from '@/app/components/RawDocsManager'
 import GeneratedDocsManager from '@/app/components/GeneratedDocsManager'
 import DocumentViewer from '@/app/components/DocumentViewer'
+import { ProjectDetailSkeleton } from '@/app/components/Skeletons'
 
 const RAW_DOC_TYPES: { type: RawDocType; label: string; icon: string }[] = [
   { type: 'brd', label: 'BRD - Business Requirements Document', icon: '' },
@@ -828,7 +829,7 @@ export default function ProjectPage() {
     setDocs(prev => prev.filter(d => d.id !== docId))
   }
 
-  if (loading) return <div className="text-slate-500 text-xs py-12 text-center font-mono">Đang tải thông tin dự án...</div>
+  if (loading) return <ProjectDetailSkeleton />
   if (!project) return <div className="text-red-600 py-12 text-center">Dự án không tồn tại</div>
 
   return (

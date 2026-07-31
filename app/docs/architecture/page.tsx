@@ -45,10 +45,13 @@ export default function ArchitectureDocPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-700 font-mono text-sm">
-        <div className="bg-white border-2 border-indigo-300 rounded-2xl p-8 text-center space-y-3 shadow-md">
-          <div className="animate-spin text-2xl">⚡</div>
-          <p className="font-extrabold text-slate-900">Đang tải Tài liệu Kiến trúc Hệ thống QA-Brain...</p>
+      <div className="space-y-6 w-full pb-16 animate-pulse">
+        <div className="h-16 bg-slate-200 rounded-2xl w-full" />
+        <div className="bg-white border-2 border-slate-200 rounded-2xl p-8 space-y-4 shadow-sm">
+          <div className="h-8 bg-slate-200 rounded w-1/3" />
+          <div className="h-4 bg-slate-200 rounded w-full" />
+          <div className="h-4 bg-slate-200 rounded w-4/5" />
+          <div className="h-64 bg-slate-200 rounded-xl w-full" />
         </div>
       </div>
     )
