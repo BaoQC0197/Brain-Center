@@ -434,7 +434,6 @@ export default function DocumentViewer({
               value={editingContent}
               onChange={e => {
                 setEditingContent(e.target.value)
-                if (onSaveContent) onSaveContent(e.target.value)
               }}
               readOnly={!canEdit}
               rows={22}
