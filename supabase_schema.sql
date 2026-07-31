@@ -1,5 +1,7 @@
--- SQL Migration Schema for QA Brain (Supabase PostgreSQL)
+-- ==============================================================================
+-- FULL SQL SCHEMA & MIGRATION FOR QA BRAIN (SUPABASE POSTGRESQL)
 -- Run this script in your Supabase SQL Editor: https://supabase.com/dashboard/project/_/sql
+-- ==============================================================================
 
 -- 1. Projects Table
 CREATE TABLE IF NOT EXISTS public.projects (
@@ -13,8 +15,19 @@ CREATE TABLE IF NOT EXISTS public.projects (
   "prodAdminUrl" TEXT,
   "figmaUrl" TEXT,
   "bugListUrl" TEXT,
-  "createdAt" TEXT NOT NULL
+  "createdAt" TEXT NOT NULL,
+  "updatedAt" TEXT
 );
+
+-- Ensure all columns exist for existing projects table
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "techStack" TEXT;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "stagingUrl" TEXT;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "stagingAdminUrl" TEXT;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "prodUrl" TEXT;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "prodAdminUrl" TEXT;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "figmaUrl" TEXT;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "bugListUrl" TEXT;
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "updatedAt" TEXT;
 
 -- 2. Raw Documents Table (Input docs for Phase 1)
 CREATE TABLE IF NOT EXISTS public.raw_documents (
@@ -23,33 +36,62 @@ CREATE TABLE IF NOT EXISTS public.raw_documents (
   type TEXT NOT NULL,
   name TEXT NOT NULL,
   "textContent" TEXT,
+  "imageBase64" TEXT,
+  "imageMime" TEXT,
+  "audioBase64" TEXT,
+  "audioMime" TEXT,
   "figmaUrl" TEXT,
-  "audioUrl" TEXT,
   "createdAt" TEXT NOT NULL
 );
+
+-- Ensure all columns exist for raw_documents
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "textContent" TEXT;
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "imageBase64" TEXT;
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "imageMime" TEXT;
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "audioBase64" TEXT;
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "audioMime" TEXT;
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "figmaUrl" TEXT;
 
 -- 3. Generated Documents Table (Test plans, Test cases, QA agent outputs)
 CREATE TABLE IF NOT EXISTS public.generated_documents (
   id TEXT PRIMARY KEY,
   "projectId" TEXT NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
-  title TEXT NOT NULL,
+  "inputType" TEXT,
+  "inputSummary" TEXT,
+  version INT DEFAULT 1,
+  "parentDocId" TEXT,
   content JSONB NOT NULL,
-  "rawDocIds" JSONB DEFAULT '[]'::jsonb,
+  scenarios JSONB DEFAULT '[]'::jsonb,
+  "inputData" JSONB DEFAULT '[]'::jsonb,
   "createdAt" TEXT NOT NULL
 );
+
+-- Ensure all columns exist for generated_documents
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "inputType" TEXT;
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "inputSummary" TEXT;
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS version INT DEFAULT 1;
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "parentDocId" TEXT;
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS scenarios JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "inputData" JSONB DEFAULT '[]'::jsonb;
 
 -- 4. Built Documents Table (Doc Builder Agent)
 CREATE TABLE IF NOT EXISTS public.built_documents (
   id TEXT PRIMARY KEY,
   "projectId" TEXT NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
-  type TEXT NOT NULL,
   title TEXT NOT NULL,
-  status TEXT NOT NULL,
-  qa JSONB NOT NULL,
-  "rawDocIds" JSONB DEFAULT '[]'::jsonb,
+  "docType" TEXT NOT NULL,
+  standard TEXT NOT NULL,
+  "contentMarkdown" TEXT NOT NULL,
+  answers JSONB DEFAULT '{}'::jsonb,
   "createdAt" TEXT NOT NULL
 );
+
+-- Ensure all columns exist for built_documents
+ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS "docType" TEXT;
+ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS standard TEXT;
+ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS "contentMarkdown" TEXT;
+ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS answers JSONB DEFAULT '{}'::jsonb;
 
 -- 5. Project Instructions Table
 CREATE TABLE IF NOT EXISTS public.project_instructions (
@@ -58,33 +100,54 @@ CREATE TABLE IF NOT EXISTS public.project_instructions (
   "updatedAt" TEXT NOT NULL
 );
 
--- Row Level Security (RLS) Policies (Enable Public Access for API Keys)
+-- Enable Row Level Security (RLS) Policies
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.raw_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.generated_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.built_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_instructions ENABLE ROW LEVEL SECURITY;
 
+-- Grant Full RLS Policies for Anonymous Key Access
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.projects;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.projects;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.projects;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.projects;
 CREATE POLICY "Allow anonymous read access" ON public.projects FOR SELECT USING (true);
 CREATE POLICY "Allow anonymous insert access" ON public.projects FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.projects FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.projects FOR DELETE USING (true);
 
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.raw_documents;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.raw_documents;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.raw_documents;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.raw_documents;
 CREATE POLICY "Allow anonymous read access" ON public.raw_documents FOR SELECT USING (true);
 CREATE POLICY "Allow anonymous insert access" ON public.raw_documents FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.raw_documents FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.raw_documents FOR DELETE USING (true);
 
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.generated_documents;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.generated_documents;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.generated_documents;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.generated_documents;
 CREATE POLICY "Allow anonymous read access" ON public.generated_documents FOR SELECT USING (true);
 CREATE POLICY "Allow anonymous insert access" ON public.generated_documents FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.generated_documents FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.generated_documents FOR DELETE USING (true);
 
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.built_documents;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.built_documents;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.built_documents;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.built_documents;
 CREATE POLICY "Allow anonymous read access" ON public.built_documents FOR SELECT USING (true);
 CREATE POLICY "Allow anonymous insert access" ON public.built_documents FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.built_documents FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.built_documents FOR DELETE USING (true);
 
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.project_instructions;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.project_instructions;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.project_instructions;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.project_instructions;
 CREATE POLICY "Allow anonymous read access" ON public.project_instructions FOR SELECT USING (true);
 CREATE POLICY "Allow anonymous insert access" ON public.project_instructions FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.project_instructions FOR UPDATE USING (true);
