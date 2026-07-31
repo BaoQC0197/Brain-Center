@@ -193,6 +193,7 @@ export default function DashboardPage() {
   const [form, setForm] = useState({ name: '', description: '', techStack: '', stagingUrl: '', stagingAdminUrl: '', prodUrl: '', prodAdminUrl: '', bugListUrl: '', figmaUrl: '' })
   const [saving, setSaving] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name-asc' | 'name-desc'>('newest')
 
   useEffect(() => {
     fetch('/api/projects')
@@ -216,18 +217,19 @@ export default function DashboardPage() {
     setSaving(false)
   }
 
-
-  async function deleteProject(id: string, name: string) {
-    if (!confirm(`Xoá project "${name}"? Tất cả tài liệu sẽ bị xoá.`)) return
-    await fetch(`/api/projects/${id}`, { method: 'DELETE' })
-    setProjects(prev => prev.filter(p => p.id !== id))
-  }
-
-  const filteredProjects = projects.filter(p => {
-    if (!searchQuery.trim()) return true
-    const q = searchQuery.toLowerCase()
-    return p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))
-  })
+  const filteredProjects = projects
+    .filter(p => {
+      if (!searchQuery.trim()) return true
+      const q = searchQuery.toLowerCase()
+      return p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      if (sortBy === 'name-asc') return a.name.localeCompare(b.name, 'vi')
+      if (sortBy === 'name-desc') return b.name.localeCompare(a.name, 'vi')
+      return 0
+    })
 
   return (
     <div className="space-y-8 w-full pb-12">
@@ -264,14 +266,31 @@ export default function DashboardPage() {
 
       {/* Search & Stats Control Bar */}
       <div className="flex items-center justify-between flex-wrap gap-4 bg-white border-2 border-slate-300 p-4 rounded-2xl shadow-md">
-        <div className="relative flex-1 min-w-[280px] max-w-lg">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Tìm kiếm dự án theo tên, mô tả..."
-            className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
-          />
+        <div className="flex items-center gap-3 flex-1 min-w-[280px] max-w-2xl flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Tìm kiếm dự án theo tên, mô tả..."
+              className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-2 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+            />
+          </div>
+
+          {/* Sort Control Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold text-slate-500 hidden sm:inline">Sắp xếp:</span>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as any)}
+              className="bg-slate-50 border-2 border-slate-300 text-slate-900 text-xs md:text-sm font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="newest">🕒 Mới nhất trước</option>
+              <option value="oldest">⌛ Cũ nhất trước</option>
+              <option value="name-asc">🔤 Tên A ➔ Z</option>
+              <option value="name-desc">🔠 Tên Z ➔ A</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center gap-4 text-xs md:text-sm text-slate-700 font-mono font-bold">
@@ -333,20 +352,10 @@ export default function DashboardPage() {
                         e.stopPropagation()
                         setEditingProject(p)
                       }}
-                      className="text-slate-500 hover:text-indigo-600 p-1 rounded-lg hover:bg-slate-100 transition-colors text-xs font-bold"
+                      className="text-slate-500 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-xs font-bold border border-slate-200"
                       title="Chỉnh sửa dự án"
                     >
-                      Sửa
-                    </button>
-                    <button
-                      onClick={e => {
-                        e.stopPropagation()
-                        deleteProject(p.id, p.name)
-                      }}
-                      className="text-slate-500 hover:text-red-600 p-1 rounded-lg hover:bg-slate-100 transition-colors text-xs font-bold"
-                      title="Xoá project"
-                    >
-                      Xoá
+                      ✏️ Sửa
                     </button>
                   </div>
                 </div>
