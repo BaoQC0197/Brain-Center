@@ -6,6 +6,8 @@ import { isSupabaseConfigured, supabase } from './supabase'
 const STORAGE_DIR = path.join(process.cwd(), 'storage')
 const PROJECTS_FILE = path.join(STORAGE_DIR, 'projects.json')
 
+// ── Local file helpers (only used when Supabase is NOT configured) ──────────
+
 function ensureStorageDir() {
   if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true })
 }
@@ -41,12 +43,23 @@ function getInstructionFile(projectId: string) {
   return path.join(getProjectDir(projectId), 'system_instruction.md')
 }
 
+function ensureProjectDir(projectId: string) {
+  const dir = getProjectDir(projectId)
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+  return dir
+}
+
+// ── Storage API ────────────────────────────────────────────────────────────
+
 export const storage = {
-  // ── Projects ───────────────────────────────────────────────────────────────
+  // ── Projects ──────────────────────────────────────────────────────────────
 
   async getProjects(): Promise<Project[]> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('projects').select('*').order('createdAt', { ascending: false })
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, description, "techStack", "stagingUrl", "stagingAdminUrl", "prodUrl", "prodAdminUrl", "figmaUrl", "bugListUrl", "createdAt", "updatedAt"')
+        .order('createdAt', { ascending: false })
       if (!error && data) return data as Project[]
     }
     return readProjects()
@@ -54,7 +67,11 @@ export const storage = {
 
   async getProject(id: string): Promise<Project | undefined> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from('projects').select('*').eq('id', id).single()
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', id)
+        .single()
       if (!error && data) return data as Project
     }
     return readProjects().find(p => p.id === id)
@@ -64,19 +81,20 @@ export const storage = {
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.from('projects').upsert(project)
       if (error) console.error('Supabase saveProject error:', error)
+      return // skip local file write on Supabase mode
     }
     const projects = readProjects()
     const idx = projects.findIndex(p => p.id === project.id)
     if (idx >= 0) projects[idx] = project
     else projects.push(project)
     writeProjects(projects)
-    const dir = getProjectDir(project.id)
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    ensureProjectDir(project.id)
   },
 
   async deleteProject(id: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
       await supabase.from('projects').delete().eq('id', id)
+      return
     }
     const projects = readProjects().filter(p => p.id !== id)
     writeProjects(projects)
@@ -84,7 +102,7 @@ export const storage = {
     if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
   },
 
-  // ── Generated Documents ────────────────────────────────────────────────────
+  // ── Generated Documents ───────────────────────────────────────────────────
 
   async getDocuments(projectId: string): Promise<GeneratedDocument[]> {
     if (isSupabaseConfigured && supabase) {
@@ -104,25 +122,32 @@ export const storage = {
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.from('generated_documents').upsert(doc)
       if (error) console.error('Supabase saveDocument error:', error)
+      return
     }
-    const dir = getProjectDir(doc.projectId)
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-    const docs = await this.getDocuments(doc.projectId)
+    ensureProjectDir(doc.projectId)
+    const file = getDocsFile(doc.projectId)
+    const docs: GeneratedDocument[] = fs.existsSync(file)
+      ? JSON.parse(fs.readFileSync(file, 'utf-8'))
+      : []
     const idx = docs.findIndex(d => d.id === doc.id)
     if (idx >= 0) docs[idx] = doc
     else docs.unshift(doc)
-    fs.writeFileSync(getDocsFile(doc.projectId), JSON.stringify(docs, null, 2))
+    fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
   async deleteDocument(projectId: string, docId: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
       await supabase.from('generated_documents').delete().eq('id', docId)
+      return
     }
-    const docs = (await this.getDocuments(projectId)).filter(d => d.id !== docId)
-    fs.writeFileSync(getDocsFile(projectId), JSON.stringify(docs, null, 2))
+    const file = getDocsFile(projectId)
+    if (!fs.existsSync(file)) return
+    const docs = (JSON.parse(fs.readFileSync(file, 'utf-8')) as GeneratedDocument[])
+      .filter(d => d.id !== docId)
+    fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
-  // ── Raw Documents ──────────────────────────────────────────────────────────
+  // ── Raw Documents ─────────────────────────────────────────────────────────
 
   async getRawDocuments(projectId: string): Promise<RawDocument[]> {
     if (isSupabaseConfigured && supabase) {
@@ -142,25 +167,32 @@ export const storage = {
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.from('raw_documents').upsert(doc)
       if (error) console.error('Supabase saveRawDocument error:', error)
+      return
     }
-    const dir = getProjectDir(doc.projectId)
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-    const docs = await this.getRawDocuments(doc.projectId)
+    ensureProjectDir(doc.projectId)
+    const file = getRawDocsFile(doc.projectId)
+    const docs: RawDocument[] = fs.existsSync(file)
+      ? JSON.parse(fs.readFileSync(file, 'utf-8'))
+      : []
     const idx = docs.findIndex(d => d.id === doc.id)
     if (idx >= 0) docs[idx] = doc
     else docs.unshift(doc)
-    fs.writeFileSync(getRawDocsFile(doc.projectId), JSON.stringify(docs, null, 2))
+    fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
   async deleteRawDocument(projectId: string, docId: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
       await supabase.from('raw_documents').delete().eq('id', docId)
+      return
     }
-    const docs = (await this.getRawDocuments(projectId)).filter(d => d.id !== docId)
-    fs.writeFileSync(getRawDocsFile(projectId), JSON.stringify(docs, null, 2))
+    const file = getRawDocsFile(projectId)
+    if (!fs.existsSync(file)) return
+    const docs = (JSON.parse(fs.readFileSync(file, 'utf-8')) as RawDocument[])
+      .filter(d => d.id !== docId)
+    fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
-  // ── Built Documents (Doc Builder Agent) ──────────────────────────────────
+  // ── Built Documents (Doc Builder) ─────────────────────────────────────────
 
   async getBuiltDocuments(projectId: string): Promise<BuiltDocument[]> {
     if (isSupabaseConfigured && supabase) {
@@ -180,25 +212,32 @@ export const storage = {
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.from('built_documents').upsert(doc)
       if (error) console.error('Supabase saveBuiltDocument error:', error)
+      return
     }
-    const dir = getProjectDir(doc.projectId)
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-    const docs = await this.getBuiltDocuments(doc.projectId)
+    ensureProjectDir(doc.projectId)
+    const file = getBuiltDocsFile(doc.projectId)
+    const docs: BuiltDocument[] = fs.existsSync(file)
+      ? JSON.parse(fs.readFileSync(file, 'utf-8'))
+      : []
     const idx = docs.findIndex(d => d.id === doc.id)
     if (idx >= 0) docs[idx] = doc
     else docs.unshift(doc)
-    fs.writeFileSync(getBuiltDocsFile(doc.projectId), JSON.stringify(docs, null, 2))
+    fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
   async deleteBuiltDocument(projectId: string, docId: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
       await supabase.from('built_documents').delete().eq('id', docId)
+      return
     }
-    const docs = (await this.getBuiltDocuments(projectId)).filter(d => d.id !== docId)
-    fs.writeFileSync(getBuiltDocsFile(projectId), JSON.stringify(docs, null, 2))
+    const file = getBuiltDocsFile(projectId)
+    if (!fs.existsSync(file)) return
+    const docs = (JSON.parse(fs.readFileSync(file, 'utf-8')) as BuiltDocument[])
+      .filter(d => d.id !== docId)
+    fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
-  // ── System Instruction ─────────────────────────────────────────────────────
+  // ── System Instruction ────────────────────────────────────────────────────
 
   async getInstruction(projectId: string): Promise<string> {
     if (isSupabaseConfigured && supabase) {
@@ -208,6 +247,7 @@ export const storage = {
         .eq('projectId', projectId)
         .single()
       if (!error && data) return data.instruction || ''
+      return ''
     }
     const file = getInstructionFile(projectId)
     if (!fs.existsSync(file)) return ''
@@ -220,9 +260,9 @@ export const storage = {
         .from('project_instructions')
         .upsert({ projectId, instruction: content, updatedAt: new Date().toISOString() })
       if (error) console.error('Supabase saveInstruction error:', error)
+      return
     }
-    const dir = getProjectDir(projectId)
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    ensureProjectDir(projectId)
     fs.writeFileSync(getInstructionFile(projectId), content, 'utf-8')
   },
 }
