@@ -312,10 +312,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-4 text-xs md:text-sm text-slate-700 font-mono font-bold flex-wrap">
-          <div className="hidden sm:flex items-center gap-1.5 bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1.5 rounded-xl text-xs">
-            <span>✋</span> <span>Kéo thả (Drag & Drop) thẻ để đổi vị trí kiểu Trello</span>
-          </div>
-
           <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl border-2 border-slate-300 shadow-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Tổng dự án:</span>
@@ -345,25 +341,27 @@ export default function DashboardPage() {
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
-          {filteredProjects.map(p => (
-            <div
-              key={p.id}
-              draggable
-              onDragStart={e => handleDragStart(e, p.id)}
-              onDragOver={handleDragOver}
-              onDrop={e => handleDrop(e, p.id)}
-              className={`bg-white border-2 p-4.5 sm:p-5 rounded-2xl flex flex-col shadow-sm transition-all group cursor-grab active:cursor-grabbing select-none ${
-                draggedId === p.id
-                  ? 'opacity-40 border-dashed border-indigo-600 bg-indigo-50 scale-95'
-                  : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 hover:shadow-lg'
-              }`}
-            >
-              <div className="space-y-2 flex-1 flex flex-col">
-                <div className="flex items-start justify-between gap-2.5">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center font-extrabold text-indigo-700 shrink-0 text-xs">
-                      ::
-                    </div>
+          {filteredProjects.map(p => {
+            const initialLetter = p.name ? p.name.trim().charAt(0).toUpperCase() : 'P'
+            return (
+              <div
+                key={p.id}
+                draggable
+                onDragStart={e => handleDragStart(e, p.id)}
+                onDragOver={handleDragOver}
+                onDrop={e => handleDrop(e, p.id)}
+                className={`bg-white border-2 p-4.5 sm:p-5 rounded-2xl flex flex-col shadow-sm transition-all group cursor-grab active:cursor-grabbing select-none ${
+                  draggedId === p.id
+                    ? 'opacity-40 border-dashed border-indigo-600 bg-indigo-50 scale-95'
+                    : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 hover:shadow-lg'
+                }`}
+              >
+                <div className="space-y-2 flex-1 flex flex-col">
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center font-black text-indigo-700 shrink-0 text-sm shadow-xs font-mono">
+                        {initialLetter}
+                      </div>
                     <div className="min-w-0">
                       <Link href={`/projects/${p.id}`}>
                         <h3 className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors text-base truncate" title={p.name}>
@@ -513,8 +511,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
             </div>
-
-          ))}
+          )})}
         </div>
       )}
 
