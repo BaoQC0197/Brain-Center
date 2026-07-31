@@ -9,18 +9,29 @@ const PROJECTS_FILE = path.join(STORAGE_DIR, 'projects.json')
 // ── Local file helpers (only used when Supabase is NOT configured) ──────────
 
 function ensureStorageDir() {
-  if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true })
+  if (isSupabaseConfigured) return
+  try {
+    if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true })
+  } catch {}
 }
 
 function readProjects(): Project[] {
+  if (isSupabaseConfigured) return []
   ensureStorageDir()
-  if (!fs.existsSync(PROJECTS_FILE)) return []
-  return JSON.parse(fs.readFileSync(PROJECTS_FILE, 'utf-8'))
+  try {
+    if (!fs.existsSync(PROJECTS_FILE)) return []
+    return JSON.parse(fs.readFileSync(PROJECTS_FILE, 'utf-8'))
+  } catch {
+    return []
+  }
 }
 
 function writeProjects(projects: Project[]) {
+  if (isSupabaseConfigured) return
   ensureStorageDir()
-  fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2))
+  try {
+    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2))
+  } catch {}
 }
 
 function getProjectDir(projectId: string) {
@@ -44,8 +55,11 @@ function getInstructionFile(projectId: string) {
 }
 
 function ensureProjectDir(projectId: string) {
+  if (isSupabaseConfigured) return ''
   const dir = getProjectDir(projectId)
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+  try {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+  } catch {}
   return dir
 }
 
