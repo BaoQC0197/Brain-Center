@@ -91,6 +91,10 @@ export default function DocBuilderPage() {
   }
 
   async function generateQuestions() {
+    if (!initialInput || !initialInput.trim()) {
+      setError('Vui lòng nhập "Mô tả / Yêu cầu ban đầu" để AI có dữ liệu sinh bộ câu hỏi phỏng vấn!')
+      return
+    }
     setLoading(true)
     setError('')
     setRound(1)
@@ -366,7 +370,7 @@ export default function DocBuilderPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="block text-sm md:text-base font-extrabold text-slate-900">
-                  1. Chọn Loại tài liệu Yêu cầu *
+                  1. Chọn Loại tài liệu Yêu cầu <span className="text-red-600 font-bold">*</span>
                 </label>
               </div>
 
@@ -395,7 +399,7 @@ export default function DocBuilderPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="block text-sm md:text-base font-extrabold text-slate-900">
-                  2. Chọn Tiêu chuẩn áp dụng *
+                  2. Chọn Tiêu chuẩn áp dụng <span className="text-red-600 font-bold">*</span>
                 </label>
                 <span className="text-xs md:text-sm text-indigo-800 font-mono font-extrabold bg-indigo-100 px-2.5 py-0.5 rounded-full border border-indigo-300">
                   {DOC_BUILDER_STANDARDS[standard]?.tag}
@@ -438,7 +442,7 @@ export default function DocBuilderPage() {
           {/* Initial Input / Vague Notes */}
           <div className="space-y-2">
             <label className="block text-sm md:text-base font-extrabold text-slate-900">
-              3. Mô tả / Yêu cầu ban đầu để AI bắt đầu Phỏng vấn (Tuỳ chọn)
+              3. Mô tả / Yêu cầu ban đầu để AI bắt đầu Phỏng vấn <span className="text-red-600 font-bold">*</span>
             </label>
             <p className="text-xs md:text-sm text-slate-700 font-medium">Dán các đoạn chat, email, note họp mơ hồ... AI sẽ phân tích để đặt bộ câu hỏi đặc tả còn thiếu</p>
             <textarea
