@@ -40,6 +40,22 @@ async function migrateSystemInstruction() {
       }
     }
 
+    // Sync architecture spec
+    try {
+      const fs = await import('fs')
+      const path = await import('path')
+      const specPath = path.join(process.cwd(), 'storage', 'qa_brain_architecture_and_clarify_subagent_spec.md')
+      if (fs.existsSync(specPath)) {
+        const specContent = fs.readFileSync(specPath, 'utf-8')
+        await supabase.from('global_configs').upsert({
+          key: 'architecture_spec',
+          value: specContent,
+          updatedAt: new Date().toISOString(),
+        })
+        console.log('✅ Architecture Spec synced successfully!')
+      }
+    } catch (e) {}
+
     console.log('🎉 ALL SYSTEM INSTRUCTIONS AND CONFIGS MIGRATED SUCCESSFULLY!')
   } catch (err) {
     console.error('❌ Migration failed:', err)
