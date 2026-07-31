@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS public.generated_documents (
   id TEXT PRIMARY KEY,
   "projectId" TEXT NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
+  title TEXT,
   "inputType" TEXT,
   "inputSummary" TEXT,
   version INT DEFAULT 1,
@@ -68,6 +69,8 @@ CREATE TABLE IF NOT EXISTS public.generated_documents (
 );
 
 -- Ensure all columns exist for generated_documents
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE public.generated_documents ALTER COLUMN title DROP NOT NULL;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "inputType" TEXT;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "inputSummary" TEXT;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS version INT DEFAULT 1;
@@ -80,14 +83,17 @@ CREATE TABLE IF NOT EXISTS public.built_documents (
   id TEXT PRIMARY KEY,
   "projectId" TEXT NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
-  "docType" TEXT NOT NULL,
-  standard TEXT NOT NULL,
+  type TEXT,
+  "docType" TEXT,
+  standard TEXT,
   "contentMarkdown" TEXT NOT NULL,
   answers JSONB DEFAULT '{}'::jsonb,
   "createdAt" TEXT NOT NULL
 );
 
 -- Ensure all columns exist for built_documents
+ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS type TEXT;
+ALTER TABLE public.built_documents ALTER COLUMN type DROP NOT NULL;
 ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS "docType" TEXT;
 ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS standard TEXT;
 ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS "contentMarkdown" TEXT;

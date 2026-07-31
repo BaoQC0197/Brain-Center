@@ -85,7 +85,11 @@ async function migrate() {
         const genDocs = JSON.parse(fs.readFileSync(docsFile, 'utf-8'))
         console.log(`   └ Generated Documents (${genDocs.length}):`)
         for (const doc of genDocs) {
-          const { error } = await supabase.from('generated_documents').upsert(doc)
+          const payload = {
+            ...doc,
+            title: doc.inputSummary || doc.type || 'Untitled Document',
+          }
+          const { error } = await supabase.from('generated_documents').upsert(payload)
           if (error) console.error(`     ❌ ${doc.inputSummary || doc.type}:`, error.message)
           else console.log(`     ✅ ${doc.inputSummary || doc.type} (v${doc.version || 1})`)
         }
@@ -97,7 +101,13 @@ async function migrate() {
         const builtDocs = JSON.parse(fs.readFileSync(builtDocsFile, 'utf-8'))
         console.log(`   └ Built Documents (${builtDocs.length}):`)
         for (const doc of builtDocs) {
-          const { error } = await supabase.from('built_documents').upsert(doc)
+          const payload = {
+            ...doc,
+            type: doc.docType || 'brd',
+            qa: doc.answers || {},
+            status: 'completed',
+          }
+          const { error } = await supabase.from('built_documents').upsert(payload)
           if (error) console.error(`     ❌ ${doc.title}:`, error.message)
           else console.log(`     ✅ ${doc.title}`)
         }
