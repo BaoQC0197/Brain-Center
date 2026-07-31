@@ -24,7 +24,7 @@ export interface AssembledPrompt {
  * Central Prompt Builder Engine
  * Assembles System Instruction + Task Prompt + Project Context + Knowledge Base (Requirements Baseline)
  */
-export function buildAssembledPrompt(input: PromptBuilderInput): AssembledPrompt {
+export async function buildAssembledPrompt(input: PromptBuilderInput): Promise<AssembledPrompt> {
   const {
     taskKey,
     projectContext,
@@ -35,7 +35,7 @@ export function buildAssembledPrompt(input: PromptBuilderInput): AssembledPrompt
   } = input
 
   // 1. Layer 1: System Instruction ("AI là ai?")
-  const globalSystemInstruction = configStorage.getGlobalSystemInstruction()
+  const globalSystemInstruction = await configStorage.getGlobalSystemInstruction()
   let systemPrompt = globalSystemInstruction.trim()
 
   if (projectInstructionOverride && projectInstructionOverride.trim()) {
@@ -43,7 +43,7 @@ export function buildAssembledPrompt(input: PromptBuilderInput): AssembledPrompt
   }
 
   // 2. Layer 2: Task Prompt ("Làm nhiệm vụ gì?")
-  const taskPromptConfig = configStorage.getTaskPrompt(taskKey)
+  const taskPromptConfig = await configStorage.getTaskPrompt(taskKey)
 
   // 3. Layer 3 & 4: Project Context & Knowledge Base Search ("Project hiện tại" & "Requirement/BRD Baseline")
   let userPrompt = `## 1. PROJECT CONTEXT (PROJECT HIỆN TẠI):

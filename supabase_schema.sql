@@ -158,3 +158,22 @@ CREATE POLICY "Allow anonymous read access" ON public.project_instructions FOR S
 CREATE POLICY "Allow anonymous insert access" ON public.project_instructions FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.project_instructions FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.project_instructions FOR DELETE USING (true);
+
+-- 6. Global Configs Table (System Instruction & Task Prompts)
+CREATE TABLE IF NOT EXISTS public.global_configs (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  "updatedAt" TEXT NOT NULL
+);
+
+ALTER TABLE public.global_configs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.global_configs;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.global_configs;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.global_configs;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.global_configs;
+CREATE POLICY "Allow anonymous read access" ON public.global_configs FOR SELECT USING (true);
+CREATE POLICY "Allow anonymous insert access" ON public.global_configs FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow anonymous update access" ON public.global_configs FOR UPDATE USING (true);
+CREATE POLICY "Allow anonymous delete access" ON public.global_configs FOR DELETE USING (true);
+

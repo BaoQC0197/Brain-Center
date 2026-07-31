@@ -1,8 +1,10 @@
 import fs from 'fs'
 import path from 'path'
+import { isSupabaseConfigured, supabase } from './supabase'
 
 const CONFIGS_DIR = path.join(process.cwd(), 'storage', 'configs')
 const TASK_PROMPTS_DIR = path.join(CONFIGS_DIR, 'task_prompts')
+
 
 export const DEFAULT_SYSTEM_INSTRUCTION = `Bạn là Senior QA Engineer / Lead Testing Specialist & Business Analyst Agent hàng đầu.
 Nhiệm vụ của bạn là hỗ trợ kiểm thử phần mềm chuyên nghiệp, xây dựng tài liệu yêu cầu (Requirement Baseline) và thực thi quy trình kiểm thử (QA Testing Lifecycle) đạt tiêu chuẩn ISTQB, IEEE 829 & ISO/IEC/IEEE 29119.
@@ -398,22 +400,39 @@ export function initConfigsStorage() {
   }
 }
 
-export function getSystemInstruction(): string {
+export async function getSystemInstruction(): Promise<string> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('global_configs')
+      .select('value')
+      .eq('key', 'system_instruction')
+      .single()
+    if (!error && data?.value) return data.value
+    return DEFAULT_SYSTEM_INSTRUCTION
+  }
   initConfigsStorage()
   const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
   return fs.readFileSync(sysPath, 'utf-8')
 }
 
-export function saveSystemInstruction(content: string): void {
+export async function saveSystemInstruction(content: string): Promise<void> {
+  if (isSupabaseConfigured && supabase) {
+    await supabase.from('global_configs').upsert({
+      key: 'system_instruction',
+      value: content,
+      updatedAt: new Date().toISOString(),
+    })
+    return
+  }
   initConfigsStorage()
   const sysPath = path.join(CONFIGS_DIR, 'system_instruction.txt')
   fs.writeFileSync(sysPath, content, 'utf-8')
 }
 
-export function getTaskPrompt(taskKey: string): string {
-  initConfigsStorage()
-  if (taskKey === 'system_instruction') return getSystemInstruction()
 
+export async function getTaskPrompt(taskKey: string): Promise<string> {
+  if (taskKey === 'system_instruction') return getSystemInstruction()
+  initConfigsStorage()
   const taskPath = path.join(TASK_PROMPTS_DIR, `${taskKey}.txt`)
   if (fs.existsSync(taskPath)) {
     return fs.readFileSync(taskPath, 'utf-8')
@@ -421,31 +440,30 @@ export function getTaskPrompt(taskKey: string): string {
   return DEFAULT_TASK_PROMPTS[taskKey]?.content || ''
 }
 
-export function saveTaskPrompt(taskKey: string, content: string): void {
-  initConfigsStorage()
+export async function saveTaskPrompt(taskKey: string, content: string): Promise<void> {
   if (taskKey === 'system_instruction') {
-    saveSystemInstruction(content)
+    await saveSystemInstruction(content)
     return
   }
-
+  initConfigsStorage()
   const taskPath = path.join(TASK_PROMPTS_DIR, `${taskKey}.txt`)
   fs.writeFileSync(taskPath, content, 'utf-8')
 }
 
-export function resetTaskPrompt(taskKey: string): string {
+export async function resetTaskPrompt(taskKey: string): Promise<string> {
   const defaultContent = DEFAULT_TASK_PROMPTS[taskKey]?.content || ''
-  saveTaskPrompt(taskKey, defaultContent)
+  await saveTaskPrompt(taskKey, defaultContent)
   return defaultContent
 }
 
-export function getAllConfigs(): Record<string, { label: string; desc: string; content: string; phase?: string; step?: string; standard?: string }> {
+export async function getAllConfigs(): Promise<Record<string, { label: string; desc: string; content: string; phase?: string; step?: string; standard?: string }>> {
   initConfigsStorage()
   const result: Record<string, { label: string; desc: string; content: string; phase?: string; step?: string; standard?: string }> = {}
 
   for (const [key, meta] of Object.entries(DEFAULT_TASK_PROMPTS)) {
     result[key] = {
       ...meta,
-      content: getTaskPrompt(key),
+      content: await getTaskPrompt(key),
     }
   }
 
@@ -460,3 +478,4 @@ export const configStorage = {
   saveTaskPrompt,
   resetConfigToDefault: resetTaskPrompt,
 }
+

@@ -13,14 +13,14 @@ export function getDocTypeTaskKey(docType: DocBuilderType): string {
   }
 }
 
-export function buildQuestionnairePrompt(
+export async function buildQuestionnairePrompt(
   docType: DocBuilderType,
   standard: DocBuilderStandard,
   initialInput: string,
   projectContext: ProjectContext,
   systemInstruction?: string,
   previousAnswersText?: string
-): { systemPrompt: string; userPrompt: string } {
+): Promise<{ systemPrompt: string; userPrompt: string }> {
   const typeMeta = DOC_BUILDER_TYPES[docType] || { label: docType, desc: docType }
   const stdMeta = DOC_BUILDER_STANDARDS[standard] || { label: standard, tag: standard, desc: standard }
   const taskKey = getDocTypeTaskKey(docType)
@@ -79,7 +79,7 @@ Tiêu chuẩn áp dụng: ${stdMeta.label} (${stdMeta.tag})${jsonSchemaFormat}`
   })
 }
 
-export function buildDocumentDraftPrompt(
+export async function buildDocumentDraftPrompt(
   docType: DocBuilderType,
   standard: DocBuilderStandard,
   overview: string,
@@ -88,7 +88,7 @@ export function buildDocumentDraftPrompt(
   projectContext: ProjectContext,
   systemInstruction?: string,
   extraNotes?: string
-): { systemPrompt: string; userPrompt: string } {
+): Promise<{ systemPrompt: string; userPrompt: string }> {
   const typeMeta = DOC_BUILDER_TYPES[docType] || { label: docType, desc: docType }
   const stdMeta = DOC_BUILDER_STANDARDS[standard] || { label: standard, tag: standard, desc: standard }
   const taskKey = getDocTypeTaskKey(docType)

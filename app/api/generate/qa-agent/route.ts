@@ -105,7 +105,7 @@ export async function POST(request: Request) {
   const readable = new ReadableStream({
     async start(controller) {
       try {
-        const stream = createQAAgentStream(
+        const stream = await createQAAgentStream(
           agentType!,
           input!,
           '',

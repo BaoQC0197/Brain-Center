@@ -267,7 +267,7 @@ export async function analyzeRequirements(
   // e.g. test-case → ISTQB EP&BVA schema; test-plan → IEEE 829 14-section structure
   // Map clarify target type → config-storage key (test-cases→test-case, others match)
   const taskKey = targetType === 'test-cases' ? 'test-case' : targetType
-  const taskPromptContent = configStorage.getTaskPrompt(taskKey)
+  const taskPromptContent = await configStorage.getTaskPrompt(taskKey)
 
   const userPrompt = buildClarifyPrompt(input, inputType, targetType, projectContext, systemInstruction, taskPromptContent)
   const text = await callClaude(systemPrompt, userPrompt, imageBase64, imageMime)
@@ -322,7 +322,7 @@ export async function generateDocBuilderQuestions(
   imageMime?: string,
   previousAnswersText?: string
 ): Promise<DocBuilderQuestionnaire> {
-  const { systemPrompt, userPrompt } = buildQuestionnairePrompt(docType, standard, initialInput, projectContext, systemInstruction, previousAnswersText)
+  const { systemPrompt, userPrompt } = await buildQuestionnairePrompt(docType, standard, initialInput, projectContext, systemInstruction, previousAnswersText)
   const text = await callClaude(systemPrompt, userPrompt, imageBase64, imageMime, 'application/json')
   const parsed = parseJson(text)
 
@@ -352,7 +352,7 @@ export async function generateDocBuilderDocument(
   systemInstruction: string = '',
   extraNotes?: string
 ): Promise<string> {
-  const { systemPrompt, userPrompt } = buildDocumentDraftPrompt(
+  const { systemPrompt, userPrompt } = await buildDocumentDraftPrompt(
     docType,
     standard,
     overview,
@@ -369,7 +369,7 @@ export async function generateDocBuilderDocument(
 import { buildQAAgentPrompt } from './prompts/qa-agents'
 import { QAAgentType } from './types'
 
-export function createQAAgentStream(
+export async function createQAAgentStream(
   agentType: QAAgentType,
   inputDocsText: string,
   userPromptText: string,
@@ -379,7 +379,7 @@ export function createQAAgentStream(
   imageBase64?: string,
   imageMime?: string
 ) {
-  const { systemPrompt, userPrompt } = buildQAAgentPrompt(
+  const { systemPrompt, userPrompt } = await buildQAAgentPrompt(
     agentType,
     inputDocsText,
     userPromptText,

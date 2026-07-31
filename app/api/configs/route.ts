@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { configStorage } from '@/lib/config-storage'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
-    const configs = configStorage.getAllConfigs()
+    const configs = await configStorage.getAllConfigs()
     return NextResponse.json({ configs }, { status: 200 })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Lỗi lấy cấu hình hệ thống'
@@ -25,7 +27,7 @@ export async function POST(request: Request) {
     }
 
     if (action === 'reset') {
-      const resetContent = configStorage.resetConfigToDefault(taskKey)
+      const resetContent = await configStorage.resetConfigToDefault(taskKey)
       return NextResponse.json({ success: true, taskKey, content: resetContent }, { status: 200 })
     }
 
@@ -34,9 +36,9 @@ export async function POST(request: Request) {
     }
 
     if (taskKey === 'system_instruction') {
-      configStorage.saveGlobalSystemInstruction(content)
+      await configStorage.saveGlobalSystemInstruction(content)
     } else {
-      configStorage.saveTaskPrompt(taskKey, content)
+      await configStorage.saveTaskPrompt(taskKey, content)
     }
 
     return NextResponse.json({ success: true, taskKey, content }, { status: 200 })
