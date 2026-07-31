@@ -97,29 +97,38 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const artifactPath = path.join(
-    process.cwd(),
-    'storage',
-    'qa_brain_architecture_and_clarify_subagent_spec.md'
-  )
+  try {
+    const body = await request.json()
+    const content = body.content || ''
 
-  const body = await request.json()
-  const content = body.content || ''
+    if (!content) {
+      return NextResponse.json({ error: 'Content is required' }, { status: 400 })
+    }
 
-  if (!content) {
-    return NextResponse.json({ error: 'Content is required' }, { status: 400 })
+    // 1. Save to Supabase if configured
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.from('global_configs').upsert({
+        key: 'architecture_spec',
+        value: content,
+        updatedAt: new Date().toISOString(),
+      })
+      if (error) {
+        console.error('Supabase update architecture_spec error:', error)
+      }
+    }
+
+    // 2. Local File System fallback (only when writeable local dev environment)
+    try {
+      const artifactPath = path.join(
+        process.cwd(),
+        'storage',
+        'qa_brain_architecture_and_clarify_subagent_spec.md'
+      )
+      fs.writeFileSync(artifactPath, content, 'utf-8')
+    } catch {}
+
+    return NextResponse.json({ ok: true, content })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || 'Không thể lưu tài liệu kiến trúc' }, { status: 500 })
   }
-
-  fs.writeFileSync(artifactPath, content, 'utf-8')
-
-  // Sync to brain artifact if exists
-  const brainDir = path.join(
-    process.env.HOME || '/Users/mac',
-    '.gemini/antigravity-ide/brain/7c98f451-eca3-41e3-b350-dc581dcbaebc/qa_brain_architecture_and_clarify_subagent_spec.md'
-  )
-  if (fs.existsSync(brainDir)) {
-    fs.writeFileSync(brainDir, content, 'utf-8')
-  }
-
-  return NextResponse.json({ ok: true, content })
 }
