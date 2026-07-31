@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { configStorage } from '@/lib/config-storage'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,13 +15,14 @@ export async function GET() {
     isSupabaseReady: !!(url && (anonKey || serviceKey)),
   }
 
-  // Try live DB query
-  let dbTest: Record<string, unknown> = { status: 'skipped - Supabase not configured' }
+  let dbTest: Record<string, unknown> = { status: 'skipped' }
+  let globalConfigsTest: Record<string, unknown> = { status: 'skipped' }
 
   if (url && url.startsWith('http') && (serviceKey || anonKey)) {
     try {
       const { createClient } = await import('@supabase/supabase-js')
       const client = createClient(url, serviceKey || anonKey)
+
       const { data, error, count } = await client
         .from('projects')
         .select('id, name, "createdAt"', { count: 'exact' })
@@ -35,10 +37,38 @@ export async function GET() {
           projects: data?.map(p => ({ id: p.id, name: p.name })) ?? [],
         }
       }
+
+      // Query global_configs directly from Supabase
+      const { data: configsData, error: configsError } = await client
+        .from('global_configs')
+        .select('key, "updatedAt"')
+
+      if (configsError) {
+        globalConfigsTest = { status: '❌ Query global_configs failed', error: configsError.message, code: configsError.code }
+      } else {
+        globalConfigsTest = {
+          status: '✅ Connected to global_configs',
+          keysCount: configsData?.length || 0,
+          keys: configsData?.map(c => c.key) || [],
+        }
+      }
     } catch (err: unknown) {
       dbTest = { status: '❌ Exception', error: err instanceof Error ? err.message : String(err) }
     }
   }
 
-  return NextResponse.json({ env: envInfo, dbTest })
+  // Test configStorage.getAllConfigs()
+  let configStorageTest: Record<string, unknown> = {}
+  try {
+    const configs = await configStorage.getAllConfigs()
+    configStorageTest = {
+      keysCount: Object.keys(configs).length,
+      sysInstructionLength: configs['system_instruction']?.content?.length || 0,
+      sysInstructionSnippet: configs['system_instruction']?.content?.slice(0, 50) || '',
+    }
+  } catch (err) {
+    configStorageTest = { error: err instanceof Error ? err.message : String(err) }
+  }
+
+  return NextResponse.json({ env: envInfo, dbTest, globalConfigsTest, configStorageTest })
 }
