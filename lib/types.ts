@@ -56,6 +56,7 @@ export interface Project {
   prodAdminUrl?: string
   bugListUrl?: string
   figmaUrl?: string
+  sortOrder?: number
   createdAt: string
   updatedAt: string
 }

@@ -193,7 +193,7 @@ export default function DashboardPage() {
   const [form, setForm] = useState({ name: '', description: '', techStack: '', stagingUrl: '', stagingAdminUrl: '', prodUrl: '', prodAdminUrl: '', bugListUrl: '', figmaUrl: '' })
   const [saving, setSaving] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name-asc' | 'name-desc'>('newest')
+  const [draggedId, setDraggedId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/projects')
@@ -217,19 +217,54 @@ export default function DashboardPage() {
     setSaving(false)
   }
 
-  const filteredProjects = projects
-    .filter(p => {
-      if (!searchQuery.trim()) return true
-      const q = searchQuery.toLowerCase()
-      return p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))
-    })
-    .sort((a, b) => {
-      if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      if (sortBy === 'name-asc') return a.name.localeCompare(b.name, 'vi')
-      if (sortBy === 'name-desc') return b.name.localeCompare(a.name, 'vi')
-      return 0
-    })
+  const filteredProjects = projects.filter(p => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase()
+    return p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))
+  })
+
+  function handleDragStart(e: React.DragEvent, id: string) {
+    setDraggedId(id)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', id)
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  async function handleDrop(e: React.DragEvent, targetId: string) {
+    e.preventDefault()
+    if (!draggedId || draggedId === targetId) return
+
+    const draggedIndex = projects.findIndex(p => p.id === draggedId)
+    const targetIndex = projects.findIndex(p => p.id === targetId)
+
+    if (draggedIndex < 0 || targetIndex < 0) return
+
+    const newProjects = [...projects]
+    const [removed] = newProjects.splice(draggedIndex, 1)
+    newProjects.splice(targetIndex, 0, removed)
+
+    // Re-assign sortOrder
+    const updatedProjects = newProjects.map((p, idx) => ({ ...p, sortOrder: idx }))
+    setProjects(updatedProjects)
+    setDraggedId(null)
+
+    // Save batch order to API
+    try {
+      await fetch('/api/projects', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orders: updatedProjects.map(p => ({ id: p.id, sortOrder: p.sortOrder })),
+        }),
+      })
+    } catch (err) {
+      console.error('Lỗi cập nhật vị trí dự án:', err)
+    }
+  }
 
   return (
     <div className="space-y-8 w-full pb-12">
@@ -264,36 +299,23 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Search & Stats Control Bar */}
+      {/* Search & Drag Control Bar */}
       <div className="flex items-center justify-between flex-wrap gap-4 bg-white border-2 border-slate-300 p-4 rounded-2xl shadow-md">
-        <div className="flex items-center gap-3 flex-1 min-w-[280px] max-w-2xl flex-wrap">
-          <div className="relative flex-1 min-w-[200px]">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm dự án theo tên, mô tả..."
-              className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-2 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
-            />
-          </div>
-
-          {/* Sort Control Dropdown */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold text-slate-500 hidden sm:inline">Sắp xếp:</span>
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value as any)}
-              className="bg-slate-50 border-2 border-slate-300 text-slate-900 text-xs md:text-sm font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="newest">🕒 Mới nhất trước</option>
-              <option value="oldest">⌛ Cũ nhất trước</option>
-              <option value="name-asc">🔤 Tên A ➔ Z</option>
-              <option value="name-desc">🔠 Tên Z ➔ A</option>
-            </select>
-          </div>
+        <div className="relative flex-1 min-w-[280px] max-w-lg">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Tìm kiếm dự án theo tên, mô tả..."
+            className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+          />
         </div>
 
-        <div className="flex items-center gap-4 text-xs md:text-sm text-slate-700 font-mono font-bold">
+        <div className="flex items-center gap-4 text-xs md:text-sm text-slate-700 font-mono font-bold flex-wrap">
+          <div className="hidden sm:flex items-center gap-1.5 bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1.5 rounded-xl text-xs">
+            <span>✋</span> <span>Kéo thả (Drag & Drop) thẻ để đổi vị trí kiểu Trello</span>
+          </div>
+
           <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl border-2 border-slate-300 shadow-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Tổng dự án:</span>
@@ -326,13 +348,21 @@ export default function DashboardPage() {
           {filteredProjects.map(p => (
             <div
               key={p.id}
-              className="bg-white border-2 border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 p-4.5 sm:p-5 rounded-2xl flex flex-col shadow-sm hover:shadow-lg transition-all group cursor-pointer"
+              draggable
+              onDragStart={e => handleDragStart(e, p.id)}
+              onDragOver={handleDragOver}
+              onDrop={e => handleDrop(e, p.id)}
+              className={`bg-white border-2 p-4.5 sm:p-5 rounded-2xl flex flex-col shadow-sm transition-all group cursor-grab active:cursor-grabbing select-none ${
+                draggedId === p.id
+                  ? 'opacity-40 border-dashed border-indigo-600 bg-indigo-50 scale-95'
+                  : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 hover:shadow-lg'
+              }`}
             >
               <div className="space-y-2 flex-1 flex flex-col">
                 <div className="flex items-start justify-between gap-2.5">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center font-extrabold text-indigo-700 shrink-0 text-xs">
-                      PRJ
+                      ::
                     </div>
                     <div className="min-w-0">
                       <Link href={`/projects/${p.id}`}>

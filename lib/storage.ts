@@ -72,11 +72,27 @@ export const storage = {
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase
         .from('projects')
-        .select('id, name, description, "techStack", "stagingUrl", "stagingAdminUrl", "prodUrl", "prodAdminUrl", "figmaUrl", "bugListUrl", "createdAt", "updatedAt"')
+        .select('id, name, description, "techStack", "stagingUrl", "stagingAdminUrl", "prodUrl", "prodAdminUrl", "figmaUrl", "bugListUrl", "sortOrder", "createdAt", "updatedAt"')
+        .order('sortOrder', { ascending: true })
         .order('createdAt', { ascending: false })
       if (!error && data) return data as Project[]
     }
-    return readProjects()
+    return readProjects().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+  },
+
+  async reorderProjects(orders: { id: string; sortOrder: number }[]): Promise<void> {
+    if (isSupabaseConfigured && supabase) {
+      for (const item of orders) {
+        await supabase.from('projects').update({ sortOrder: item.sortOrder }).eq('id', item.id)
+      }
+      return
+    }
+    const projects = readProjects()
+    for (const item of orders) {
+      const p = projects.find(proj => proj.id === item.id)
+      if (p) p.sortOrder = item.sortOrder
+    }
+    writeProjects(projects)
   },
 
   async getProject(id: string): Promise<Project | undefined> {

@@ -15,9 +15,12 @@ CREATE TABLE IF NOT EXISTS public.projects (
   "prodAdminUrl" TEXT,
   "figmaUrl" TEXT,
   "bugListUrl" TEXT,
+  "sortOrder" INT DEFAULT 0,
   "createdAt" TEXT NOT NULL,
   "updatedAt" TEXT
 );
+
+ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "sortOrder" INT DEFAULT 0;
 
 -- Ensure all columns exist for existing projects table
 ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS "techStack" TEXT;
