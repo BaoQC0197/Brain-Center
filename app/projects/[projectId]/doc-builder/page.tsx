@@ -40,8 +40,19 @@ export default function DocBuilderPage() {
     setStandard(defaultStd)
   }
 
-  // Step 2 states
-  const [questionnaire, setQuestionnaire] = useState<DocBuilderQuestionnaire | null>(null)
+  // Step 2 states (Multi-turn Questionnaire by Round)
+  interface QuestionItem { id: string; section: string; question: string; why?: string }
+  interface RoundHistoryItem {
+    roundNumber: number
+    title: string
+    overview: string
+    questions: QuestionItem[]
+    answersAtSubmission: Record<string, string>
+  }
+
+  const [questionnaireRounds, setQuestionnaireRounds] = useState<RoundHistoryItem[]>([])
+  const [activeTabRound, setActiveTabRound] = useState<number>(1)
+  const [currentQuestions, setCurrentQuestions] = useState<QuestionItem[]>([])
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [extraNotes, setExtraNotes] = useState('')
   const [round, setRound] = useState<number>(1)
@@ -62,11 +73,11 @@ export default function DocBuilderPage() {
     Promise.all([
       fetch(`/api/projects/${projectId}`).then(r => r.json()),
       fetch(`/api/projects/${projectId}/raw-docs`).then(r => r.json()),
-    ]).then(([proj, raws]) => {
+    ]).then(([proj, rDocs]) => {
       setProject(proj)
-      if (Array.isArray(raws)) {
-        setRawDocs(raws)
-        setSelectedRawIds(new Set(raws.map((d: any) => d.id)))
+      if (Array.isArray(rDocs)) {
+        setRawDocs(rDocs)
+        setSelectedRawIds(new Set(rDocs.map((d: RawDocument) => d.id)))
       }
     })
   }, [projectId])
@@ -83,11 +94,10 @@ export default function DocBuilderPage() {
 
   function handleImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (!file) return
-    setImageFile(file)
-    const reader = new FileReader()
-    reader.onload = ev => setImagePreview(ev.target?.result as string)
-    reader.readAsDataURL(file)
+    if (file) {
+      setImageFile(file)
+      setImagePreview(URL.createObjectURL(file))
+    }
   }
 
   async function generateQuestions() {
@@ -123,7 +133,17 @@ export default function DocBuilderPage() {
       }
 
       const { questionnaire: q } = await res.json()
-      setQuestionnaire(q)
+      const round1Item: RoundHistoryItem = {
+        roundNumber: 1,
+        title: q.title || `Bộ câu hỏi phỏng vấn Vòng 1 cho ${docType.toUpperCase()}`,
+        overview: q.overview || '',
+        questions: q.questions || [],
+        answersAtSubmission: {},
+      }
+
+      setQuestionnaireRounds([round1Item])
+      setActiveTabRound(1)
+      setCurrentQuestions(q.questions || [])
 
       const initialAnswers: Record<string, string> = {}
       q.questions.forEach((item: { id: string }) => {
@@ -139,14 +159,21 @@ export default function DocBuilderPage() {
   }
 
   async function generateNextRoundQuestions() {
-    if (!questionnaire) return
+    if (questionnaireRounds.length === 0) return
     setLoading(true)
     setError('')
 
     try {
-      const formattedQA = questionnaire.questions.map(q => {
-        const ans = (answers[q.id] || '').trim() || '(Chưa có câu trả lời từ người dùng)'
-        return `Q: ${q.question}\nA: ${ans}`
+      // Save current round's answers to history
+      setQuestionnaireRounds(prev => prev.map(r => r.roundNumber === round ? { ...r, answersAtSubmission: { ...answers } } : r))
+
+      // Format ALL previous rounds QA for context
+      const formattedQA = questionnaireRounds.flatMap(rItem => {
+        const rAnswers = rItem.roundNumber === round ? answers : rItem.answersAtSubmission
+        return rItem.questions.map(q => {
+          const ans = (rAnswers[q.id] || '').trim() || '(BA/PO chọn thiết kế chuẩn)'
+          return `[Vòng ${rItem.roundNumber}] Q: ${q.question}\nA: ${ans}`
+        })
       }).join('\n\n')
 
       let imageBase64: string | undefined
@@ -174,21 +201,27 @@ export default function DocBuilderPage() {
       }
 
       const { questionnaire: nextQ } = await res.json()
+      const nextRoundNum = round + 1
 
-      setQuestionnaire(prev => {
-        if (!prev) return nextQ
-        return {
-          ...prev,
-          questions: [...prev.questions, ...nextQ.questions],
-        }
-      })
+      const nextRoundItem: RoundHistoryItem = {
+        roundNumber: nextRoundNum,
+        title: nextQ.title || `Bộ câu hỏi phỏng vấn Vòng ${nextRoundNum} cho ${docType.toUpperCase()}`,
+        overview: nextQ.overview || '',
+        questions: nextQ.questions || [],
+        answersAtSubmission: {},
+      }
 
+      setQuestionnaireRounds(prev => [...prev, nextRoundItem])
+      setRound(nextRoundNum)
+      setActiveTabRound(nextRoundNum)
+      setCurrentQuestions(nextQ.questions || [])
+
+      // Init blank answers for new round questions while keeping previous round answers intact
       const newAnswers = { ...answers }
       nextQ.questions.forEach((item: { id: string }) => {
         newAnswers[item.id] = ''
       })
       setAnswers(newAnswers)
-      setRound(prev => prev + 1)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Có lỗi khi sinh bộ câu hỏi Vòng tiếp theo')
     }
@@ -196,12 +229,14 @@ export default function DocBuilderPage() {
   }
 
   async function generateDocumentDraft(customAnswers?: Record<string, string>) {
-    if (!questionnaire) return
+    if (questionnaireRounds.length === 0) return
     setStep(3)
     setLoading(true)
     setError('')
 
     const effectiveAnswers = customAnswers || answers
+    const allQuestions = questionnaireRounds.flatMap(r => r.questions)
+    const activeOverview = questionnaireRounds[0]?.overview || ''
 
     try {
       const res = await fetch('/api/generate/doc-builder/draft', {
@@ -211,9 +246,9 @@ export default function DocBuilderPage() {
           projectId,
           docType,
           standard,
-          overview: questionnaire.overview,
+          overview: activeOverview,
           answers: effectiveAnswers,
-          questions: questionnaire.questions,
+          questions: allQuestions,
           extraNotes,
           saveAsRawDoc: true,
         }),
@@ -494,13 +529,17 @@ export default function DocBuilderPage() {
         </div>
       )}
 
-      {/* BƯỚC 2: AI Sinh Bộ Câu Hỏi & QA/BA Trả Lời */}
-      {step === 2 && questionnaire && (
+      {/* BƯỚC 2: AI Sinh Bộ Câu Hỏi & QA/BA Trả Lời Theo Vòng */}
+      {step === 2 && questionnaireRounds.length > 0 && (
         <div className="bg-purple-50/70 border-2 border-purple-300 rounded-2xl p-6 space-y-6 shadow-md text-slate-900">
-          <div className="flex items-center justify-between border-b-2 border-purple-200 pb-4">
+          <div className="flex items-center justify-between border-b-2 border-purple-200 pb-4 flex-wrap gap-3">
             <div>
-              <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">{questionnaire.title}</h2>
-              <p className="text-xs md:text-sm text-slate-700 mt-1 font-semibold leading-relaxed">{questionnaire.overview}</p>
+              <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">
+                {questionnaireRounds[activeTabRound - 1]?.title || `Bộ câu hỏi phỏng vấn Vòng ${activeTabRound}`}
+              </h2>
+              <p className="text-xs md:text-sm text-slate-700 mt-1 font-semibold leading-relaxed">
+                {questionnaireRounds[activeTabRound - 1]?.overview}
+              </p>
             </div>
             <button
               onClick={() => setStep(1)}
@@ -510,12 +549,50 @@ export default function DocBuilderPage() {
             </button>
           </div>
 
-          <div className="space-y-4">
-            <p className="text-sm md:text-base font-extrabold text-purple-900">
-              Danh sách câu hỏi thu thập đặc tả ({questionnaire.questions.length} mục) — Xác nhận hoặc bổ sung câu trả lời:
-            </p>
+          {/* Round Selector Tabs */}
+          <div className="flex items-center gap-2 border-b-2 border-purple-200 pb-3 flex-wrap">
+            <span className="text-xs md:text-sm font-extrabold text-purple-950 font-mono uppercase tracking-wide mr-2">
+              Các vòng phỏng vấn:
+            </span>
+            {questionnaireRounds.map(rItem => {
+              const isActive = activeTabRound === rItem.roundNumber
+              const isCurrentActiveRound = round === rItem.roundNumber
+              return (
+                <button
+                  key={rItem.roundNumber}
+                  type="button"
+                  onClick={() => setActiveTabRound(rItem.roundNumber)}
+                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold border-2 transition-all flex items-center gap-1.5 ${
+                    isActive
+                      ? 'bg-purple-600 border-purple-700 text-white shadow-md scale-105'
+                      : 'bg-white border-slate-300 text-slate-700 hover:bg-purple-100'
+                  }`}
+                >
+                  <span>💬 Vòng {rItem.roundNumber}</span>
+                  {isCurrentActiveRound && (
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-extrabold ${isActive ? 'bg-white/30 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}`}>
+                      Đang phỏng vấn
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
 
-            {questionnaire.questions.map((q) => (
+          {/* Questions of Active Tab Round */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <p className="text-sm md:text-base font-extrabold text-purple-900">
+                Câu hỏi Vòng {activeTabRound} ({questionnaireRounds[activeTabRound - 1]?.questions.length || 0} mục) — {activeTabRound < round ? 'Lịch sử đáp án đã ghi nhận:' : 'Xác nhận hoặc bổ sung câu trả lời:'}
+              </p>
+              {activeTabRound < round && (
+                <span className="text-xs bg-amber-100 text-amber-950 border border-amber-300 px-3 py-1 rounded-lg font-mono font-bold">
+                  🔒 Đã hoàn thành Vòng {activeTabRound}
+                </span>
+              )}
+            </div>
+
+            {questionnaireRounds[activeTabRound - 1]?.questions.map((q) => (
               <div key={q.id} className="bg-white border-2 border-purple-200 rounded-xl p-5 space-y-3 shadow-xs">
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <span className="font-mono text-xs font-extrabold text-purple-900 bg-purple-100 border border-purple-300 px-2.5 py-0.5 rounded-md">{q.id}</span>
@@ -535,24 +612,26 @@ export default function DocBuilderPage() {
               </div>
             ))}
 
-            <div className="space-y-1">
-              <label className="block text-xs md:text-sm font-extrabold text-slate-900">Ghi chú bổ sung khác (Tuỳ chọn)</label>
-              <textarea
-                value={extraNotes}
-                onChange={e => setExtraNotes(e.target.value)}
-                placeholder="Yêu cầu thêm về thuật ngữ, quy định nghiệp vụ riêng..."
-                rows={2}
-                className="w-full bg-white border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
-              />
-            </div>
+            {activeTabRound === round && (
+              <div className="space-y-1 pt-2">
+                <label className="block text-xs md:text-sm font-extrabold text-slate-900">Ghi chú bổ sung khác (Tuỳ chọn)</label>
+                <textarea
+                  value={extraNotes}
+                  onChange={e => setExtraNotes(e.target.value)}
+                  placeholder="Yêu cầu thêm về thuật ngữ, quy định nghiệp vụ riêng..."
+                  rows={2}
+                  className="w-full bg-white border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
+                />
+              </div>
+            )}
           </div>
 
           {/* Multi-Turn Elicitation Action Bar */}
           <div className="flex gap-3 justify-between items-center pt-4 border-t-2 border-purple-200 flex-wrap">
             <div className="flex items-center gap-2 text-xs md:text-sm font-extrabold text-purple-900 bg-purple-100 border border-purple-300 px-3.5 py-1.5 rounded-xl font-mono">
-              <span>💬 Phỏng vấn Vòng {round}</span>
+              <span>💬 Đang ở Vòng {round}</span>
               <span>•</span>
-              <span>{questionnaire.questions.length} câu hỏi đặc tả</span>
+              <span>Tổng {questionnaireRounds.flatMap(r => r.questions).length} câu hỏi qua {round} vòng</span>
             </div>
 
             <div className="flex gap-3 flex-wrap">
