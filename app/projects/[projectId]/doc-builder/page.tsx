@@ -368,9 +368,6 @@ export default function DocBuilderPage() {
                 <label className="block text-sm md:text-base font-extrabold text-slate-900">
                   1. Chọn Loại tài liệu Yêu cầu *
                 </label>
-                <span className="text-xs md:text-sm text-purple-800 font-mono font-extrabold bg-purple-100 px-2.5 py-0.5 rounded-full border border-purple-300">
-                  {DOC_BUILDER_TYPES[docType]?.label}
-                </span>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -441,7 +438,7 @@ export default function DocBuilderPage() {
           {/* Initial Input / Vague Notes */}
           <div className="space-y-2">
             <label className="block text-sm md:text-base font-extrabold text-slate-900">
-              3. Ghi chú mơ hồ / Yêu cầu ban đầu từ đối tác (Tuỳ chọn)
+              3. Mô tả / Yêu cầu ban đầu để AI bắt đầu Phỏng vấn (Tuỳ chọn)
             </label>
             <p className="text-xs md:text-sm text-slate-700 font-medium">Dán các đoạn chat, email, note họp mơ hồ... AI sẽ phân tích để đặt bộ câu hỏi đặc tả còn thiếu</p>
             <textarea
