@@ -1,0 +1,622 @@
+'use client'
+
+import { useState, useEffect, useMemo } from 'react'
+import { marked } from 'marked'
+import { formatTestPlanToMarkdown, formatTestCasesToMarkdown, preprocessMarkdown, processMermaidCodeBlocks } from '@/lib/html-export'
+
+interface DocumentViewerProps {
+  content: string
+  docType?: string
+  title?: string
+  version?: number
+  createdAt?: string
+  projectId?: string
+  docId?: string
+  audioBase64?: string
+  isEditable?: boolean
+  onClose?: () => void
+  onSaveContent?: (newContent: string) => void
+}
+
+export default function DocumentViewer({
+  content,
+  docType = 'DOCUMENT',
+  title,
+  version = 1,
+  createdAt,
+  projectId,
+  docId,
+  audioBase64,
+  isEditable = false,
+  onClose,
+  onSaveContent,
+}: DocumentViewerProps) {
+
+  const [activeTab, setActiveTab] = useState<'formatted' | 'raw'>('formatted')
+
+  const normalizedContent = useMemo(() => {
+    if (!content) return ''
+    if (docType === 'test-plan') {
+      return formatTestPlanToMarkdown(content)
+    }
+    if (docType === 'test-case' || docType === 'test-cases' || docType === 'test-scenario') {
+      return formatTestCasesToMarkdown(content)
+    }
+    if (typeof content === 'string' && content.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(content)
+        if (parsed && typeof parsed === 'object') {
+          if ('scenarios' in parsed || 'testCases' in parsed || 'cases' in parsed) {
+            return formatTestCasesToMarkdown(parsed)
+          }
+          if ('testStrategy' in parsed || 'featuresToTest' in parsed || 'entryExitCriteria' in parsed || 'risks' in parsed) {
+            return formatTestPlanToMarkdown(parsed)
+          }
+        }
+      } catch {}
+    }
+    return content
+  }, [content, docType])
+
+  const [editingContent, setEditingContent] = useState(normalizedContent)
+  const [copied, setCopied] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [savedSuccess, setSavedSuccess] = useState(false)
+
+  useEffect(() => {
+    setEditingContent(normalizedContent)
+  }, [normalizedContent])
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && onClose) {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
+  const canEdit = isEditable || Boolean(onSaveContent) || Boolean(projectId && docId)
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      if (onSaveContent) {
+        await onSaveContent(editingContent)
+      } else if (projectId && docId) {
+        const res = await fetch(`/api/projects/${projectId}/documents/${docId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: editingContent }),
+        })
+        if (!res.ok) throw new Error('Lỗi cập nhật tài liệu')
+      }
+      setSavedSuccess(true)
+      setTimeout(() => setSavedSuccess(false), 2500)
+    } catch (err) {
+      console.error(err)
+    }
+    setSaving(false)
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!(window as any).mermaid) {
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js'
+      script.onload = () => {
+        ;(window as any).mermaid?.initialize({ startOnLoad: true, theme: 'default' })
+        ;(window as any).mermaid?.run()
+      }
+      document.head.appendChild(script)
+    } else {
+      setTimeout(() => {
+        try {
+          ;(window as any).mermaid?.run()
+        } catch {}
+      }, 100)
+    }
+  }, [content, editingContent, activeTab, normalizedContent])
+
+  const parsedHtml = useMemo(() => {
+    const source = activeTab === 'raw' ? editingContent : normalizedContent
+    if (!source || typeof source !== 'string') return '<p class="text-slate-500 italic">Không có nội dung đặc tả</p>'
+    try {
+      const processed = preprocessMarkdown(source)
+      const rawHtml = marked.parse(processed) as string
+      return processMermaidCodeBlocks(rawHtml)
+    } catch {
+      return `<pre class="text-xs text-red-600 font-mono">${source}</pre>`
+    }
+  }, [content, editingContent, activeTab, normalizedContent])
+
+  function handleCopy() {
+    navigator.clipboard.writeText(editingContent)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  function handleDownload() {
+    const blob = new Blob([editingContent], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${docType.toUpperCase()}_${new Date().toISOString().slice(0, 10)}.md`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function handleDownloadWord() {
+    const wordHtml = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="utf-8">
+        <title>${title || docType}</title>
+        <style>
+          body { font-family: Calibri, Arial, sans-serif; line-height: 1.5; font-size: 11pt; color: #1e293b; }
+          h1 { font-size: 18pt; color: #1f4e78; border-bottom: 2pt solid #1f4e78; padding-bottom: 4pt; }
+          h2 { font-size: 14pt; color: #2e75b6; border-bottom: 1pt solid #d9d9d9; margin-top: 14pt; }
+          h3 { font-size: 12pt; color: #1f4e78; }
+          table { border-collapse: collapse; width: 100%; margin-top: 10pt; margin-bottom: 10pt; }
+          th, td { border: 1pt solid #d9d9d9; padding: 6pt; text-align: left; }
+          th { background-color: #f2f2f2; font-weight: bold; }
+          pre, code { font-family: Consolas, monospace; background-color: #f4f4f4; }
+        </style>
+      </head>
+      <body>
+        <h1>${title || docType.toUpperCase()}</h1>
+        <p style="color:#595959; font-size:9pt;">Version v${version} • ${createdAt ? new Date(createdAt).toLocaleString('vi-VN') : ''}</p>
+        <hr/>
+        ${parsedHtml}
+      </body>
+      </html>
+    `
+    const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${docType.toUpperCase()}_${new Date().toISOString().slice(0, 10)}.doc`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function handleDownloadExcel() {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(parsedHtml, 'text/html')
+    const tables = doc.querySelectorAll('table')
+
+    let csvContent = '\ufeff'
+    if (tables.length > 0) {
+      tables.forEach((table, tableIdx) => {
+        csvContent += `--- BẢNG ${tableIdx + 1} ---\n`
+        const rows = table.querySelectorAll('tr')
+        rows.forEach(row => {
+          const cols = row.querySelectorAll('th, td')
+          const rowData = Array.from(cols).map(c => `"${c.textContent?.trim().replace(/"/g, '""') || ''}"`).join(',')
+          csvContent += rowData + '\n'
+        })
+        csvContent += '\n'
+      })
+    } else {
+      const lines = editingContent.split('\n')
+      lines.forEach(l => {
+        csvContent += `"${l.replace(/"/g, '""')}"\n`
+      })
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${docType.toUpperCase()}_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function handlePrint() {
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${title || docType}</title>
+        <style>
+          body { font-family: -apple-system, sans-serif; padding: 24px; color: #1e293b; line-height: 1.6; }
+          h1, h2, h3 { color: #0f172a; }
+          h1 { border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+          h2 { border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-top: 24px; }
+          table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+          th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+          th { background: #f8fafc; }
+          pre { background: #f1f5f9; padding: 12px; border-radius: 6px; overflow-x: auto; }
+          code { font-family: monospace; background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
+          .alert-box { padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #4f46e5; background: #f8fafc; }
+        </style>
+      </head>
+      <body>
+        <h1>${title || docType.toUpperCase()}</h1>
+        <div style="margin-bottom: 24px; color: #64748b; font-size: 14px;">
+          Version v${version} • ${createdAt ? new Date(createdAt).toLocaleString('vi-VN') : ''}
+        </div>
+        ${parsedHtml}
+      </body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+    }, 250)
+  }
+
+  const [showExportMenu, setShowExportMenu] = useState(false)
+
+  return (
+    <div className="bg-white border-2 border-indigo-400 rounded-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col h-full">
+      {/* Action Bar Header */}
+      <div className="bg-slate-100 border-b-2 border-slate-300 p-4 flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          {/* Tab Switcher */}
+          <div className="bg-white p-1 rounded-xl border-2 border-slate-300 flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab('formatted')}
+              className={`px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
+                activeTab === 'formatted'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-700 hover:text-slate-900'
+              }`}
+            >
+              Xem HTML Formatted
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('raw')}
+              className={`px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
+                activeTab === 'raw'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-700 hover:text-slate-900'
+              }`}
+            >
+              {canEdit ? 'Chỉnh sửa Markdown' : 'Xem Raw Markdown'}
+            </button>
+          </div>
+
+          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-full font-mono font-extrabold">
+            {docType.toUpperCase()}
+          </span>
+          {version && (
+            <span className="text-xs bg-white text-slate-800 border border-slate-300 px-2.5 py-0.5 rounded font-mono font-extrabold">
+              v{version}
+            </span>
+          )}
+        </div>
+
+        {/* Streamlined Action Controls */}
+        <div className="flex items-center gap-2 flex-wrap text-xs md:text-sm">
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('raw')}
+              className={`px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs flex items-center gap-1.5 border-2 ${
+                activeTab === 'raw'
+                  ? 'bg-amber-500 text-white border-amber-600'
+                  : 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+              }`}
+              title="Chỉnh sửa nội dung văn bản"
+            >
+              <span>✏️ Edit</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="bg-white text-slate-800 hover:bg-slate-100 border-2 border-slate-300 px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs"
+          >
+            {copied ? '✓ Đã copy!' : '📋 Copy'}
+          </button>
+
+          {/* Clean Export Dropdown Menu */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="bg-indigo-50 text-indigo-900 hover:bg-indigo-100 border-2 border-indigo-300 px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs flex items-center gap-1.5"
+            >
+              <span>📥 Export</span>
+              <span className="text-[10px]">▾</span>
+            </button>
+
+            {showExportMenu && (
+              <div
+                className="absolute right-0 mt-2 w-48 bg-white border-2 border-slate-300 rounded-xl shadow-xl z-50 p-1 space-y-0.5 text-xs font-bold"
+                onClick={() => setShowExportMenu(false)}
+              >
+                <button
+                  type="button"
+                  onClick={handleDownloadWord}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2"
+                >
+                  <span>📄</span> Word (.doc)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadExcel}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2"
+                >
+                  <span>📊</span> CSV / Excel (.csv)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2"
+                >
+                  <span>📝</span> Markdown (.md)
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 border-t border-slate-100 mt-1 pt-1"
+                >
+                  <span>🖨️</span> In / Xuất PDF
+                </button>
+              </div>
+            )}
+          </div>
+
+          {projectId && docId && (
+            <a
+              href={`/api/projects/${projectId}/documents/${docId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-indigo-600 text-white hover:bg-indigo-500 px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs"
+            >
+              <span>Mở HTML đầy đủ</span>
+
+            </a>
+          )}
+
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-slate-200 hover:bg-slate-300 text-slate-800 border-2 border-slate-300 px-3.5 py-1.5 rounded-xl font-extrabold transition-all ml-1"
+              title="Đóng popup (Esc)"
+            >
+              ✕ Đóng
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Display Area */}
+      <div className="p-6 bg-white flex-1 overflow-y-auto space-y-4">
+        {audioBase64 && (
+          <div className="bg-teal-50 border-2 border-teal-300 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+            <div className="flex items-center gap-2 text-teal-900 font-mono font-extrabold text-xs md:text-sm">
+              <span className="text-lg">🎙️</span>
+              <span>Ghi âm cuộc họp gốc (Audio Record):</span>
+            </div>
+            <audio controls src={audioBase64} className="h-10 rounded-lg max-w-full" />
+          </div>
+        )}
+
+        {activeTab === 'formatted' ? (
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
+            <article
+              className="doc-rendered-html text-slate-900 text-sm leading-relaxed space-y-4"
+              dangerouslySetInnerHTML={{ __html: parsedHtml }}
+            />
+          </div>
+        ) : (
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-xl text-xs font-bold text-amber-900">
+              <span className="flex items-center gap-1.5">
+                <span>💡</span>
+                <span>Bạn đang ở chế độ <b>Chỉnh sửa trực tiếp</b>. Chỉnh sửa xong bấm nút <b>"💾 Lưu Thay đổi"</b>.</span>
+              </span>
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg font-extrabold transition-all shadow-xs disabled:opacity-50 text-xs"
+                >
+                  {saving ? 'Đang lưu...' : savedSuccess ? '✓ Đã lưu!' : '💾 Lưu Ngay'}
+                </button>
+              )}
+            </div>
+            <textarea
+              value={editingContent}
+              onChange={e => {
+                setEditingContent(e.target.value)
+                if (onSaveContent) onSaveContent(e.target.value)
+              }}
+              readOnly={!canEdit}
+              rows={22}
+
+              className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-4 font-mono text-xs text-slate-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y"
+              placeholder="Nội dung Markdown..."
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Custom Styles for Formatted Markdown HTML rendering inside Light Theme */}
+      <style jsx global>{`
+        .doc-rendered-html h1 {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #0f172a;
+          margin-top: 1.75rem;
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 2px solid #e2e8f0;
+        }
+        .doc-rendered-html h1:first-child {
+          margin-top: 0;
+        }
+        .doc-rendered-html h2 {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #1e293b;
+          margin-top: 1.5rem;
+          margin-bottom: 0.75rem;
+          padding-bottom: 0.35rem;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .doc-rendered-html h3 {
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: #4f46e5;
+          margin-top: 1.25rem;
+          margin-bottom: 0.5rem;
+        }
+        .doc-rendered-html h4 {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #475569;
+          margin-top: 1rem;
+          margin-bottom: 0.5rem;
+        }
+        .doc-rendered-html p {
+          margin-bottom: 0.85rem;
+          color: #334155;
+          line-height: 1.7;
+        }
+        .doc-rendered-html ul,
+        .doc-rendered-html ol {
+          margin-bottom: 1rem;
+          padding-left: 1.5rem;
+          color: #334155;
+        }
+        .doc-rendered-html ul {
+          list-style-type: disc;
+        }
+        .doc-rendered-html ol {
+          list-style-type: decimal;
+        }
+        .doc-rendered-html li {
+          margin-bottom: 0.35rem;
+          line-height: 1.6;
+        }
+        .doc-rendered-html hr {
+          border: 0;
+          height: 1px;
+          background: #e2e8f0;
+          margin: 1.5rem 0;
+        }
+        .doc-rendered-html blockquote {
+          border-left: 4px solid #4f46e5;
+          background: #f1f5f9;
+          padding: 0.75rem 1rem;
+          margin: 1rem 0;
+          border-radius: 0 0.5rem 0.5rem 0;
+          color: #475569;
+          font-style: italic;
+        }
+        .doc-rendered-html code {
+          background: #f1f5f9;
+          color: #4338ca;
+          padding: 0.2rem 0.4rem;
+          border-radius: 0.375rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-size: 0.85em;
+          border: 1px solid #e2e8f0;
+        }
+        .doc-rendered-html pre {
+          background: #f8fafc;
+          color: #0f172a;
+          padding: 1rem;
+          border-radius: 0.75rem;
+          overflow-x: auto;
+          margin: 1rem 0;
+          border: 1px solid #e2e8f0;
+        }
+        .doc-rendered-html pre code {
+          background: transparent;
+          color: inherit;
+          padding: 0;
+          border: none;
+          font-size: 0.85rem;
+        }
+        .doc-rendered-html table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 1.25rem 0;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          border: 1px solid #e2e8f0;
+          font-size: 0.875rem;
+        }
+        .doc-rendered-html th {
+          background: #f1f5f9;
+          color: #0f172a;
+          font-weight: 700;
+          padding: 0.65rem 0.85rem;
+          text-align: left;
+          border-bottom: 2px solid #e2e8f0;
+          border-right: 1px solid #e2e8f0;
+        }
+        .doc-rendered-html th:last-child {
+          border-right: none;
+        }
+        .doc-rendered-html td {
+          padding: 0.65rem 0.85rem;
+          border-bottom: 1px solid #e2e8f0;
+          border-right: 1px solid #e2e8f0;
+          color: #334155;
+          vertical-align: top;
+        }
+        .doc-rendered-html td:last-child {
+          border-right: none;
+        }
+        .doc-rendered-html tr:last-child td {
+          border-bottom: none;
+        }
+        .doc-rendered-html tr:nth-child(even) td {
+          background: #f8fafc;
+        }
+        .doc-rendered-html tr:hover td {
+          background: #f1f5f9;
+        }
+        .doc-rendered-html .alert-box {
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          margin: 1rem 0;
+          font-size: 0.875rem;
+          border-left: 4px solid;
+        }
+        .doc-rendered-html .alert-note {
+          background: #eff6ff;
+          border-color: #3b82f6;
+          color: #1e40af;
+        }
+        .doc-rendered-html .alert-warning {
+          background: #fffbeb;
+          border-color: #f59e0b;
+          color: #92400e;
+        }
+        .doc-rendered-html .alert-important {
+          background: #faf5ff;
+          border-color: #a855f7;
+          color: #6b21a8;
+        }
+        .doc-rendered-html .alert-tip {
+          background: #f0fdf4;
+          border-color: #22c55e;
+          color: #166534;
+        }
+        .doc-rendered-html .alert-caution {
+          background: #fef2f2;
+          border-color: #ef4444;
+          color: #991b1b;
+        }
+      `}</style>
+    </div>
+  )
+}
