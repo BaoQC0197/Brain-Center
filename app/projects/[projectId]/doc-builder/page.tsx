@@ -16,6 +16,7 @@ import {
   DOC_TYPE_RECOMMENDED_STANDARDS,
 } from '@/lib/types'
 
+import { DocBuilderSkeleton } from '@/app/components/Skeletons'
 import DocumentViewer from '@/app/components/DocumentViewer'
 
 export default function DocBuilderPage() {
@@ -281,7 +282,7 @@ export default function DocBuilderPage() {
   }
 
   if (!project) {
-    return <div className="text-slate-600 text-sm py-12 text-center font-mono font-bold">Đang tải dự án...</div>
+    return <DocBuilderSkeleton />
   }
 
   return (
@@ -289,9 +290,9 @@ export default function DocBuilderPage() {
       {/* Breadcrumb & Navigation Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2 text-xs md:text-sm text-slate-700 font-mono font-bold">
-          <Link href="/" className="hover:text-purple-700 transition-colors">Projects</Link>
+          <Link href="/" className="hover:text-indigo-600 transition-colors">Projects</Link>
           <span>/</span>
-          <Link href={`/projects/${projectId}`} className="hover:text-purple-700 transition-colors">{project.name}</Link>
+          <Link href={`/projects/${projectId}`} className="hover:text-indigo-600 transition-colors">{project.name}</Link>
           <span>/</span>
           <span className="text-slate-900 font-extrabold">Doc Builder Agent</span>
         </div>
@@ -305,16 +306,16 @@ export default function DocBuilderPage() {
       </div>
 
       {/* Header Banner */}
-      <div className="bg-purple-50/90 border-2 border-purple-400 border-l-8 border-l-purple-600 rounded-2xl p-6 shadow-md text-slate-900">
+      <div className="bg-gradient-to-r from-indigo-50 via-sky-50 to-indigo-100 border-2 border-indigo-300 border-l-8 border-l-indigo-600 rounded-2xl p-6 shadow-sm text-slate-900">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-xs md:text-sm bg-purple-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-xs">
+              <span className="text-xs md:text-sm bg-indigo-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-xs">
                 Phase 1 Baseline Builder
               </span>
-              <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Document Builder Agent (Yêu cầu & Đặc tả sản phẩm)</h1>
+              <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Document Builder Agent (Yêu cầu & Đặc tả)</h1>
             </div>
-            <p className="text-xs md:text-sm text-slate-700 mt-2 font-bold leading-relaxed">
+            <p className="text-xs md:text-sm text-slate-700 mt-2 font-semibold leading-relaxed">
               Xây dựng tài liệu Yêu cầu chuẩn mực (BRD, SRS, User Story, Epic, API Spec) khi chưa có doc hoặc thông tin mơ hồ từ đối tác
             </p>
           </div>
@@ -323,16 +324,16 @@ export default function DocBuilderPage() {
         {/* Step Wizard Progress Bar */}
         <div className="mt-6 grid grid-cols-4 gap-2.5 text-xs md:text-sm">
           {[
-            { s: 1, label: '1. Chọn loại doc Yêu cầu' },
-            { s: 2, label: '2. Sinh & trả lời câu hỏi' },
-            { s: 3, label: '3. AI tổng hợp doc' },
-            { s: 4, label: '4. Review & lưu Baseline' },
+            { s: 1, label: '1. Chọn loại doc' },
+            { s: 2, label: '2. Phỏng vấn' },
+            { s: 3, label: '3. AI tổng hợp' },
+            { s: 4, label: '4. Baseline' },
           ].map(item => (
             <div
               key={item.s}
               className={`flex items-center justify-center py-2.5 px-3 rounded-xl border-2 font-extrabold transition-all shadow-xs ${
                 step === item.s
-                  ? 'bg-purple-600 border-purple-700 text-white shadow-sm'
+                  ? 'bg-indigo-600 border-indigo-700 text-white shadow-sm'
                   : step > item.s
                   ? 'bg-emerald-100 border-emerald-400 text-emerald-900'
                   : 'bg-white border-slate-300 text-slate-500'
@@ -353,16 +354,16 @@ export default function DocBuilderPage() {
 
       {/* BƯỚC 1: Chọn Loại Tài liệu Yêu cầu & Tiêu chuẩn */}
       {step === 1 && (
-        <div className="bg-purple-50/70 border-2 border-purple-300 rounded-2xl p-6 space-y-6 shadow-md text-slate-900">
+        <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-6 space-y-6 shadow-sm text-slate-900">
           {/* Phase 1 Baseline & Audio Meeting Record Context Reference Selector */}
           {rawDocs.length > 0 && (
-            <div className="bg-white border-2 border-purple-300 rounded-2xl p-5 space-y-3 shadow-xs">
+            <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 space-y-3 shadow-xs">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="text-xs md:text-sm font-extrabold font-mono text-purple-950 uppercase tracking-wide flex items-center gap-1.5">
-                  <span>📌 AI đang tự động tham chiếu các tài liệu Baseline & Ghi âm cuộc họp ({selectedRawIds.size}/{rawDocs.length} Docs):</span>
+                <span className="text-xs md:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                  <span>📌 Dữ liệu tham chiếu ({selectedRawIds.size}/{rawDocs.length} tài liệu)</span>
                 </span>
-                <span className="text-[10px] md:text-xs bg-purple-100 text-purple-900 border border-purple-300 px-2.5 py-0.5 rounded-full font-mono font-bold">
-                  Bật/tắt để chọn ngữ cảnh
+                <span className="text-[10px] md:text-xs bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full font-semibold">
+                  Tích chọn để làm ngữ cảnh cho AI
                 </span>
               </div>
 
@@ -377,19 +378,19 @@ export default function DocBuilderPage() {
                       key={doc.id}
                       type="button"
                       onClick={() => toggleRaw(doc.id)}
-                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs md:text-sm font-extrabold border-2 transition-all ${
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border-2 transition-all ${
                         checked
                           ? isAudio
                             ? 'bg-teal-600 border-teal-700 text-white shadow-xs'
-                            : 'bg-purple-600 border-purple-700 text-white shadow-xs'
-                          : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100'
+                            : 'bg-indigo-600 border-indigo-700 text-white shadow-xs'
+                          : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
                       }`}
                     >
                       <span>{checked ? '✓' : '○'}</span>
                       <span>{isAudio ? '🎙️' : '📄'}</span>
-                      <span className="max-w-[240px] truncate">{doc.name}</span>
-                      <span className="text-[10px] bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-mono font-bold">
-                        {isAudio ? 'Audio Transcript' : meta.label} {len > 0 ? `(${len.toLocaleString('vi-VN')} ký tự)` : ''}
+                      <span className="max-w-[200px] truncate">{doc.name}</span>
+                      <span className="text-[10px] bg-slate-100 text-slate-800 px-1.5 py-0.2 rounded font-mono font-semibold">
+                        {isAudio ? 'Audio' : meta.label} {len > 0 ? `(${len.toLocaleString('vi-VN')} ký tự)` : ''}
                       </span>
                     </button>
                   )
@@ -399,13 +400,13 @@ export default function DocBuilderPage() {
           )}
 
           {/* Inline Flex Grid for Section 1 & Section 2 */}
-          <div className="grid md:grid-cols-2 gap-6 border-b-2 border-purple-200 pb-5">
+          <div className="grid md:grid-cols-2 gap-6 border-b-2 border-slate-200 pb-5">
 
             {/* 1. Document Type Compact Pill Selector */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="block text-sm md:text-base font-extrabold text-slate-900">
-                  1. Chọn Loại tài liệu Yêu cầu <span className="text-red-600 font-bold">*</span>
+                  1. Chọn Loại tài liệu <span className="text-red-600 font-bold">*</span>
                 </label>
               </div>
 
@@ -415,9 +416,9 @@ export default function DocBuilderPage() {
                     key={k}
                     type="button"
                     onClick={() => handleDocTypeChange(k)}
-                    className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all border-2 flex items-center gap-1.5 ${
+                    className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-bold transition-all border-2 flex items-center gap-1.5 ${
                       docType === k
-                        ? 'bg-purple-600 border-purple-700 text-white shadow-xs'
+                        ? 'bg-indigo-600 border-indigo-700 text-white shadow-xs'
                         : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100'
                     }`}
                   >
@@ -425,7 +426,7 @@ export default function DocBuilderPage() {
                   </button>
                 ))}
               </div>
-              <p className="text-xs font-bold text-slate-600 italic">
+              <p className="text-xs font-semibold text-slate-500 italic">
                 {DOC_BUILDER_TYPES[docType]?.desc}
               </p>
             </div>
@@ -436,7 +437,7 @@ export default function DocBuilderPage() {
                 <label className="block text-sm md:text-base font-extrabold text-slate-900">
                   2. Chọn Tiêu chuẩn áp dụng <span className="text-red-600 font-bold">*</span>
                 </label>
-                <span className="text-xs md:text-sm text-indigo-800 font-mono font-extrabold bg-indigo-100 px-2.5 py-0.5 rounded-full border border-indigo-300">
+                <span className="text-xs text-indigo-800 font-mono font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
                   {DOC_BUILDER_STANDARDS[standard]?.tag}
                 </span>
               </div>
@@ -450,7 +451,7 @@ export default function DocBuilderPage() {
                       key={k}
                       type="button"
                       onClick={() => setStandard(k)}
-                      className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all border-2 flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-bold transition-all border-2 flex items-center gap-1.5 ${
                         standard === k
                           ? 'bg-indigo-600 border-indigo-700 text-white shadow-xs'
                           : isRecommended
@@ -460,15 +461,15 @@ export default function DocBuilderPage() {
                     >
                       <span>{meta.label}</span>
                       {isDefault && (
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${standard === k ? 'bg-white/30 text-white' : 'bg-indigo-200 text-indigo-900'}`}>
-                          ★ Khuyên dùng
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${standard === k ? 'bg-white/30 text-white' : 'bg-indigo-100 text-indigo-900'}`}>
+                          Khuyên dùng
                         </span>
                       )}
                     </button>
                   )
                 })}
               </div>
-              <p className="text-xs font-bold text-slate-600 italic">
+              <p className="text-xs font-semibold text-slate-500 italic">
                 {DOC_BUILDER_STANDARDS[standard]?.desc}
               </p>
             </div>
@@ -477,34 +478,32 @@ export default function DocBuilderPage() {
           {/* Initial Input / Vague Notes */}
           <div className="space-y-2">
             <label className="block text-sm md:text-base font-extrabold text-slate-900">
-              3. Mô tả / Yêu cầu ban đầu để AI bắt đầu Phỏng vấn <span className="text-red-600 font-bold">*</span>
+              3. Mô tả / Yêu cầu ban đầu <span className="text-red-600 font-bold">*</span>
             </label>
-            <p className="text-xs md:text-sm text-slate-700 font-medium">Dán các đoạn chat, email, note họp mơ hồ... AI sẽ phân tích để đặt bộ câu hỏi đặc tả còn thiếu</p>
+            <p className="text-xs md:text-sm text-slate-600 font-semibold">Dán các đoạn chat, email, note họp... AI sẽ phân tích để đặt bộ câu hỏi phỏng vấn đặc tả còn thiếu</p>
             <textarea
               value={initialInput}
               onChange={e => setInitialInput(e.target.value)}
               placeholder="Ví dụ: Khách hàng muốn xây hệ thống đặt phòng họp online. Cần đăng nhập Google, xem lịch trống, đặt phòng và gửi mail thông báo..."
-              rows={5}
-              className="w-full bg-white border-2 border-slate-300 rounded-xl p-4 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
+              rows={4}
+              className="w-full bg-white border-2 border-slate-300 rounded-xl p-4 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
             />
           </div>
-
-
 
           {/* Action Button */}
           <div className="pt-2 flex justify-end">
             <button
               onClick={generateQuestions}
               disabled={loading}
-              className="bg-purple-600 text-white px-7 py-3 rounded-xl text-sm md:text-base font-extrabold hover:bg-purple-500 disabled:opacity-50 transition-all shadow-md flex items-center gap-2"
+              className="bg-indigo-600 text-white px-7 py-3 rounded-xl text-sm md:text-base font-bold hover:bg-indigo-500 disabled:opacity-50 transition-all shadow-sm flex items-center gap-2"
             >
               {loading ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Đang sinh bộ câu hỏi đặc tả yêu cầu...</span>
+                  <span>Đang sinh bộ câu hỏi...</span>
                 </>
               ) : (
-                <>AI sinh bộ câu hỏi cho {DOC_BUILDER_TYPES[docType]?.label} ➔</>
+                <>Bắt đầu Phỏng vấn AI cho {DOC_BUILDER_TYPES[docType]?.label} ➔</>
               )}
             </button>
           </div>
@@ -513,45 +512,45 @@ export default function DocBuilderPage() {
 
       {/* Progress Loading Overlay Banner when generating questions */}
       {loading && step === 1 && (
-        <div className="bg-white border-2 border-purple-400 rounded-2xl p-8 text-center space-y-4 shadow-xl animate-pulse">
+        <div className="bg-white border-2 border-indigo-300 rounded-2xl p-8 text-center space-y-4 shadow-lg animate-pulse">
           <div className="flex items-center justify-center gap-3">
-            <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-7 h-7 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
             <h3 className="text-lg md:text-xl font-extrabold text-slate-900">
-              Requirements Analyst Sub-agent đang phân tích & sinh Bộ câu hỏi...
+              Requirements Analyst Agent đang phân tích & sinh Bộ câu hỏi...
             </h3>
           </div>
           <p className="text-xs md:text-sm text-slate-600 font-semibold max-w-lg mx-auto">
-            AI đang áp dụng các khung bẫy lỗi nghiệp vụ của <strong className="text-purple-900">{DOC_BUILDER_TYPES[docType]?.label}</strong> theo tiêu chuẩn <strong className="text-indigo-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> để phát hiện toàn bộ các khía cạnh còn mơ hồ.
+            AI đang đối chiếu thông tin với chuẩn <strong className="text-indigo-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> để phát hiện toàn bộ các rủi ro & điểm mơ hồ.
           </p>
-          <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 h-full w-3/4 rounded-full animate-pulse" />
+          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
+            <div className="bg-gradient-to-r from-indigo-600 to-sky-500 h-full w-3/4 rounded-full animate-pulse" />
           </div>
         </div>
       )}
 
       {/* BƯỚC 2: AI Sinh Bộ Câu Hỏi & QA/BA Trả Lời Theo Vòng */}
       {step === 2 && questionnaireRounds.length > 0 && (
-        <div className="bg-purple-50/70 border-2 border-purple-300 rounded-2xl p-6 space-y-6 shadow-md text-slate-900">
-          <div className="flex items-center justify-between border-b-2 border-purple-200 pb-4 flex-wrap gap-3">
+        <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-6 space-y-6 shadow-sm text-slate-900">
+          <div className="flex items-center justify-between border-b-2 border-slate-200 pb-4 flex-wrap gap-3">
             <div>
               <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">
-                {questionnaireRounds[activeTabRound - 1]?.title || `Bộ câu hỏi phỏng vấn Vòng ${activeTabRound}`}
+                {questionnaireRounds[activeTabRound - 1]?.title || `Bộ câu hỏi Vòng ${activeTabRound}`}
               </h2>
-              <p className="text-xs md:text-sm text-slate-700 mt-1 font-semibold leading-relaxed">
+              <p className="text-xs md:text-sm text-slate-600 mt-1 font-semibold leading-relaxed">
                 {questionnaireRounds[activeTabRound - 1]?.overview}
               </p>
             </div>
             <button
               onClick={() => setStep(1)}
-              className="bg-white border-2 border-slate-300 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-extrabold hover:bg-slate-100 transition-all shadow-xs"
+              className="bg-white border-2 border-slate-300 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-bold hover:bg-slate-100 transition-all shadow-xs"
             >
               ← Chọn lại loại doc
             </button>
           </div>
 
           {/* Round Selector Tabs */}
-          <div className="flex items-center gap-2 border-b-2 border-purple-200 pb-3 flex-wrap">
-            <span className="text-xs md:text-sm font-extrabold text-purple-950 font-mono uppercase tracking-wide mr-2">
+          <div className="flex items-center gap-2 border-b-2 border-slate-200 pb-3 flex-wrap">
+            <span className="text-xs font-bold text-slate-600 font-mono uppercase mr-2">
               Các vòng phỏng vấn:
             </span>
             {questionnaireRounds.map(rItem => {
@@ -562,16 +561,16 @@ export default function DocBuilderPage() {
                   key={rItem.roundNumber}
                   type="button"
                   onClick={() => setActiveTabRound(rItem.roundNumber)}
-                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold border-2 transition-all flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold border-2 transition-all flex items-center gap-1.5 ${
                     isActive
-                      ? 'bg-purple-600 border-purple-700 text-white shadow-md scale-105'
-                      : 'bg-white border-slate-300 text-slate-700 hover:bg-purple-100'
+                      ? 'bg-indigo-600 border-indigo-700 text-white shadow-sm scale-105'
+                      : 'bg-white border-slate-300 text-slate-700 hover:bg-indigo-50'
                   }`}
                 >
                   <span>💬 Vòng {rItem.roundNumber}</span>
                   {isCurrentActiveRound && (
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-extrabold ${isActive ? 'bg-white/30 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}`}>
-                      Đang phỏng vấn
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${isActive ? 'bg-white/30 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}`}>
+                      Hiện tại
                     </span>
                   )}
                 </button>
@@ -582,31 +581,31 @@ export default function DocBuilderPage() {
           {/* Questions of Active Tab Round */}
           <div className="space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <p className="text-sm md:text-base font-extrabold text-purple-900">
-                Câu hỏi Vòng {activeTabRound} ({questionnaireRounds[activeTabRound - 1]?.questions.length || 0} mục) — {activeTabRound < round ? 'Lịch sử đáp án đã ghi nhận:' : 'Xác nhận hoặc bổ sung câu trả lời:'}
+              <p className="text-sm md:text-base font-extrabold text-slate-900">
+                Câu hỏi Vòng {activeTabRound} ({questionnaireRounds[activeTabRound - 1]?.questions.length || 0} mục) — {activeTabRound < round ? 'Lịch sử đáp án đã ghi nhận:' : 'Bổ sung hoặc xác nhận câu trả lời:'}
               </p>
               {activeTabRound < round && (
-                <span className="text-xs bg-amber-100 text-amber-950 border border-amber-300 px-3 py-1 rounded-lg font-mono font-bold">
+                <span className="text-xs bg-amber-50 text-amber-900 border border-amber-300 px-3 py-1 rounded-lg font-bold">
                   🔒 Đã hoàn thành Vòng {activeTabRound}
                 </span>
               )}
             </div>
 
             {questionnaireRounds[activeTabRound - 1]?.questions.map((q) => (
-              <div key={q.id} className="bg-white border-2 border-purple-200 rounded-xl p-5 space-y-3 shadow-xs">
+              <div key={q.id} className="bg-white border-2 border-slate-200 rounded-xl p-5 space-y-3 shadow-xs">
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="font-mono text-xs font-extrabold text-purple-900 bg-purple-100 border border-purple-300 px-2.5 py-0.5 rounded-md">{q.id}</span>
+                  <span className="font-mono text-xs font-bold text-indigo-900 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md">{q.id}</span>
                   <span className="text-xs bg-slate-100 text-slate-800 border border-slate-300 px-2.5 py-0.5 rounded-md font-bold">{q.section}</span>
                   <span className="font-extrabold text-slate-900 text-sm md:text-base">{q.question}</span>
                 </div>
-                {q.why && <p className="text-xs text-slate-600 font-medium">Lý do đặc tả: {q.why}</p>}
+                {q.why && <p className="text-xs text-slate-500 font-semibold">Lý do: {q.why}</p>}
                 <div>
                   <textarea
                     value={answers[q.id] ?? ''}
                     onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-                    placeholder="Nhập câu trả lời hoặc chỉnh sửa gợi ý..."
+                    placeholder="Nhập câu trả lời hoặc chỉnh sửa..."
                     rows={2}
-                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold resize-y"
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-y"
                   />
                 </div>
               </div>
@@ -620,18 +619,18 @@ export default function DocBuilderPage() {
                   onChange={e => setExtraNotes(e.target.value)}
                   placeholder="Yêu cầu thêm về thuật ngữ, quy định nghiệp vụ riêng..."
                   rows={2}
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold"
+                  className="w-full bg-white border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
                 />
               </div>
             )}
           </div>
 
           {/* Multi-Turn Elicitation Action Bar */}
-          <div className="flex gap-3 justify-between items-center pt-4 border-t-2 border-purple-200 flex-wrap">
-            <div className="flex items-center gap-2 text-xs md:text-sm font-extrabold text-purple-900 bg-purple-100 border border-purple-300 px-3.5 py-1.5 rounded-xl font-mono">
-              <span>💬 Đang ở Vòng {round}</span>
+          <div className="flex gap-3 justify-between items-center pt-4 border-t-2 border-slate-200 flex-wrap">
+            <div className="flex items-center gap-2 text-xs md:text-sm font-bold text-slate-700 bg-white border border-slate-300 px-3.5 py-1.5 rounded-xl font-mono">
+              <span>💬 Vòng {round}</span>
               <span>•</span>
-              <span>Tổng {questionnaireRounds.flatMap(r => r.questions).length} câu hỏi qua {round} vòng</span>
+              <span>Tổng {questionnaireRounds.flatMap(r => r.questions).length} câu hỏi</span>
             </div>
 
             <div className="flex gap-3 flex-wrap">
@@ -639,7 +638,7 @@ export default function DocBuilderPage() {
                 type="button"
                 onClick={generateNextRoundQuestions}
                 disabled={loading}
-                className="bg-white text-purple-900 border-2 border-purple-400 hover:bg-purple-100 px-4 py-3 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                className="bg-white text-indigo-900 border-2 border-indigo-400 hover:bg-indigo-50 px-4 py-3 rounded-xl text-xs md:text-sm font-bold transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5"
                 title="Yêu cầu AI phân tích tiếp các lỗ hổng nâng cao để hỏi Vòng tiếp theo"
               >
                 <span>💬 {loading ? 'AI đang phân tích...' : `Hỏi thêm Vòng ${round + 1} (Tuỳ chọn)`}</span>
@@ -649,10 +648,10 @@ export default function DocBuilderPage() {
                 type="button"
                 onClick={() => generateDocumentDraft()}
                 disabled={loading}
-                className="bg-purple-600 text-white px-6 py-3 rounded-xl text-xs md:text-sm font-extrabold hover:bg-purple-500 transition-all shadow-md flex items-center gap-1.5"
+                className="bg-indigo-600 text-white px-6 py-3 rounded-xl text-xs md:text-sm font-bold hover:bg-indigo-500 transition-all shadow-sm flex items-center gap-1.5"
                 title="AI dùng câu trả lời hiện có + Tự động lấp lỗ hổng bằng Giả định thiết kế để ra ngay tài liệu hoàn chỉnh"
               >
-                <span>🚀 AI Tự động Biên soạn Đặc tả Hoàn chỉnh ➔</span>
+                <span>🚀 AI Biên soạn Đặc tả Hoàn chỉnh ➔</span>
               </button>
             </div>
           </div>
@@ -661,36 +660,36 @@ export default function DocBuilderPage() {
 
       {/* BƯỚC 3: Đang Sinh Tài Liệu */}
       {step === 3 && (
-        <div className="bg-white border-2 border-purple-400 rounded-2xl p-10 text-center space-y-5 shadow-xl animate-pulse text-slate-900">
+        <div className="bg-white border-2 border-indigo-300 rounded-2xl p-10 text-center space-y-5 shadow-lg animate-pulse text-slate-900">
           <div className="flex items-center justify-center gap-3">
-            <div className="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-9 h-9 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
             <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">AI đang biên soạn tài liệu Yêu cầu Phase 1...</h2>
           </div>
-          <p className="text-xs md:text-sm font-semibold text-slate-700 max-w-lg mx-auto leading-relaxed">
-            AI đang áp dụng các khung chuẩn của <strong className="text-purple-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> kết hợp câu trả lời phỏng vấn để tổng hợp tạo file <strong className="text-indigo-900">{docType.toUpperCase()} Baseline</strong> hoàn chỉnh.
+          <p className="text-xs md:text-sm font-semibold text-slate-600 max-w-lg mx-auto leading-relaxed">
+            AI đang áp dụng các khung chuẩn của <strong className="text-indigo-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> kết hợp câu trả lời phỏng vấn để tổng hợp tạo file <strong className="text-indigo-900">{docType.toUpperCase()} Baseline</strong> hoàn chỉnh.
           </p>
-          <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
-            <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500 h-full w-4/5 rounded-full animate-pulse" />
+          <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
+            <div className="bg-gradient-to-r from-indigo-600 via-sky-500 to-emerald-500 h-full w-4/5 rounded-full animate-pulse" />
           </div>
-          <p className="text-xs font-mono font-bold text-slate-500">Tiến trình: Đang tổng hợp các giả định nghiệp vụ & cấu trúc tiêu chuẩn...</p>
+          <p className="text-xs font-mono font-semibold text-slate-500">Tiến trình: Đang tổng hợp các giả định nghiệp vụ & cấu trúc tiêu chuẩn...</p>
         </div>
       )}
 
       {/* BƯỚC 4: Review & Lưu Baseline */}
       {step === 4 && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between bg-purple-50/80 border-2 border-purple-300 rounded-2xl p-6 flex-wrap gap-3 shadow-md text-slate-900">
+          <div className="flex items-center justify-between bg-indigo-50/80 border-2 border-indigo-300 rounded-2xl p-6 flex-wrap gap-3 shadow-sm text-slate-900">
             <div>
               <div className="flex items-center gap-3">
                 <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">{docType.toUpperCase()} Requirement Baseline</h2>
-                <span className="text-xs md:text-sm bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-md font-extrabold">Đã lưu Phase 1 Baseline</span>
+                <span className="text-xs md:text-sm bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-md font-bold">Đã lưu Phase 1 Baseline</span>
               </div>
-              <p className="text-xs md:text-sm text-slate-700 mt-1 font-bold">Tiêu chuẩn: {DOC_BUILDER_STANDARDS[standard]?.label}</p>
+              <p className="text-xs md:text-sm text-slate-600 mt-1 font-semibold">Tiêu chuẩn: {DOC_BUILDER_STANDARDS[standard]?.label}</p>
             </div>
 
             <Link
               href={`/projects/${projectId}/generate?agent=review-requirement`}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-xl text-xs md:text-sm font-extrabold hover:bg-indigo-500 transition-all shadow-md"
+              className="bg-indigo-600 text-white px-6 py-3 rounded-xl text-xs md:text-sm font-bold hover:bg-indigo-500 transition-all shadow-sm"
             >
               Chuyển sang Phase 2: Review Requirement ➔
             </Link>
@@ -708,14 +707,14 @@ export default function DocBuilderPage() {
           <div className="flex justify-between items-center pt-2 flex-wrap gap-3">
             <button
               onClick={() => setStep(1)}
-              className="bg-white border-2 border-slate-300 text-slate-800 px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold hover:bg-slate-100 transition-all shadow-xs"
+              className="bg-white border-2 border-slate-300 text-slate-800 px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold hover:bg-slate-100 transition-all shadow-xs"
             >
               Soạn tài liệu yêu cầu khác
             </button>
 
             <Link
               href={`/projects/${projectId}`}
-              className="bg-slate-100 text-slate-900 border-2 border-slate-300 px-6 py-2.5 rounded-xl text-xs md:text-sm font-extrabold hover:bg-slate-200 transition-all shadow-xs"
+              className="bg-slate-100 text-slate-900 border-2 border-slate-300 px-6 py-2.5 rounded-xl text-xs md:text-sm font-bold hover:bg-slate-200 transition-all shadow-xs"
             >
               ← Trở về
             </Link>

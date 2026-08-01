@@ -86,3 +86,29 @@ export function SystemConfigsSkeleton() {
     </div>
   )
 }
+
+export function DocBuilderSkeleton() {
+  return (
+    <div className="space-y-6 w-full pb-16 animate-pulse">
+      <div className="flex justify-between items-center h-8">
+        <div className="h-4 bg-slate-200 rounded w-48" />
+        <div className="h-8 bg-slate-200 rounded-xl w-24" />
+      </div>
+      <div className="bg-white border-2 border-slate-200 p-6 rounded-2xl shadow-sm space-y-4">
+        <div className="h-8 bg-slate-200 rounded-lg w-1/3" />
+        <div className="h-4 bg-slate-200 rounded w-2/3" />
+        <div className="grid grid-cols-4 gap-3 pt-4">
+          <div className="h-10 bg-slate-200 rounded-xl w-full" />
+          <div className="h-10 bg-slate-200 rounded-xl w-full" />
+          <div className="h-10 bg-slate-200 rounded-xl w-full" />
+          <div className="h-10 bg-slate-200 rounded-xl w-full" />
+        </div>
+      </div>
+      <div className="bg-white border-2 border-slate-200 p-6 rounded-2xl shadow-sm space-y-6">
+        <div className="h-6 bg-slate-200 rounded w-1/4" />
+        <div className="h-32 bg-slate-200 rounded-xl w-full" />
+        <div className="h-12 bg-slate-200 rounded-xl w-40 ml-auto" />
+      </div>
+    </div>
+  )
+}
