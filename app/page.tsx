@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Project } from '@/lib/types'
+import { Project, KanbanTask } from '@/lib/types'
 import { ProjectSkeletonGrid } from '@/app/components/Skeletons'
 import Link from 'next/link'
 
@@ -188,6 +188,8 @@ function EditProjectModal({
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeNavTab, setActiveNavTab] = useState<'projects' | 'kanban' | 'reports'>('projects')
+  const [selectedKanbanProject, setSelectedKanbanProject] = useState<string>('ALL')
   const [showForm, setShowForm] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [form, setForm] = useState({ name: '', description: '', techStack: '', stagingUrl: '', stagingAdminUrl: '', prodUrl: '', prodAdminUrl: '', bugListUrl: '', figmaUrl: '' })
@@ -195,11 +197,164 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [draggedId, setDraggedId] = useState<string | null>(null)
 
+  // ── KANBAN FULL CRUD & PERSISTENCE STATE ──
+  const [kanbanTasks, setKanbanTasks] = useState<KanbanTask[]>([])
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
+  const [showTaskModal, setShowTaskModal] = useState(false)
+  const [editingTask, setEditingTask] = useState<KanbanTask | null>(null)
+  const [taskForm, setTaskForm] = useState<{
+    title: string
+    project: string
+    role: string
+    status: 'TODO' | 'IN_PROGRESS' | 'DONE'
+    priority: 'High' | 'Medium' | 'Low'
+    assignee: string
+  }>({
+    title: '',
+    project: 'Med PH',
+    role: 'QA Engineer',
+    status: 'TODO',
+    priority: 'Medium',
+    assignee: '',
+  })
+
+  // Load Kanban Tasks from LocalStorage (with fallback defaults)
   useEffect(() => {
     fetch('/api/projects')
       .then(r => r.json())
       .then(data => { setProjects(data); setLoading(false) })
+
+    try {
+      const savedTasks = localStorage.getItem('qa_brain_kanban_tasks')
+      if (savedTasks) {
+        setKanbanTasks(JSON.parse(savedTasks))
+      } else {
+        const initialDefaults: KanbanTask[] = [
+          { id: 'task-1', title: 'Rà soát tài liệu SRS & BRD Med PH', project: 'Med PH', role: 'BA / PO', status: 'TODO', priority: 'High', assignee: 'Minh Tuấn', isReleased: false },
+          { id: 'task-2', title: 'Thiết kế API Spec & Schema DB', project: 'Med PH', role: 'Dev Lead', status: 'IN_PROGRESS', priority: 'High', assignee: 'Quốc Bảo', isReleased: false },
+          { id: 'task-3', title: 'Chạy Agent Clarify phát hiện lỗ hổng', project: 'Med PH', role: 'QA Lead', status: 'IN_PROGRESS', priority: 'Medium', assignee: 'Phương Anh', isReleased: false },
+          { id: 'task-4', title: 'Sinh 45 Test Cases BDD Gherkin', project: 'Med PH', role: 'QA Engineer', status: 'DONE', priority: 'High', assignee: 'Trần Nam', isReleased: true },
+          { id: 'task-5', title: 'Nghiệm thu Change Request ITIL v2', project: 'Fintech Hub', role: 'PO', status: 'TODO', priority: 'Medium', assignee: 'Hoàng Long', isReleased: false },
+          { id: 'task-6', title: 'Xuất Báo cáo Release (.doc/.csv)', project: 'Fintech Hub', role: 'QA Lead', status: 'DONE', priority: 'Low', assignee: 'Minh Tuấn', isReleased: false },
+        ]
+        setKanbanTasks(initialDefaults)
+        localStorage.setItem('qa_brain_kanban_tasks', JSON.stringify(initialDefaults))
+      }
+    } catch {
+      // Fallback ignore error
+    }
   }, [])
+
+  // Helper to persist tasks
+  function saveKanbanTasksToStorage(newTasks: KanbanTask[]) {
+    setKanbanTasks(newTasks)
+    try {
+      localStorage.setItem('qa_brain_kanban_tasks', JSON.stringify(newTasks))
+    } catch {
+      // Ignore
+    }
+  }
+
+  function handleToggleRelease(taskId: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    const updated = kanbanTasks.map(t => {
+      if (t.id === taskId) {
+        const nextReleased = !t.isReleased
+        return {
+          ...t,
+          isReleased: nextReleased,
+          // If released, automatically ensure status is DONE
+          status: nextReleased ? ('DONE' as const) : t.status,
+        }
+      }
+      return t
+    })
+    saveKanbanTasksToStorage(updated)
+  }
+
+  function handleTaskDragStart(e: React.DragEvent, taskId: string) {
+    setDraggedTaskId(taskId)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  function handleTaskDrop(e: React.DragEvent, targetStatus: 'TODO' | 'IN_PROGRESS' | 'DONE') {
+    e.preventDefault()
+    if (!draggedTaskId) return
+    const updated = kanbanTasks.map(t => (t.id === draggedTaskId ? { ...t, status: targetStatus } : t))
+    saveKanbanTasksToStorage(updated)
+    setDraggedTaskId(null)
+  }
+
+  function handleCreateTask() {
+    setEditingTask(null)
+    setTaskForm({
+      title: '',
+      project: projects[0]?.name || 'Med PH',
+      role: 'QA Engineer',
+      status: 'TODO',
+      priority: 'Medium',
+      assignee: '',
+    })
+    setShowTaskModal(true)
+  }
+
+  function handleEditTask(t: KanbanTask, e: React.MouseEvent) {
+    e.stopPropagation()
+    setEditingTask(t)
+    setTaskForm({
+      title: t.title,
+      project: t.project,
+      role: t.role,
+      status: t.status,
+      priority: t.priority,
+      assignee: t.assignee,
+    })
+    setShowTaskModal(true)
+  }
+
+  function handleDeleteTask(taskId: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    if (confirm('Bạn có chắc chắn muốn xóa công việc này khỏi Kanban Board?')) {
+      const updated = kanbanTasks.filter(t => t.id !== taskId)
+      saveKanbanTasksToStorage(updated)
+    }
+  }
+
+  function handleSaveTaskSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!taskForm.title.trim()) return
+
+    if (editingTask) {
+      // Update
+      const updated = kanbanTasks.map(t =>
+        t.id === editingTask.id
+          ? {
+              ...t,
+              title: taskForm.title,
+              project: taskForm.project,
+              role: taskForm.role,
+              status: taskForm.status,
+              priority: taskForm.priority,
+              assignee: taskForm.assignee || 'Unassigned',
+            }
+          : t
+      )
+      saveKanbanTasksToStorage(updated)
+    } else {
+      // Create new
+      const newTask: KanbanTask = {
+        id: `task-${Date.now()}`,
+        title: taskForm.title,
+        project: taskForm.project,
+        role: taskForm.role,
+        status: taskForm.status,
+        priority: taskForm.priority,
+        assignee: taskForm.assignee || 'Unassigned',
+      }
+      saveKanbanTasksToStorage([newTask, ...kanbanTasks])
+    }
+    setShowTaskModal(false)
+  }
 
   async function createProject(e: React.FormEvent) {
     e.preventDefault()
@@ -247,12 +402,10 @@ export default function DashboardPage() {
     const [removed] = newProjects.splice(draggedIndex, 1)
     newProjects.splice(targetIndex, 0, removed)
 
-    // Re-assign sortOrder
     const updatedProjects = newProjects.map((p, idx) => ({ ...p, sortOrder: idx }))
     setProjects(updatedProjects)
     setDraggedId(null)
 
-    // Save batch order to API
     try {
       await fetch('/api/projects', {
         method: 'PUT',
@@ -267,79 +420,110 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 w-full pb-12">
-      {/* Hero Header Banner */}
-      <div className="bg-gradient-to-r from-indigo-100 via-sky-50 to-purple-100 border-2 border-indigo-400 rounded-2xl p-6 md:p-8 shadow-xl text-slate-900">
-        <div className="flex items-start justify-between flex-wrap gap-6">
-          <div className="space-y-3 max-w-3xl">
-            <div className="flex items-center gap-2">
-              <span className="text-xs md:text-sm bg-indigo-600 text-white border border-indigo-700 px-3.5 py-1 rounded-md font-mono font-extrabold tracking-wide shadow-xs">
-                QA-BRAIN AGENT PLATFORM v2.0
-              </span>
-              <span className="text-xs md:text-sm bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-md font-extrabold">
-                ISTQB Certified Pipeline
-              </span>
-            </div>
-            <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Quản lý Dự án & Hệ thống AI Agent Kiểm thử
-            </h1>
-            <p className="text-slate-700 text-xs md:text-sm font-semibold leading-relaxed">
-              Trợ lý AI Kiểm thử Toàn diện: Tiếp nhận & Chuẩn hoá Yêu cầu (Phase 1) ➔ Vận hành 4 Step Chuyên biệt tinh gọn theo tiêu chuẩn ISTQB & IEEE 829 Sinh Chiến lược, Kế hoạch, Kịch bản & Test Cases (Phase 2) ➔ Quản lý lưu trữ Version & Xuất Báo cáo Release (.doc/.csv/.html).
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => setShowForm(true)}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 shadow-lg"
-            >
-              <span>+</span> Thêm dự án
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Search & Drag Control Bar */}
-      <div className="flex items-center justify-between flex-wrap gap-4 bg-white border-2 border-slate-300 p-4 rounded-2xl shadow-md">
-        <div className="relative flex-1 min-w-[280px] max-w-lg">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Tìm kiếm dự án theo tên, mô tả..."
-            className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
-          />
-        </div>
-
-        <div className="flex items-center gap-4 text-xs md:text-sm text-slate-700 font-mono font-bold flex-wrap">
-          <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl border-2 border-slate-300 shadow-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Tổng dự án:</span>
-            <strong className="text-slate-900 font-extrabold text-sm md:text-base">{projects.length}</strong>
-          </div>
-        </div>
-      </div>
-
-      {/* Project Grid Cards */}
-      {loading ? (
-        <ProjectSkeletonGrid />
-      ) : filteredProjects.length === 0 ? (
-        <div className="bg-white border-2 border-slate-300 rounded-2xl p-12 text-center space-y-4 shadow-md">
-          <div>
-            <h3 className="font-extrabold text-slate-900 text-lg md:text-xl">Chưa có dự án kiểm thử nào</h3>
-            <p className="text-xs md:text-sm text-slate-600 mt-1 max-w-md mx-auto font-semibold">
-              Hãy tạo dự án đầu tiên để bắt đầu lưu trữ tài liệu Phase 1 và sử dụng 8 AI QA Agents tự động hoá công việc kiểm thử.
-            </p>
-          </div>
+    <div className="space-y-6 w-full pb-12">
+      {/* Modern Top Navigation Bar */}
+      <div className="bg-white border-2 border-slate-300 rounded-2xl px-5 py-3.5 shadow-sm text-slate-900 flex items-center justify-between flex-wrap gap-4">
+        {/* Left Side: Navigation Menu Items */}
+        <div className="flex items-center gap-2 flex-wrap font-extrabold text-xs md:text-sm">
           <button
-            onClick={() => setShowForm(true)}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md"
+            type="button"
+            onClick={() => setActiveNavTab('projects')}
+            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
+              activeNavTab === 'projects'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
+            }`}
           >
-            + Tạo dự án đầu tiên
+            <span>📁</span>
+            <span>Danh sách Dự án</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveNavTab('kanban')}
+            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
+              activeNavTab === 'kanban'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
+            }`}
+          >
+            <span>📋</span>
+            <span>Kanban Board</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveNavTab('reports')}
+            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
+              activeNavTab === 'reports'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
+            }`}
+          >
+            <span>📊</span>
+            <span>Báo cáo Tiến độ</span>
           </button>
         </div>
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+        {/* Right Side: Version Badge */}
+        <div className="flex items-center gap-2 ml-auto shrink-0 font-mono text-xs">
+          <span className="bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-xl font-extrabold shadow-2xs">
+            v2.0 Enterprise
+          </span>
+        </div>
+      </div>
+
+      {/* TAB 1: DANH SÁCH DỰ ÁN VIEW */}
+      {activeNavTab === 'projects' && (
+        <>
+          {/* Search & Action Control Bar */}
+          <div className="flex items-center justify-between flex-wrap gap-4 bg-white border-2 border-slate-300 p-4 rounded-2xl shadow-sm">
+            <div className="relative flex-1 min-w-[280px] max-w-lg">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm dự án theo tên, mô tả..."
+                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+              />
+            </div>
+
+            <div className="flex items-center gap-3.5 flex-wrap ml-auto">
+              <div className="flex items-center gap-2 bg-slate-100 px-3.5 py-2 rounded-xl border border-slate-300 shadow-2xs text-xs md:text-sm font-bold text-slate-700">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Tổng dự án:</span>
+                <strong className="text-slate-900 font-black text-sm md:text-base">{projects.length}</strong>
+              </div>
+
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+              >
+                <span>+</span> Thêm dự án
+              </button>
+            </div>
+          </div>
+
+          {/* Project Grid Cards */}
+          {loading ? (
+            <ProjectSkeletonGrid />
+          ) : filteredProjects.length === 0 ? (
+            <div className="bg-white border-2 border-slate-300 rounded-2xl p-12 text-center space-y-4 shadow-md">
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-lg md:text-xl">Chưa có dự án kiểm thử nào</h3>
+                <p className="text-xs md:text-sm text-slate-600 mt-1 max-w-md mx-auto font-semibold">
+                  Hãy tạo dự án đầu tiên để bắt đầu lưu trữ tài liệu Phase 1 và sử dụng 8 AI QA Agents tự động hoá công việc kiểm thử.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md"
+              >
+                + Tạo dự án đầu tiên
+              </button>
+            </div>
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
           {filteredProjects.map(p => {
             const initialLetter = p.name ? p.name.trim().charAt(0).toUpperCase() : 'P'
@@ -514,6 +698,444 @@ export default function DashboardPage() {
           )})}
         </div>
       )}
+        </>
+      )}
+
+      {/* TAB 2: KANBAN BOARD (TRELLO DRAG & DROP VIEW) */}
+      {activeNavTab === 'kanban' && (
+        <div className="space-y-4">
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-5 shadow-sm flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h2 className="text-lg md:text-xl font-black text-slate-900">
+                📋 Kanban Taskboard — Quản lý Tiến độ Công việc Team (PO • BA • Dev • QA)
+              </h2>
+              <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
+                Kéo thả các thẻ công việc giữa các cột để cập nhật trạng thái thời gian thực.
+              </p>
+            </div>
+
+            {/* Dynamic Project Filter Dropdown & Add Task Button */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-1.5 shadow-2xs">
+                <span className="text-xs font-black text-slate-700">🔍 Lọc Dự án:</span>
+                <select
+                  value={selectedKanbanProject}
+                  onChange={e => setSelectedKanbanProject(e.target.value)}
+                  className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="ALL">✨ Tất cả Dự án ({projects.length})</option>
+                  {projects.map(p => (
+                    <option key={p.id} value={p.name}>
+                      📁 {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCreateTask}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>+</span> Thêm công việc
+              </button>
+              <span className="bg-indigo-50 text-indigo-900 border border-indigo-200 px-3 py-2 rounded-xl text-xs font-extrabold">
+                {kanbanTasks.filter(t => selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject).length} Tasks
+              </span>
+            </div>
+          </div>
+
+          {/* 3 Columns Kanban Board Grid */}
+          <div className="grid md:grid-cols-3 gap-5 items-start">
+            {/* Column 1: TODO */}
+            <div
+              onDragOver={handleDragOver}
+              onDrop={e => handleTaskDrop(e, 'TODO')}
+              className="bg-slate-100/90 border-2 border-slate-300 rounded-2xl p-4 space-y-3 min-h-[500px]"
+            >
+              <div className="flex items-center justify-between border-b-2 border-slate-200 pb-2 px-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-amber-500" />
+                  <h3 className="font-black text-slate-800 text-sm">CẦN LÀM (TO-DO)</h3>
+                </div>
+                <span className="bg-white text-slate-700 px-2.5 py-0.5 rounded-full text-xs font-black border border-slate-300">
+                  {kanbanTasks.filter(t => t.status === 'TODO' && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)).length}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {kanbanTasks
+                  .filter(t => t.status === 'TODO' && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject))
+                  .map(t => (
+                    <div
+                      key={t.id}
+                      draggable
+                      onDragStart={e => handleTaskDragStart(e, t.id)}
+                      className="bg-white border-2 border-slate-300 hover:border-indigo-500 p-4 rounded-xl shadow-xs space-y-2.5 cursor-grab active:cursor-grabbing transition-all hover:shadow-md group relative"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="bg-indigo-100 text-indigo-950 font-black text-[11px] px-2 py-0.5 rounded">
+                          {t.project}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="bg-amber-50 text-amber-900 border border-amber-300 font-bold text-[10px] px-2 py-0.5 rounded">
+                            {t.role}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={e => handleEditTask(t, e)}
+                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold"
+                            title="Sửa task"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            type="button"
+                            onClick={e => handleDeleteTask(t.id, e)}
+                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold"
+                            title="Xóa task"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                      <h4 className="font-extrabold text-slate-900 text-xs md:text-sm leading-snug">
+                        {t.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500 font-semibold">
+                        <span>👤 {t.assignee}</span>
+                        <span className="text-rose-600 font-bold">🔥 {t.priority}</span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Column 2: IN PROGRESS */}
+            <div
+              onDragOver={handleDragOver}
+              onDrop={e => handleTaskDrop(e, 'IN_PROGRESS')}
+              className="bg-indigo-50/70 border-2 border-indigo-300 rounded-2xl p-4 space-y-3 min-h-[500px]"
+            >
+              <div className="flex items-center justify-between border-b-2 border-indigo-200 pb-2 px-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-indigo-600 animate-pulse" />
+                  <h3 className="font-black text-indigo-950 text-sm">ĐANG THỰC HIỆN (IN PROGRESS)</h3>
+                </div>
+                <span className="bg-white text-indigo-950 px-2.5 py-0.5 rounded-full text-xs font-black border border-indigo-300">
+                  {kanbanTasks.filter(t => t.status === 'IN_PROGRESS' && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)).length}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {kanbanTasks
+                  .filter(t => t.status === 'IN_PROGRESS' && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject))
+                  .map(t => (
+                    <div
+                      key={t.id}
+                      draggable
+                      onDragStart={e => handleTaskDragStart(e, t.id)}
+                      className="bg-white border-2 border-indigo-300 hover:border-indigo-600 p-4 rounded-xl shadow-xs space-y-2.5 cursor-grab active:cursor-grabbing transition-all hover:shadow-md"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="bg-indigo-100 text-indigo-950 font-black text-[11px] px-2 py-0.5 rounded">
+                          {t.project}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="bg-sky-50 text-sky-900 border border-sky-300 font-bold text-[10px] px-2 py-0.5 rounded">
+                            {t.role}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={e => handleEditTask(t, e)}
+                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold"
+                            title="Sửa task"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            type="button"
+                            onClick={e => handleDeleteTask(t.id, e)}
+                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold"
+                            title="Xóa task"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                      <h4 className="font-extrabold text-slate-900 text-xs md:text-sm leading-snug">
+                        {t.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500 font-semibold">
+                        <span>👤 {t.assignee}</span>
+                        <span className="text-indigo-600 font-bold">🔥 {t.priority}</span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Column 3: DONE */}
+            <div
+              onDragOver={handleDragOver}
+              onDrop={e => handleTaskDrop(e, 'DONE')}
+              className="bg-emerald-50/70 border-2 border-emerald-300 rounded-2xl p-4 space-y-3 min-h-[500px]"
+            >
+              <div className="flex items-center justify-between border-b-2 border-emerald-200 pb-2 px-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <h3 className="font-black text-emerald-950 text-sm">HOÀN THÀNH (DONE)</h3>
+                </div>
+                <span className="bg-white text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-black border border-emerald-300">
+                  {kanbanTasks.filter(t => t.status === 'DONE' && !t.isReleased && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)).length}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {kanbanTasks
+                  .filter(t => t.status === 'DONE' && !t.isReleased && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject))
+                  .map(t => (
+                    <div
+                      key={t.id}
+                      draggable
+                      onDragStart={e => handleTaskDragStart(e, t.id)}
+                      className="bg-white border-2 border-emerald-300 hover:border-emerald-600 p-4 rounded-xl shadow-xs space-y-2.5 cursor-grab active:cursor-grabbing transition-all hover:shadow-md opacity-90"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="bg-emerald-100 text-emerald-950 font-black text-[11px] px-2 py-0.5 rounded">
+                          {t.project}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold text-[10px] px-2 py-0.5 rounded">
+                            {t.role}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={e => handleEditTask(t, e)}
+                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold"
+                            title="Sửa task"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            type="button"
+                            onClick={e => handleDeleteTask(t.id, e)}
+                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold"
+                            title="Xóa task"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                      <h4 className="font-extrabold text-slate-900 text-xs md:text-sm leading-snug line-through text-slate-600">
+                        {t.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100 font-semibold">
+                        <span>👤 {t.assignee}</span>
+                        <button
+                          type="button"
+                          onClick={e => handleToggleRelease(t.id, e)}
+                          className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-black transition-all shadow-xs cursor-pointer"
+                        >
+                          🚀 Đánh dấu Release
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Archived / Released Tasks Section */}
+          {kanbanTasks.some(t => t.isReleased && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)) && (
+            <div className="bg-slate-100 border-2 border-slate-300 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-300 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📦</span>
+                  <h3 className="font-black text-slate-800 text-sm md:text-base">
+                    MỤC LƯU TRỮ (RELEASED ARCHIVE)
+                  </h3>
+                </div>
+                <span className="bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-0.5 rounded-full text-xs font-black">
+                  {kanbanTasks.filter(t => t.isReleased && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)).length} Tasks đã Release
+                </span>
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {kanbanTasks
+                  .filter(t => t.isReleased && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject))
+                  .map(t => (
+                    <div
+                      key={t.id}
+                      className="bg-white border-2 border-indigo-200 p-3.5 rounded-xl space-y-2 shadow-2xs opacity-85 hover:opacity-100 transition-all"
+                    >
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="bg-indigo-100 text-indigo-900 font-bold px-2 py-0.5 rounded">
+                          {t.project}
+                        </span>
+                        <span className="bg-emerald-100 text-emerald-900 font-black px-2 py-0.5 rounded">
+                          ✓ Đã Release
+                        </span>
+                      </div>
+                      <h4 className="font-extrabold text-slate-800 text-xs truncate" title={t.title}>
+                        {t.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100 font-semibold">
+                        <span>👤 {t.assignee}</span>
+                        <button
+                          type="button"
+                          onClick={e => handleToggleRelease(t.id, e)}
+                          className="text-indigo-600 hover:underline font-bold"
+                        >
+                          Khôi phục về Board
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 3: BÁO CÁO TIẾN ĐỘ VIEW (TIẾN ĐỘ HOÀN THÀNH & TIẾN ĐỘ RELEASE) */}
+      {activeNavTab === 'reports' && (
+        <div className="space-y-6">
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-6 shadow-sm flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h2 className="text-xl font-black text-slate-900">
+                📊 Báo cáo Tiến độ Hoàn thành & Tiến độ Release theo Dự án
+              </h2>
+              <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
+                • <strong>Tiến độ Hoàn thành:</strong> Số task có trạng thái DONE / Tổng task.<br />
+                • <strong>Tiến độ Release:</strong> Số task đã đánh dấu RELEASE / Tổng task (Tự động di chuyển vào Lưu trữ).
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="bg-emerald-50 text-emerald-900 border border-emerald-300 px-3 py-1 rounded-xl text-xs font-bold">
+                {projects.length} Dự án Active
+              </span>
+            </div>
+          </div>
+
+          {/* Per-Project Dual Progress Cards Grid */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {projects.map(p => {
+              const pTasks = kanbanTasks.filter(
+                t => t.project.toLowerCase() === p.name.toLowerCase() || t.project === p.name
+              )
+              const total = pTasks.length
+              const doneTasks = pTasks.filter(t => t.status === 'DONE' || t.isReleased).length
+              const releasedTasks = pTasks.filter(t => t.isReleased).length
+
+              // Calculations: If total tasks is 0, default to 100% (No pending work / baseline complete)
+              const completionPercent = total > 0 ? Math.round((doneTasks / total) * 100) : 100
+              const releasePercent = total > 0 ? Math.round((releasedTasks / total) * 100) : 100
+
+              // Perfect SVG Donut Circle Math (box = 96x96, cx=48, cy=48, r=38, stroke=8)
+              const radius = 38
+              const circumference = 2 * Math.PI * radius
+              const offsetCompletion = circumference - (completionPercent / 100) * circumference
+              const offsetRelease = circumference - (releasePercent / 100) * circumference
+
+              return (
+                <div
+                  key={p.id}
+                  className="bg-white border-2 border-slate-300 rounded-2xl p-6 space-y-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div>
+                      <span className="text-[11px] font-mono font-bold text-slate-400 uppercase">PROJECT</span>
+                      <h3 className="text-lg font-black text-slate-900 truncate max-w-[180px]" title={p.name}>
+                        {p.name}
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedKanbanProject(p.name)
+                        setActiveNavTab('kanban')
+                      }}
+                      className="text-xs font-extrabold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+                    >
+                      Chi tiết ➔
+                    </button>
+                  </div>
+
+                  {/* Dual Donut Progress Charts (Fixed Perfect Alignment & No Edge Cutoff) */}
+                  <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                    {/* Chart 1: Tiến độ Hoàn thành */}
+                    <div className="flex flex-col items-center text-center space-y-1">
+                      <div className="relative flex items-center justify-center w-24 h-24">
+                        <svg viewBox="0 0 96 96" className="w-24 h-24 transform -rotate-90 overflow-visible">
+                          <circle cx="48" cy="48" r={radius} stroke="#e2e8f0" strokeWidth="8" fill="none" />
+                          <circle
+                            cx="48"
+                            cy="48"
+                            r={radius}
+                            stroke="#6366f1"
+                            strokeWidth="8"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={offsetCompletion}
+                            strokeLinecap="round"
+                            fill="none"
+                            className="transition-all duration-700"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-sm font-black text-indigo-950">
+                            {completionPercent}%
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-700">Tiến độ Hoàn thành</span>
+                      <span className="text-[10px] text-slate-500 font-semibold">{doneTasks}/{total} Tasks</span>
+                    </div>
+
+                    {/* Chart 2: Tiến độ Release */}
+                    <div className="flex flex-col items-center text-center space-y-1">
+                      <div className="relative flex items-center justify-center w-24 h-24">
+                        <svg viewBox="0 0 96 96" className="w-24 h-24 transform -rotate-90 overflow-visible">
+                          <circle cx="48" cy="48" r={radius} stroke="#e2e8f0" strokeWidth="8" fill="none" />
+                          <circle
+                            cx="48"
+                            cy="48"
+                            r={radius}
+                            stroke="#10b981"
+                            strokeWidth="8"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={offsetRelease}
+                            strokeLinecap="round"
+                            fill="none"
+                            className="transition-all duration-700"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-sm font-black text-emerald-950">
+                            {releasePercent}%
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-700">Tiến độ Release</span>
+                      <span className="text-[10px] text-slate-500 font-semibold">{releasedTasks}/{total} Released</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200 rounded-xl p-2.5 text-center text-xs font-semibold text-slate-700 shadow-2xs">
+                    {total === 0 ? (
+                      <span className="text-slate-500 italic">Chưa tạo task (Mặc định 100% Hoàn thành)</span>
+                    ) : releasePercent === 100 ? (
+                      <span className="text-emerald-700 font-bold">🎉 Tất cả tasks đã Release thành công!</span>
+                    ) : (
+                      <span>Đã Release <strong>{releasedTasks}</strong>/<strong>{total}</strong> tasks vào Mục lưu trữ</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
 
 
@@ -652,6 +1274,132 @@ export default function DashboardPage() {
             setEditingProject(null)
           }}
         />
+      )}
+
+      {/* Kanban Task Modal (Create / Edit Task) */}
+      {showTaskModal && (
+        <div className="fixed inset-0 bg-slate-900/65 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-xs">
+          <div className="bg-white border-2 border-indigo-400 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-lg space-y-5 text-slate-900">
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+              <h2 className="font-extrabold text-lg md:text-xl text-slate-900">
+                {editingTask ? '✏️ Chỉnh sửa Công việc' : '📋 Thêm Công việc Kanban mới'}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowTaskModal(false)}
+                className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTaskSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">
+                  Tên công việc (Task Title) *
+                </label>
+                <input
+                  autoFocus
+                  value={taskForm.title}
+                  onChange={e => setTaskForm(f => ({ ...f, title: e.target.value }))}
+                  placeholder="Ví dụ: Review SRS & chuẩn bị kịch bản Test..."
+                  className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Dự án áp dụng</label>
+                  <select
+                    value={taskForm.project}
+                    onChange={e => setTaskForm(f => ({ ...f, project: e.target.value }))}
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    {projects.length > 0 ? (
+                      projects.map(p => (
+                        <option key={p.id} value={p.name}>
+                          {p.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="Med PH">Med PH</option>
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Vai trò đảm nhận</label>
+                  <select
+                    value={taskForm.role}
+                    onChange={e => setTaskForm(f => ({ ...f, role: e.target.value }))}
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="PO / BA">PO / BA</option>
+                    <option value="Dev Lead">Dev Lead</option>
+                    <option value="QA Lead">QA Lead</option>
+                    <option value="QA Engineer">QA Engineer</option>
+                    <option value="Tester">Tester</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Trạng thái</label>
+                  <select
+                    value={taskForm.status}
+                    onChange={e => setTaskForm(f => ({ ...f, status: e.target.value as any }))}
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="TODO">Cần làm (TODO)</option>
+                    <option value="IN_PROGRESS">Đang làm</option>
+                    <option value="DONE">Hoàn thành</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Độ ưu tiên</label>
+                  <select
+                    value={taskForm.priority}
+                    onChange={e => setTaskForm(f => ({ ...f, priority: e.target.value as any }))}
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="High">Cao 🔥</option>
+                    <option value="Medium">Trung bình</option>
+                    <option value="Low">Thấp</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Người phụ trách</label>
+                  <input
+                    value={taskForm.assignee}
+                    onChange={e => setTaskForm(f => ({ ...f, assignee: e.target.value }))}
+                    placeholder="Tên nhân sự..."
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowTaskModal(false)}
+                  className="flex-1 border-2 border-slate-300 rounded-xl py-2.5 text-xs md:text-sm font-extrabold text-slate-700 hover:bg-slate-100 transition-all"
+                >
+                  Huỷ
+                </button>
+                <button
+                  type="submit"
+                  disabled={!taskForm.title.trim()}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl py-2.5 text-xs md:text-sm font-extrabold transition-all disabled:opacity-50 shadow-md"
+                >
+                  {editingTask ? 'Lưu cập nhật' : 'Tạo Task mới'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   )

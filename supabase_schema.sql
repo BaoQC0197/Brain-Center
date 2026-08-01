@@ -180,3 +180,31 @@ CREATE POLICY "Allow anonymous insert access" ON public.global_configs FOR INSER
 CREATE POLICY "Allow anonymous update access" ON public.global_configs FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.global_configs FOR DELETE USING (true);
 
+-- 7. Kanban Tasks Table (Persistence across browsers & team members)
+CREATE TABLE IF NOT EXISTS public.kanban_tasks (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  project TEXT NOT NULL,
+  role TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('TODO', 'IN_PROGRESS', 'DONE')),
+  priority TEXT NOT NULL CHECK (priority IN ('High', 'Medium', 'Low')),
+  assignee TEXT,
+  "isReleased" BOOLEAN DEFAULT false,
+  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP::text,
+  "updatedAt" TEXT
+);
+
+ALTER TABLE public.kanban_tasks ADD COLUMN IF NOT EXISTS "isReleased" BOOLEAN DEFAULT false;
+
+ALTER TABLE public.kanban_tasks ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.kanban_tasks;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.kanban_tasks;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.kanban_tasks;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.kanban_tasks;
+CREATE POLICY "Allow anonymous read access" ON public.kanban_tasks FOR SELECT USING (true);
+CREATE POLICY "Allow anonymous insert access" ON public.kanban_tasks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow anonymous update access" ON public.kanban_tasks FOR UPDATE USING (true);
+CREATE POLICY "Allow anonymous delete access" ON public.kanban_tasks FOR DELETE USING (true);
+
+

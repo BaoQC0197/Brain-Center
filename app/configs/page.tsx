@@ -16,6 +16,7 @@ interface ConfigItem {
 export default function SystemConfigsPage() {
   const [configs, setConfigs] = useState<Record<string, ConfigItem>>({})
   const [activeTab, setActiveTab] = useState<string>('system_instruction')
+  const [openGroup, setOpenGroup] = useState<'core' | 'phase1' | 'phase2'>('core')
   const [editingContent, setEditingContent] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -34,8 +35,9 @@ export default function SystemConfigsPage() {
       .catch(() => setLoading(false))
   }, [])
 
-  function handleTabChange(key: string) {
+  function handleTabChange(key: string, group: 'core' | 'phase1' | 'phase2') {
     setActiveTab(key)
+    setOpenGroup(group)
     setEditingContent(configs[key]?.content || '')
     setMessage(null)
   }
@@ -135,286 +137,243 @@ export default function SystemConfigsPage() {
 
   return (
     <div className="space-y-6 w-full pb-16">
-      {/* Breadcrumb & Navigation Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4 bg-white border-2 border-slate-200 p-4 rounded-2xl shadow-xs">
-        <div className="flex items-center gap-2 text-xs md:text-sm text-slate-700 font-mono font-bold">
-          <Link href="/" className="hover:text-indigo-600 transition-colors">Projects</Link>
-          <span>/</span>
-          <span className="text-slate-900 font-extrabold">System Instructions & Task Prompts Engine</span>
-        </div>
+      {/* Compact High-Density Header Bar */}
+      <div className="bg-white border-2 border-slate-300 px-5 py-3.5 rounded-2xl shadow-xs flex items-center justify-between flex-wrap gap-3 relative">
+        {/* Left: Back Button */}
+        <Link
+          href="/"
+          className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-extrabold border border-slate-300 transition-all flex items-center gap-1 shrink-0"
+        >
+          ← Trở về
+        </Link>
 
-        <div>
-          <Link
-            href="/"
-            className="bg-white border-2 border-slate-300 text-slate-800 px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold hover:bg-slate-100 transition-all shadow-xs"
-          >
-            ← Trở về
-          </Link>
-        </div>
+        {/* Center: Blue Title Label */}
+        <h1 className="text-xl md:text-2xl font-black text-indigo-600 tracking-tight text-center flex-1">
+          System Instructions & Prompts Engine
+        </h1>
+
+        {/* Right: Iconless Architecture Link Button */}
+        <Link
+          href="/docs/architecture"
+          className="text-xs font-extrabold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 px-3.5 py-1.5 rounded-xl transition-all shadow-xs shrink-0"
+          title="Xem sơ đồ chi tiết luồng xử lý và kiến trúc hệ thống"
+        >
+          Xem Tài liệu Kiến trúc System ➔
+        </Link>
       </div>
 
-      {/* Hero Header Banner */}
-      <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 border-2 border-indigo-300 rounded-2xl p-6 md:p-8 space-y-4 shadow-md text-slate-900">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs md:text-sm bg-indigo-600 text-white px-3 py-1 rounded-md font-mono font-extrabold shadow-xs">
-                SYSTEM ENGINE
-              </span>
-              <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight">System Instructions & Prompts Engine</h1>
-            </div>
-            <p className="text-xs md:text-sm text-slate-700 mt-2 font-bold leading-relaxed max-w-3xl">
-              Quản lý tập trung <strong>System Instruction ("AI là ai?")</strong> và <strong>Task Prompts từng Loại tài liệu & Step</strong> áp dụng cho toàn hệ thống QA-Brain.
-            </p>
-          </div>
-
-          <div className="flex flex-col items-end gap-2">
-            <div className="bg-white border-2 border-indigo-300 rounded-xl p-3 text-xs md:text-sm space-y-1 font-mono text-indigo-900 font-extrabold shadow-xs">
-              <div>Storage: <code className="text-slate-700">storage/configs/</code></div>
-              <div>Standard: BABOK, IEEE 830, ISTQB & ISO 29119</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Architecture Workflow Flowchart Card */}
-      <div className="bg-white border-2 border-slate-300 rounded-2xl p-5 space-y-3 shadow-sm">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <h3 className="font-extrabold text-slate-900 text-xs md:text-sm font-mono flex items-center gap-2">
-            <span>Sơ đồ Kiến trúc Prompt Builder Engine:</span>
-          </h3>
-          <Link
-            href="/docs/architecture"
-            className="text-xs font-extrabold text-indigo-700 hover:text-indigo-900 underline flex items-center gap-1"
-          >
-            <span>Xem Sơ đồ Kiến trúc & Luồng Xử lý Chi tiết (Cho phép Edit)</span>
-
-          </Link>
-        </div>
-        <div className="grid sm:grid-cols-4 gap-3 text-center text-xs md:text-sm font-extrabold">
-          <button
-            type="button"
-            onClick={() => handleTabChange('system_instruction')}
-            className={`p-3.5 rounded-xl border-2 transition-all text-left space-y-1 ${
-              activeTab === 'system_instruction'
-                ? 'bg-indigo-600 border-indigo-700 text-white shadow-md ring-2 ring-indigo-400'
-                : 'bg-indigo-50 border-indigo-300 text-indigo-900 hover:bg-indigo-100 hover:border-indigo-400 shadow-xs'
-            }`}
-          >
-            <div className="font-extrabold">1. System Instruction</div>
-            <div className={`text-[10px] md:text-xs font-mono font-bold ${activeTab === 'system_instruction' ? 'text-indigo-100' : 'text-slate-600'}`}>Global Role & ISTQB Rules</div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTabChange('review-requirement')}
-            className={`p-3.5 rounded-xl border-2 transition-all text-left space-y-1 ${
-              activeTab === 'review-requirement'
-                ? 'bg-purple-600 border-purple-700 text-white shadow-md ring-2 ring-purple-400'
-                : 'bg-purple-50 border-purple-300 text-purple-900 hover:bg-purple-100 hover:border-purple-400 shadow-xs'
-            }`}
-          >
-            <div className="font-extrabold">2. Task Prompt per Step</div>
-            <div className={`text-[10px] md:text-xs font-mono font-bold ${activeTab === 'review-requirement' ? 'text-purple-100' : 'text-slate-600'}`}>BRD / SRS / ISTQB Steps 1-8</div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTabChange('doc_builder_brd')}
-            className={`p-3.5 rounded-xl border-2 transition-all text-left space-y-1 ${
-              activeTab === 'doc_builder_brd'
-                ? 'bg-emerald-600 border-emerald-700 text-white shadow-md ring-2 ring-emerald-400'
-                : 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100 hover:border-emerald-400 shadow-xs'
-            }`}
-          >
-            <div className="font-extrabold">3. Project Context</div>
-            <div className={`text-[10px] md:text-xs font-mono font-bold ${activeTab === 'doc_builder_brd' ? 'text-emerald-100' : 'text-slate-600'}`}>Baseline & Preceding Output</div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTabChange('prompt_assembly')}
-            className={`p-3.5 rounded-xl border-2 transition-all text-left space-y-1 ${
-              activeTab === 'prompt_assembly'
-                ? 'bg-amber-500 border-amber-600 text-white shadow-md ring-2 ring-amber-400'
-                : 'bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100 hover:border-amber-400 shadow-xs'
-            }`}
-          >
-            <div className="font-extrabold">4. Prompt Builder Engine</div>
-            <div className={`text-[10px] md:text-xs font-mono font-bold ${activeTab === 'prompt_assembly' ? 'text-amber-100' : 'text-slate-600'}`}>Ghép Context ➔ Claude / LLM</div>
-          </button>
-        </div>
-
-      </div>
-
-      {/* Main Grid Section: Config Sidebar & Prompt Editor */}
       <div className="grid md:grid-cols-12 gap-6 items-start">
-        {/* Config Menu Selector (Grouped by Phase & Step) */}
-        <div className="md:col-span-4 space-y-3">
-          <div className="bg-white border-2 border-slate-300 rounded-2xl p-5 space-y-5 shadow-sm">
-            <h3 className="font-extrabold text-slate-700 text-xs px-1 uppercase tracking-wider font-mono">DANH MỤC CẤU HÌNH THEO PHASE & STEP</h3>
-
-            <div className="space-y-4">
-              {/* SECTION 1: GLOBAL CORE */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-extrabold text-indigo-900 uppercase tracking-wider px-1 font-mono">GLOBAL CORE INSTRUCTION</div>
+        <div className="md:col-span-5 lg:col-span-4 space-y-3">
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-5 space-y-4 shadow-sm">
+            <h3 className="font-black text-slate-900 text-sm md:text-base px-1 uppercase tracking-wider">DANH MỤC CẤU HÌNH</h3>
+              
+              {/* CATEGORY 1: GLOBAL CORE ENGINE (2 CONFIGS) */}
+              <div className="border-2 border-slate-300 rounded-xl overflow-hidden shadow-xs">
                 <button
                   type="button"
-                  onClick={() => handleTabChange('system_instruction')}
-                  className={`w-full text-left p-3 rounded-xl text-xs md:text-sm font-extrabold transition-all border-2 flex items-center justify-between ${
-                    activeTab === 'system_instruction'
-                      ? 'bg-indigo-600 border-indigo-700 text-white shadow-sm'
-                      : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100'
-                  }`}
+                  onClick={() => setOpenGroup('core')}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-left"
                 >
-                  <span className="truncate">System Instruction (Global)</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${activeTab === 'system_instruction' ? 'bg-white/30 text-white' : 'bg-indigo-100 text-indigo-900 border border-indigo-300'}`}>
-                    Core
-                  </span>
+                  <span className="text-sm md:text-base font-black text-slate-900 tracking-tight">1. CORE SYSTEM ENGINE</span>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-indigo-100 text-indigo-950 border border-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-black">2 Configs</span>
+                    <span className="text-slate-600 text-sm font-black">{openGroup === 'core' ? '▼' : '▶'}</span>
+                  </div>
                 </button>
 
+                {openGroup === 'core' && (
+                  <div className="p-2.5 bg-white space-y-2 border-t-2 border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => handleTabChange('system_instruction', 'core')}
+                      className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                        activeTab === 'system_instruction'
+                          ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
+                          : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
+                      }`}
+                    >
+                      <span className="truncate">System Instruction (Global)</span>
+                      <span className={`text-xs px-2.5 py-0.5 rounded-md font-extrabold shrink-0 ${activeTab === 'system_instruction' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
+                        Global
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleTabChange('prompt_assembly', 'core')}
+                      className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                        activeTab === 'prompt_assembly'
+                          ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
+                          : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
+                      }`}
+                    >
+                      <span className="truncate">Prompt Builder Engine</span>
+                      <span className={`text-xs px-2.5 py-0.5 rounded-md font-extrabold shrink-0 ${activeTab === 'prompt_assembly' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
+                        Engine
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* CATEGORY 2: PHASE 1 DOC BUILDER (6 CONFIGS) */}
+              <div className="border-2 border-slate-300 rounded-xl overflow-hidden shadow-xs">
                 <button
                   type="button"
-                  onClick={() => handleTabChange('prompt_assembly')}
-                  className={`w-full text-left p-3 rounded-xl text-xs md:text-sm font-extrabold transition-all border-2 flex items-center justify-between ${
-                    activeTab === 'prompt_assembly'
-                      ? 'bg-amber-600 border-amber-700 text-white shadow-sm'
-                      : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100'
-                  }`}
+                  onClick={() => setOpenGroup('phase1')}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-left"
                 >
-                  <span className="truncate">Prompt Builder Engine (6 Tầng)</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${activeTab === 'prompt_assembly' ? 'bg-white/30 text-white' : 'bg-amber-100 text-amber-900 border border-amber-300'}`}>
-                    Engine
-                  </span>
+                  <span className="text-sm md:text-base font-black text-slate-900 tracking-tight">2. PHASE 1: DOC BUILDER</span>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-indigo-100 text-indigo-950 border border-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-black">6 Configs</span>
+                    <span className="text-slate-600 text-sm font-black">{openGroup === 'phase1' ? '▼' : '▶'}</span>
+                  </div>
                 </button>
+
+                {openGroup === 'phase1' && (
+                  <div className="p-2.5 bg-white space-y-2 border-t-2 border-slate-200">
+                    {phase1Keys.map(k => {
+                      const meta = configs[k]
+                      if (!meta) return null
+                      const isActive = activeTab === k
+                      return (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => handleTabChange(k, 'phase1')}
+                          className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                            isActive
+                              ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
+                              : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
+                          }`}
+                        >
+                          <span className="truncate">{meta.label}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
+                            {meta.step || 'Doc'}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
+              {/* CATEGORY 3: PHASE 2 QA PIPELINE (13 CONFIGS) */}
+              <div className="border-2 border-slate-300 rounded-xl overflow-hidden shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => setOpenGroup('phase2')}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-left"
+                >
+                  <span className="text-sm md:text-base font-black text-slate-900 tracking-tight">3. PHASE 2: QA PIPELINE</span>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-indigo-100 text-indigo-950 border border-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-black">13 Configs</span>
+                    <span className="text-slate-600 text-sm font-black">{openGroup === 'phase2' ? '▼' : '▶'}</span>
+                  </div>
+                </button>
 
-              {/* SECTION 2: PHASE 1 REQUIREMENTS BASELINE (BY DOC TYPE) */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-extrabold text-purple-900 uppercase tracking-wider px-1 font-mono">PHASE 1: DOC BUILDER (BY DOC TYPE)</div>
-                {phase1Keys.map(k => {
-                  const meta = configs[k]
-                  if (!meta) return null
-                  const isActive = activeTab === k
-                  return (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => handleTabChange(k)}
-                      className={`w-full text-left p-3 rounded-xl text-xs md:text-sm transition-all border-2 flex items-center justify-between gap-2 ${
-                        isActive
-                          ? 'bg-purple-600 border-purple-700 text-white font-extrabold shadow-sm'
-                          : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100 font-extrabold'
-                      }`}
-                    >
-                      <div className="min-w-0 truncate">
-                        <div className="truncate font-extrabold">{meta.label}</div>
-                      </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 ${isActive ? 'bg-white/30 text-white' : 'bg-purple-100 text-purple-900 border border-purple-300'}`}>
-                        {meta.step || 'Phase 1'}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
+                {openGroup === 'phase2' && (
+                  <div className="p-2.5 bg-white space-y-3.5 border-t-2 border-slate-200">
+                    {/* Sub-group A */}
+                    <div className="space-y-1.5">
+                      <div className="text-xs font-black text-slate-500 uppercase tracking-wider px-1">A. TASK PROMPTS (8)</div>
+                      {phase2Keys.map(k => {
+                        const meta = configs[k]
+                        if (!meta) return null
+                        const isActive = activeTab === k
+                        return (
+                          <button
+                            key={k}
+                            type="button"
+                            onClick={() => handleTabChange(k, 'phase2')}
+                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                              isActive
+                                ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
+                                : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
+                            }`}
+                          >
+                            <span className="truncate">{meta.label}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
+                              {meta.step || 'Step'}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
 
-              {/* SECTION 3: PHASE 2 QA TESTING PIPELINE (4 STEPS) */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-extrabold text-emerald-900 uppercase tracking-wider px-1 font-mono">PHASE 2: QA TESTING PIPELINE (4 STEPS)</div>
-                {phase2Keys.map(k => {
-                  const meta = configs[k]
-                  if (!meta) return null
-                  const isActive = activeTab === k
-                  return (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => handleTabChange(k)}
-                      className={`w-full text-left p-3 rounded-xl text-xs md:text-sm transition-all border-2 flex items-center justify-between gap-2 ${
-                        isActive
-                          ? 'bg-emerald-600 border-emerald-700 text-white font-extrabold shadow-sm'
-                          : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100 font-extrabold'
-                      }`}
-                    >
-                      <div className="min-w-0 truncate">
-                        <div className="truncate font-extrabold">{meta.label}</div>
-                      </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 ${isActive ? 'bg-white/30 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}`}>
-                        {meta.step || 'Step'}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
+                    {/* Sub-group B */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="text-xs font-black text-slate-500 uppercase tracking-wider px-1">B. FOCUS DIRECTIVES (4)</div>
+                      {directiveKeys.map(k => {
+                        const meta = configs[k]
+                        if (!meta) return null
+                        const isActive = activeTab === k
+                        return (
+                          <button
+                            key={k}
+                            type="button"
+                            onClick={() => handleTabChange(k, 'phase2')}
+                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                              isActive
+                                ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
+                                : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
+                            }`}
+                          >
+                            <span className="truncate">{meta.label}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
+                              Directive
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
 
-              {/* SECTION 4: PHASE 2 FOCUS DIRECTIVES (4 STEPS) */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-extrabold text-sky-900 uppercase tracking-wider px-1 font-mono">PHASE 2 FOCUS DIRECTIVES (CHECKBOXES)</div>
-                {directiveKeys.map(k => {
-                  const meta = configs[k]
-                  if (!meta) return null
-                  const isActive = activeTab === k
-                  return (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => handleTabChange(k)}
-                      className={`w-full text-left p-3 rounded-xl text-xs md:text-sm transition-all border-2 flex items-center justify-between gap-2 ${
-                        isActive
-                          ? 'bg-sky-600 border-sky-700 text-white font-extrabold shadow-sm'
-                          : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100 font-extrabold'
-                      }`}
-                    >
-                      <div className="min-w-0 truncate">
-                        <div className="truncate font-extrabold">{meta.label}</div>
-                      </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 ${isActive ? 'bg-white/30 text-white' : 'bg-sky-100 text-sky-900 border border-sky-300'}`}>
-                        {meta.step || 'Directives'}
-                      </span>
-                    </button>
-                  )
-                })}
+                    {/* Sub-group C */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="text-xs font-black text-slate-500 uppercase tracking-wider px-1">C. SPECIALIZED AGENT (1)</div>
+                      {specializedKeys.map(k => {
+                        const meta = configs[k]
+                        if (!meta) return null
+                        const isActive = activeTab === k
+                        return (
+                          <button
+                            key={k}
+                            type="button"
+                            onClick={() => handleTabChange(k, 'phase2')}
+                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                              isActive
+                                ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
+                                : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
+                            }`}
+                          >
+                            <span className="truncate">{meta.label}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
+                              Subagent
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
-
-              {/* SECTION 5: SPECIALIZED SUBAGENTS */}
-              <div className="space-y-1.5">
-                <div className="text-xs font-extrabold text-amber-900 uppercase tracking-wider px-1 font-mono">SPECIALIZED SUBAGENTS</div>
-                {specializedKeys.map(k => {
-                  const meta = configs[k]
-                  if (!meta) return null
-                  const isActive = activeTab === k
-                  return (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => handleTabChange(k)}
-                      className={`w-full text-left p-3 rounded-xl text-xs md:text-sm transition-all border-2 flex items-center justify-between gap-2 ${
-                        isActive
-                          ? 'bg-amber-600 border-amber-700 text-white font-extrabold shadow-sm'
-                          : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100 font-extrabold'
-                      }`}
-                    >
-                      <span className="truncate font-extrabold">{meta.label}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 ${isActive ? 'bg-white/30 text-white' : 'bg-amber-100 text-amber-900 border border-amber-300'}`}>Subagent</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Prompt Editor Panel */}
-        <div className="md:col-span-8 bg-sky-50/80 border-2 border-sky-400 border-l-8 border-l-sky-600 rounded-2xl p-6 space-y-5 shadow-md text-slate-900">
-          {/* Header Panel with Phase, Step & Standard Metadata Badges */}
-          <div className="border-b-2 border-sky-200 pb-4 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <h2 className="font-extrabold text-slate-900 text-lg md:text-2xl">
+        <div className="md:col-span-8 bg-white border-2 border-slate-300 rounded-2xl p-6 space-y-5 shadow-sm text-slate-900">
+          {/* Header Panel */}
+          <div className="border-b border-slate-200 pb-4 space-y-3">
+            <div className="flex items-start justify-between flex-wrap gap-3">
+              <div className="space-y-1 max-w-xl">
+                <h2 className="font-black text-slate-900 text-xl md:text-2xl tracking-tight">
                   {currentConfig.label}
                 </h2>
-                {currentConfig.desc && <p className="text-xs md:text-sm font-bold text-slate-700 mt-1 leading-relaxed">{currentConfig.desc}</p>}
+                {currentConfig.desc && (
+                  <p className="text-xs md:text-sm font-medium text-slate-600 leading-relaxed">
+                    {currentConfig.desc}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -422,63 +381,55 @@ export default function SystemConfigsPage() {
                   type="button"
                   onClick={handleReset}
                   disabled={saving}
-                  className="bg-white text-slate-800 hover:bg-slate-100 border-2 border-slate-300 px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-xs disabled:opacity-50"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-bold transition-all shadow-xs disabled:opacity-50"
                 >
-                  Khôi phục Mặc định
+                  Khôi phục
                 </button>
                 <button
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-indigo-600 text-white hover:bg-indigo-500 px-5 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md disabled:opacity-50"
+                  className="bg-indigo-600 text-white hover:bg-indigo-500 px-4 py-1.5 rounded-xl text-xs md:text-sm font-bold transition-all shadow-sm disabled:opacity-50"
                 >
                   {saving ? 'Đang lưu...' : 'Lưu Cấu hình'}
                 </button>
               </div>
             </div>
 
-            {/* Badges Bar: Phase, Step Number, Testing Standard */}
-            <div className="flex items-center gap-2 flex-wrap text-xs md:text-sm pt-1 font-mono font-extrabold">
-              <span className="bg-indigo-100 text-indigo-900 border-2 border-indigo-300 px-3 py-1 rounded-full">
-                {currentConfig.phase || 'Global Core'}
+            {/* Highlighted Industry Standards & Scope */}
+            <div className="flex items-center gap-2 flex-wrap text-xs pt-1 font-semibold">
+              <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-lg">
+                📌 <strong>Phạm vi áp dụng:</strong> {currentConfig.phase || 'Global Core Engine'}
               </span>
-              <span className="bg-emerald-100 text-emerald-900 border-2 border-emerald-300 px-3 py-1 rounded-full">
-                {currentConfig.step || 'Core'}
-              </span>
-              <span className="bg-white text-slate-800 border-2 border-slate-300 px-3 py-1 rounded-full">
-                Standard: {currentConfig.standard || 'ISTQB Certified Standard'}
+              <span className="bg-amber-50 text-amber-900 border border-amber-300 px-3 py-1 rounded-lg shadow-2xs">
+                📜 <strong>Tiêu chuẩn Quốc tế:</strong> {currentConfig.standard || 'ISTQB & ISO/IEC/IEEE 29119 Standard'}
               </span>
             </div>
           </div>
 
           {message && (
             <div
-              className={`p-4 rounded-xl text-xs md:text-sm font-extrabold border-2 shadow-xs ${
+              className={`p-3.5 rounded-xl text-xs md:text-sm font-bold border shadow-xs ${
                 message.type === 'success'
-                  ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
-                  : 'bg-red-100 text-red-900 border-red-300'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : 'bg-red-50 text-red-800 border-red-300'
               }`}
             >
               {message.text}
             </div>
           )}
 
-          <div>
-            <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-2">
-              Nội dung Prompt Template Markdown (Quy tắc Các bước Xây dựng & Tiêu chuẩn):
+          <div className="space-y-2">
+            <label className="block text-xs md:text-sm font-bold text-slate-800">
+              Nội dung Prompt Template (Markdown / Text Quy tắc):
             </label>
             <textarea
               value={editingContent}
               onChange={e => setEditingContent(e.target.value)}
-              rows={22}
-              className="w-full bg-white border-2 border-slate-300 rounded-xl p-4 font-mono text-xs md:text-sm font-semibold text-slate-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+              rows={20}
+              className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-4 font-mono text-xs md:text-sm font-semibold text-slate-900 leading-relaxed focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all resize-y"
               placeholder="Nhập nội dung cấu hình prompt..."
             />
-          </div>
-
-          <div className="flex items-center justify-between text-xs md:text-sm text-slate-700 font-mono font-extrabold pt-3 border-t-2 border-sky-200">
-            <span>Độ dài: {editingContent.length.toLocaleString('vi-VN')} ký tự</span>
-            <span>Tự động áp dụng cho Prompt Builder Engine khi gọi Agent</span>
           </div>
         </div>
       </div>

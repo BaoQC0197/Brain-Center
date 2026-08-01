@@ -28,30 +28,21 @@ export const DEFAULT_TASK_PROMPTS: Record<string, { label: string; desc: string;
     content: DEFAULT_SYSTEM_INSTRUCTION,
   },
   'prompt_assembly': {
-    label: '4. Prompt Builder Engine (Cấu trúc Ghép 6 Tầng)',
-    desc: 'Quy tắc lắp ráp 6 tầng Context, System Instruction, Task Prompt & Project Baseline gửi tới Claude / LLM',
+    label: 'Cấu trúc Ghép Prompt Tự động (Prompt Engine)',
+    desc: 'Quy tắc tự động hợp nhất System Instruction, Cấu hình Dự án, Tài liệu Đầu vào & Task Prompts trước khi gửi AI',
     phase: 'Global Core',
     step: 'Core Engine',
-    standard: '6-Layer Context Assembly Model',
-    content: `CẤU TRÚC LẮP RÁP PROMPT 6 TẦNG (6-LAYER PROMPT ASSEMBLY MODEL):
+    standard: 'Context Assembly Architecture',
+    content: `QUY TẮC TỰ ĐỘNG HỢP NHẤT PROMPT KHI GỬI AI (PROMPT ASSEMBLY ENGINE):
 
-Layer 1: Global System Instruction
-- Nạp quy tắc định danh AI Agent, tiêu chuẩn ISTQB/IEEE chung và quy tắc vẽ Mermaid Diagram.
+Khi người dùng thực thi bất kỳ Agent nào (Phase 1 hoặc Phase 2), hệ thống sẽ TỰ ĐỘNG ghép 6 thành phần sau thành 1 câu Prompt duy nhất gửi tới AI:
 
-Layer 2: Project Instruction Override
-- Nạp các quy tắc tùy chỉnh riêng của dự án do người dùng thiết lập trong Settings.
-
-Layer 3: Project Context
-- Nạp Tên dự án, Mô tả, Tech Stack, URLs Staging/Prod/Admin & Link Bug Tracker.
-
-Layer 4: Knowledge Base Baseline (Phase 1 Docs)
-- Nạp toàn bộ nội dung tài liệu Yêu cầu Baseline (BRD, SRS, User Story...) đã tạo ở Phase 1.
-
-Layer 5: Requirements Clarification Report (Sub-agent Clarify Output)
-- Nạp kết quả báo cáo rà soát lỗ hổng & bộ câu trả lời làm rõ nghiệp vụ của người dùng.
-
-Layer 6: Task Execution Prompt & Focus Directives
-- Nạp quy tắc biên soạn cụ thể của Agent (Step 1 -> 8) cùng các checkbox Focus Directives được chọn.`,
+1. Tầng 1 (System Instruction): Nạp định danh vai trò AI Agent, nguyên tắc kiểm thử và quy tắc vẽ Mermaid Diagram.
+2. Tầng 2 (Project Settings): Nạp các quy tắc bổ sung riêng của Dự án do người dùng thiết lập.
+3. Tầng 3 (Project Information): Nạp Tên dự án, Mô tả, Công nghệ (Tech Stack) & URLs kiểm thử.
+4. Tầng 4 (Knowledge Base / Phase 1 Docs): Nạp nội dung các tài liệu đặc tả đầu vào (BRD, SRS, User Story...).
+5. Tầng 5 (Requirements Clarification): Nạp kết quả rà soát lỗ hổng & phần trả lời nghiệp vụ bổ sung từ người dùng.
+6. Tầng 6 (Task Prompt & Directives): Nạp câu lệnh hướng dẫn chi tiết của Agent được chọn cùng các checkbox định hướng.`,
   },
 
   // ── PHASE 1: DOC BUILDER TASK PROMPTS BY DOCUMENT TYPE ──────────────────────

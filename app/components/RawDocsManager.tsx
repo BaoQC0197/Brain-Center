@@ -80,28 +80,28 @@ export default function RawDocsManager({
 
   if (rawDocs.length === 0) {
     return (
-      <div className="bg-sky-50/90 border-2 border-sky-400 border-l-8 border-l-sky-600 rounded-2xl p-8 text-center space-y-4 shadow-md">
+      <div className="bg-white border-2 border-indigo-200 rounded-2xl p-10 text-center space-y-5 shadow-sm text-slate-900">
         <div>
-          <span className="text-xs md:text-sm bg-sky-600 text-white px-3.5 py-1 rounded-md font-mono font-extrabold shadow-sm">
-            PHASE 1 ➔ REQUIREMENT BASELINE INGESTION
+          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-md font-mono font-bold uppercase tracking-wider">
+            Phase 1 Baseline Ingestion
           </span>
-          <h3 className="font-extrabold text-slate-900 text-lg md:text-xl mt-3">Chưa có Tài liệu Yêu cầu / Đầu vào nào</h3>
-          <p className="text-sm font-semibold text-slate-700 mt-1 max-w-lg mx-auto leading-relaxed">
+          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 mt-4">Chưa có Tài liệu Yêu cầu / Đầu vào nào</h2>
+          <p className="text-sm font-medium text-slate-600 mt-2 max-w-lg mx-auto leading-relaxed">
             Vui lòng upload tài liệu có sẵn (BRD, SRS, User Story, Figma) hoặc dùng Doc Builder Agent để khởi tạo đặc tả yêu cầu chuẩn cho QA.
           </p>
         </div>
         <div className="flex items-center justify-center gap-3 flex-wrap pt-2">
           <button
             onClick={onAddRawDoc}
-            className="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all shadow-md"
+            className="bg-white border-2 border-slate-300 hover:bg-slate-50 text-slate-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-xs"
           >
             + Upload / Thêm doc có sẵn
           </button>
           <Link
             href={`/projects/${projectId}/doc-builder`}
-            className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-extrabold hover:bg-indigo-500 transition-all shadow-md"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm"
           >
-            Soạn doc mới với Doc Builder Agent
+            Soạn doc mới với Doc Builder Agent ➔
           </Link>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function RawDocsManager({
       <div className="bg-sky-100/90 px-6 py-5 border-b-2 border-sky-300 flex items-center justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs md:text-sm bg-sky-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-sm">
+            <span className="text-xs md:text-sm bg-sky-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-xs">
               PHASE 1 ➔ REQUIREMENT BASELINE
             </span>
             <h2 className="font-extrabold text-slate-900 text-xl md:text-2xl tracking-tight">Quản lý Tài liệu Yêu cầu Đầu vào</h2>
@@ -131,13 +131,13 @@ export default function RawDocsManager({
         <div className="flex items-center gap-3 flex-wrap">
           <Link
             href={`/projects/${projectId}/doc-builder`}
-            className="bg-indigo-600 text-white hover:bg-indigo-500 px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-sm"
+            className="bg-indigo-600 text-white hover:bg-indigo-500 px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md"
           >
             Doc Builder Agent
           </Link>
           <button
             onClick={onAddRawDoc}
-            className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-sm"
+            className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md"
           >
             + Upload / Thêm doc
           </button>
@@ -145,15 +145,15 @@ export default function RawDocsManager({
       </div>
 
       {/* Category Tabs & Search Filter Bar */}
-      <div className="p-4 bg-white border-b-2 border-sky-200 space-y-3">
+      <div className="p-4 bg-white border-b-2 border-slate-200 space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-3">
           {/* Category Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs md:text-sm">
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-3.5 py-2 rounded-xl font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+              className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 activeTab === 'all'
-                  ? 'bg-sky-600 text-white shadow-sm'
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
               }`}
             >
@@ -163,9 +163,9 @@ export default function RawDocsManager({
 
             <button
               onClick={() => setActiveTab('specs')}
-              className={`px-3.5 py-2 rounded-xl font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+              className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 activeTab === 'specs'
-                  ? 'bg-sky-600 text-white shadow-sm'
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
               }`}
             >
@@ -175,9 +175,9 @@ export default function RawDocsManager({
 
             <button
               onClick={() => setActiveTab('stories')}
-              className={`px-3.5 py-2 rounded-xl font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+              className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 activeTab === 'stories'
-                  ? 'bg-sky-600 text-white shadow-sm'
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
               }`}
             >
@@ -187,9 +187,9 @@ export default function RawDocsManager({
 
             <button
               onClick={() => setActiveTab('ui')}
-              className={`px-3.5 py-2 rounded-xl font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+              className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 activeTab === 'ui'
-                  ? 'bg-sky-600 text-white shadow-sm'
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
               }`}
             >
@@ -199,9 +199,9 @@ export default function RawDocsManager({
 
             <button
               onClick={() => setActiveTab('upload')}
-              className={`px-3.5 py-2 rounded-xl font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+              className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                 activeTab === 'upload'
-                  ? 'bg-sky-600 text-white shadow-sm'
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
               }`}
             >
@@ -218,20 +218,20 @@ export default function RawDocsManager({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Tìm tài liệu..."
-                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-semibold"
+                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
               />
             </div>
 
             <div className="flex items-center border-2 border-slate-300 rounded-xl overflow-hidden bg-slate-100 p-0.5 font-bold">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-sky-600 text-white font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
+                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-indigo-600 text-white font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
               >
                 Card
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-sky-600 text-white font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
+                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-indigo-600 text-white font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
               >
                 List
               </button>

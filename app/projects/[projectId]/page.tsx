@@ -834,145 +834,116 @@ export default function ProjectPage() {
 
   return (
     <div className="space-y-6 w-full pb-16">
-      {/* Top Breadcrumb Navigation */}
-      <div className="flex items-center justify-between flex-wrap gap-4 bg-white border-2 border-slate-300 p-5 rounded-2xl shadow-md">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1.5 font-mono">
-            <Link href="/" className="hover:text-indigo-600 transition-colors">Projects</Link>
-            <span>/</span>
-            <span className="text-slate-900 font-extrabold">{project.name}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight">{project.name}</h1>
-            <button
-              onClick={() => setShowEditProject(true)}
-              className="text-slate-700 hover:text-indigo-600 p-1 rounded-xl hover:bg-slate-100 transition-colors text-xs flex items-center gap-1 font-extrabold border-2 border-slate-300 px-3 py-1"
-              title="Chỉnh sửa tên và mô tả dự án"
-            >
-              <span>Chỉnh sửa</span>
-            </button>
-          </div>
-          {project.description && <p className="text-slate-700 text-xs md:text-sm font-semibold mt-1.5 max-w-2xl leading-relaxed">{project.description}</p>}
-          {project.techStack && (
-            <div className="flex flex-wrap gap-1.5 mt-2.5">
-              {project.techStack.split(',').map(t => (
-                <span key={t} className="bg-slate-100 text-slate-800 border border-slate-300 text-xs px-2.5 py-0.5 rounded-full font-mono font-bold">
-                  {t.trim()}
-                </span>
-              ))}
-            </div>
-          )}
+      {/* Compact High-Density Header Bar */}
+      <div className="bg-white border-2 border-slate-300 px-5 py-3.5 rounded-2xl shadow-xs flex items-center justify-between flex-wrap gap-3">
+        {/* Left Side: Back Button */}
+        <Link
+          href="/"
+          className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-extrabold border border-slate-300 transition-all flex items-center gap-1 shrink-0"
+        >
+          ← Trở về
+        </Link>
 
-          {/* Quick Domain Launcher Buttons in Header */}
-          {(project.stagingUrl || project.prodUrl || project.figmaUrl || project.bugListUrl) && (
-            <div className="flex items-center gap-2 mt-3 flex-wrap text-xs md:text-sm">
-              <span className="text-slate-500 font-mono font-extrabold">Môi trường & Tool:</span>
-              {project.stagingUrl && (
-                <a
-                  href={project.stagingUrl.startsWith('http') ? project.stagingUrl : `https://${project.stagingUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-amber-50 hover:bg-amber-100 text-amber-900 border-2 border-amber-300 px-3 py-1 rounded-xl font-mono font-extrabold flex items-center gap-1.5 transition-all shadow-2xs"
-                  title={`Mở Staging: ${project.stagingUrl}`}
-                >
-                  <span>🟡 Staging:</span>
-                  <span className="underline max-w-[180px] truncate">{project.stagingUrl}</span>
-                </a>
-              )}
-              {project.prodUrl && (
-                <a
-                  href={project.prodUrl.startsWith('http') ? project.prodUrl : `https://${project.prodUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-2 border-emerald-300 px-3 py-1 rounded-xl font-mono font-extrabold flex items-center gap-1.5 transition-all shadow-2xs"
-                  title={`Mở Production: ${project.prodUrl}`}
-                >
-                  <span>🟢 Production:</span>
-                  <span className="underline max-w-[180px] truncate">{project.prodUrl}</span>
-                </a>
-              )}
-              {project.figmaUrl && (
-                <a
-                  href={project.figmaUrl.startsWith('http') ? project.figmaUrl : `https://${project.figmaUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-pink-50 hover:bg-pink-100 text-pink-900 border-2 border-pink-300 px-3 py-1 rounded-xl font-mono font-extrabold flex items-center gap-1.5 transition-all shadow-2xs"
-                  title={`Mở Figma File: ${project.figmaUrl}`}
-                >
-                  <span>🎨 Figma Link:</span>
-                  <span className="underline max-w-[180px] truncate">{project.figmaUrl}</span>
-                </a>
-              )}
-              {project.bugListUrl && (
-                <a
-                  href={project.bugListUrl.startsWith('http') ? project.bugListUrl : `https://${project.bugListUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-rose-50 hover:bg-rose-100 text-rose-900 border-2 border-rose-300 px-3 py-1 rounded-xl font-mono font-extrabold flex items-center gap-1.5 transition-all shadow-2xs"
-                  title={`Mở File Bug List Online: ${project.bugListUrl}`}
-                >
-                  <span>🔴 Bug List Online:</span>
-                  <span className="underline max-w-[180px] truncate">{project.bugListUrl}</span>
-                </a>
-              )}
-
-            </div>
-          )}
-
-        </div>
-
-        <div>
-          <Link
-            href="/"
-            className="bg-white border-2 border-slate-300 text-slate-800 px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold hover:bg-slate-100 transition-all shadow-xs flex items-center gap-1.5"
-          >
-            <span>← Trở về</span>
-          </Link>
-        </div>
+        {/* Right Side: Larger Project Name Only */}
+        <h1 className="text-xl md:text-2xl font-black text-slate-900 ml-auto tracking-tight">{project.name}</h1>
       </div>
 
-      {/* 3-TAB NAVIGATION BAR */}
-      <div className="bg-white border-2 border-slate-300 rounded-2xl p-2 grid grid-cols-1 sm:grid-cols-3 gap-2 shadow-sm">
+      {/* Amber/Orange High-Contrast 3-Phase Tab Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Tab 1: Phase 1 */}
         <button
           type="button"
           onClick={() => setActiveTab('phase1')}
-          className={`py-3.5 px-4 rounded-xl font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 border-2 ${activeTab === 'phase1'
-            ? 'bg-sky-600 border-sky-700 text-white shadow-md'
-            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+          className={`p-6 rounded-2xl transition-all text-left border-2 flex flex-col justify-between space-y-4 cursor-pointer ${
+            activeTab === 'phase1'
+              ? 'bg-gradient-to-br from-amber-500 to-orange-600 border-amber-600 text-white shadow-lg shadow-amber-500/25 ring-4 ring-amber-200 translate-y-[-2px]'
+              : 'bg-white border-slate-200 text-slate-900 hover:border-amber-400 hover:bg-amber-50/40 shadow-xs'
+          }`}
         >
-          <span>Phase 1: Tài liệu Đầu vào (Baseline)</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-mono font-bold ${activeTab === 'phase1' ? 'bg-white/30 text-white' : 'bg-sky-100 text-sky-900 border border-sky-300'}`}>
-            {rawDocs.length} Docs
-          </span>
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-mono font-extrabold px-3 py-1 rounded-md tracking-wider ${
+              activeTab === 'phase1' ? 'bg-amber-950/40 text-amber-100 border border-amber-300/40' : 'bg-amber-100 text-amber-950 border border-amber-200'
+            }`}>
+              PHASE 1
+            </span>
+            <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full ${
+              activeTab === 'phase1' ? 'bg-white text-amber-950 font-black shadow-xs' : 'bg-slate-100 text-slate-700 border border-slate-200'
+            }`}>
+              {rawDocs.length} Docs
+            </span>
+          </div>
+          <div>
+            <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'phase1' ? 'text-white' : 'text-slate-900'}`}>
+              Tài liệu Đầu vào (Baseline)
+            </h2>
+            <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'phase1' ? 'text-amber-50' : 'text-slate-500'}`}>
+              BRD, SRS, User Story, Wireframe & Audio
+            </p>
+          </div>
         </button>
 
+        {/* Tab 2: Phase 2 */}
         <button
           type="button"
           onClick={() => setActiveTab('phase2')}
-          className={`py-3.5 px-4 rounded-xl font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 border-2 ${activeTab === 'phase2'
-            ? 'bg-emerald-600 border-emerald-700 text-white shadow-md'
-            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+          className={`p-6 rounded-2xl transition-all text-left border-2 flex flex-col justify-between space-y-4 cursor-pointer ${
+            activeTab === 'phase2'
+              ? 'bg-gradient-to-br from-amber-500 to-orange-600 border-amber-600 text-white shadow-lg shadow-amber-500/25 ring-4 ring-amber-200 translate-y-[-2px]'
+              : 'bg-white border-slate-200 text-slate-900 hover:border-amber-400 hover:bg-amber-50/40 shadow-xs'
+          }`}
         >
-          <span>Phase 2: Quy trình QA Agents</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-mono font-bold ${activeTab === 'phase2' ? 'bg-white/30 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}`}>
-            4 Steps
-          </span>
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-mono font-extrabold px-3 py-1 rounded-md tracking-wider ${
+              activeTab === 'phase2' ? 'bg-amber-950/40 text-amber-100 border border-amber-300/40' : 'bg-amber-100 text-amber-950 border border-amber-200'
+            }`}>
+              PHASE 2
+            </span>
+            <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full ${
+              activeTab === 'phase2' ? 'bg-white text-amber-950 font-black shadow-xs' : 'bg-slate-100 text-slate-700 border border-slate-200'
+            }`}>
+              4 Steps
+            </span>
+          </div>
+          <div>
+            <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'phase2' ? 'text-white' : 'text-slate-900'}`}>
+              Quy trình QA Agents
+            </h2>
+            <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'phase2' ? 'text-amber-50' : 'text-slate-500'}`}>
+              Review Requirement, Strategy, Cases & Report
+            </p>
+          </div>
         </button>
 
+        {/* Tab 3: Artifacts */}
         <button
           type="button"
           onClick={() => setActiveTab('artifacts')}
-          className={`py-3.5 px-4 rounded-xl font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 border-2 ${activeTab === 'artifacts'
-            ? 'bg-indigo-600 border-indigo-700 text-white shadow-md'
-            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+          className={`p-6 rounded-2xl transition-all text-left border-2 flex flex-col justify-between space-y-4 cursor-pointer ${
+            activeTab === 'artifacts'
+              ? 'bg-gradient-to-br from-amber-500 to-orange-600 border-amber-600 text-white shadow-lg shadow-amber-500/25 ring-4 ring-amber-200 translate-y-[-2px]'
+              : 'bg-white border-slate-200 text-slate-900 hover:border-amber-400 hover:bg-amber-50/40 shadow-xs'
+          }`}
         >
-          <span>Lưu trữ & Quản lý Tài liệu</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-mono font-bold ${activeTab === 'artifacts' ? 'bg-white/30 text-white' : 'bg-indigo-100 text-indigo-900 border border-indigo-300'}`}>
-            {docs.length} Files
-          </span>
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-mono font-extrabold px-3 py-1 rounded-md tracking-wider ${
+              activeTab === 'artifacts' ? 'bg-amber-950/40 text-amber-100 border border-amber-300/40' : 'bg-amber-100 text-amber-950 border border-amber-200'
+            }`}>
+              KHO TÀI LIỆU
+            </span>
+            <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full ${
+              activeTab === 'artifacts' ? 'bg-white text-amber-950 font-black shadow-xs' : 'bg-slate-100 text-slate-700 border border-slate-200'
+            }`}>
+              {docs.length} Files
+            </span>
+          </div>
+          <div>
+            <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'artifacts' ? 'text-white' : 'text-slate-900'}`}>
+              Lưu trữ & Quản lý Tài liệu
+            </h2>
+            <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'artifacts' ? 'text-amber-50' : 'text-slate-500'}`}>
+              Xuất file Markdown, Word (.doc) & Quản lý bản vết
+            </p>
+          </div>
         </button>
       </div>
 
