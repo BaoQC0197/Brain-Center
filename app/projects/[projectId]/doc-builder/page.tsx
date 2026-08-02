@@ -556,6 +556,20 @@ export default function DocBuilderPage() {
             </button>
           </div>
 
+          {/* Progress Modal animation inside Step 2 when generating next round - MOVED TO TOP FOR IMMEDIATE VISIBILITY */}
+          {loading && (
+            <AiProcessingProgressModal
+              title={`Trợ lý đang phân tích câu trả lời Vòng ${round} & tìm lỗ hổng cho Vòng ${round + 1}...`}
+              steps={[
+                `Đọc toàn bộ đáp án người dùng vừa nhập ở Vòng ${round}...`,
+                `Rà soát bẫy lỗi nghiệp vụ theo tiêu chuẩn ${DOC_BUILDER_STANDARDS[standard]?.label}...`,
+                "Phát hiện các thông tin mơ hồ nâng cao còn thiếu...",
+                `Tạo bộ câu hỏi phỏng vấn đào sâu Vòng ${round + 1}...`
+              ]}
+              standard={DOC_BUILDER_STANDARDS[standard]?.label}
+            />
+          )}
+
           {/* Round Selector Tabs */}
           <div className="flex items-center gap-2 border-b-2 border-slate-200 pb-3 flex-wrap">
             <span className="text-xs font-bold text-slate-600 font-mono uppercase mr-2">
@@ -641,10 +655,17 @@ export default function DocBuilderPage() {
                 type="button"
                 onClick={generateNextRoundQuestions}
                 disabled={loading}
-                className="bg-white text-indigo-900 border-2 border-indigo-400 hover:bg-indigo-50 px-4 py-3 rounded-xl text-xs md:text-sm font-bold transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                className="bg-white text-indigo-900 border-2 border-indigo-400 hover:bg-indigo-50 px-4 py-3 rounded-xl text-xs md:text-sm font-bold transition-all shadow-xs disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 title="Phân tích tiếp các lỗ hổng nâng cao để hỏi Vòng tiếp theo"
               >
-                <span>{loading ? 'Đang phân tích...' : `Hỏi thêm Vòng ${round + 1}`}</span>
+                {loading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                    <span>Đang phân tích...</span>
+                  </>
+                ) : (
+                  <span>Hỏi thêm Vòng {round + 1}</span>
+                )}
               </button>
 
               {round >= 3 ? (
