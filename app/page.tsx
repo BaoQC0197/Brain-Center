@@ -329,14 +329,14 @@ export default function DashboardPage() {
       const updated = kanbanTasks.map(t =>
         t.id === editingTask.id
           ? {
-              ...t,
-              title: taskForm.title,
-              project: taskForm.project,
-              role: taskForm.role,
-              status: taskForm.status,
-              priority: taskForm.priority,
-              assignee: taskForm.assignee || 'Unassigned',
-            }
+            ...t,
+            title: taskForm.title,
+            project: taskForm.project,
+            role: taskForm.role,
+            status: taskForm.status,
+            priority: taskForm.priority,
+            assignee: taskForm.assignee || 'Unassigned',
+          }
           : t
       )
       saveKanbanTasksToStorage(updated)
@@ -428,11 +428,10 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setActiveNavTab('projects')}
-            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
-              activeNavTab === 'projects'
+            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${activeNavTab === 'projects'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
-            }`}
+              }`}
           >
             <span>📁</span>
             <span>Danh sách Dự án</span>
@@ -441,11 +440,10 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setActiveNavTab('kanban')}
-            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
-              activeNavTab === 'kanban'
+            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${activeNavTab === 'kanban'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
-            }`}
+              }`}
           >
             <span>📋</span>
             <span>Kanban Board</span>
@@ -454,11 +452,10 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setActiveNavTab('reports')}
-            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
-              activeNavTab === 'reports'
+            className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${activeNavTab === 'reports'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
-            }`}
+              }`}
           >
             <span>📊</span>
             <span>Báo cáo Tiến độ</span>
@@ -468,7 +465,7 @@ export default function DashboardPage() {
         {/* Right Side: Version Badge */}
         <div className="flex items-center gap-2 ml-auto shrink-0 font-mono text-xs">
           <span className="bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-xl font-extrabold shadow-2xs">
-            v2.0 Enterprise
+            v1.0 Internal EZG
           </span>
         </div>
       </div>
@@ -525,179 +522,179 @@ export default function DashboardPage() {
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 
-          {filteredProjects.map(p => {
-            const initialLetter = p.name ? p.name.trim().charAt(0).toUpperCase() : 'P'
-            return (
-              <div
-                key={p.id}
-                draggable
-                onDragStart={e => handleDragStart(e, p.id)}
-                onDragOver={handleDragOver}
-                onDrop={e => handleDrop(e, p.id)}
-                className={`bg-white border-2 p-4.5 sm:p-5 rounded-2xl flex flex-col shadow-sm transition-all group cursor-grab active:cursor-grabbing select-none ${
-                  draggedId === p.id
-                    ? 'opacity-40 border-dashed border-indigo-600 bg-indigo-50 scale-95'
-                    : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 hover:shadow-lg'
-                }`}
-              >
-                <div className="space-y-2 flex-1 flex flex-col">
-                  <div className="flex items-start justify-between gap-2.5">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center font-black text-indigo-700 shrink-0 text-sm shadow-xs font-mono">
-                        {initialLetter}
+              {filteredProjects.map(p => {
+                const initialLetter = p.name ? p.name.trim().charAt(0).toUpperCase() : 'P'
+                return (
+                  <div
+                    key={p.id}
+                    draggable
+                    onDragStart={e => handleDragStart(e, p.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={e => handleDrop(e, p.id)}
+                    className={`bg-white border-2 p-4.5 sm:p-5 rounded-2xl flex flex-col shadow-sm transition-all group cursor-grab active:cursor-grabbing select-none ${draggedId === p.id
+                        ? 'opacity-40 border-dashed border-indigo-600 bg-indigo-50 scale-95'
+                        : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 hover:shadow-lg'
+                      }`}
+                  >
+                    <div className="space-y-2 flex-1 flex flex-col">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center font-black text-indigo-700 shrink-0 text-sm shadow-xs font-mono">
+                            {initialLetter}
+                          </div>
+                          <div className="min-w-0">
+                            <Link href={`/projects/${p.id}`}>
+                              <h3 className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors text-base truncate" title={p.name}>
+                                {p.name}
+                              </h3>
+                            </Link>
+                            <p className="text-[11px] text-slate-500 font-mono font-semibold">
+                              {new Date(p.createdAt).toLocaleDateString('vi-VN')}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              setEditingProject(p)
+                            }}
+                            className="text-slate-500 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-xs font-bold border border-slate-200"
+                            title="Chỉnh sửa dự án"
+                          >
+                            ✏️ Sửa
+                          </button>
+                        </div>
                       </div>
-                    <div className="min-w-0">
-                      <Link href={`/projects/${p.id}`}>
-                        <h3 className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors text-base truncate" title={p.name}>
-                          {p.name}
-                        </h3>
+
+                      {/* 1-Line Truncated Description with Hover Tooltip */}
+                      <div className="h-5 flex items-center min-w-0">
+                        {p.description ? (
+                          <p className="text-xs text-slate-600 font-semibold truncate leading-tight w-full" title={p.description}>
+                            {p.description}
+                          </p>
+                        ) : (
+                          <span className="text-[11px] text-slate-400 font-semibold italic">Chưa có mô tả</span>
+                        )}
+                      </div>
+
+                      {/* Tech Stack & Domain Quick Links Container */}
+                      <div className="space-y-2 pt-0.5">
+                        {p.techStack && (
+                          <div className="flex flex-wrap gap-1">
+                            {p.techStack.split(',').map(t => (
+                              <span
+                                key={t}
+                                className="bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[11px] px-2 py-0.2 rounded-full font-bold"
+                              >
+                                {t.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Domain Environments, Figma & Bug List Quick Launcher Pills */}
+                        {(p.stagingUrl || p.stagingAdminUrl || p.prodUrl || p.prodAdminUrl || p.bugListUrl || p.figmaUrl) ? (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {p.stagingUrl && (
+                              <a
+                                href={p.stagingUrl.startsWith('http') ? p.stagingUrl : `https://${p.stagingUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                title={`Mở Staging WebApp: ${p.stagingUrl}`}
+                              >
+                                <span>🟡 STG Web</span>
+                              </a>
+                            )}
+                            {p.stagingAdminUrl && (
+                              <a
+                                href={p.stagingAdminUrl.startsWith('http') ? p.stagingAdminUrl : `https://${p.stagingAdminUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="bg-orange-50 hover:bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                title={`Mở Staging Admin Portal: ${p.stagingAdminUrl}`}
+                              >
+                                <span>🟧 STG Admin</span>
+                              </a>
+                            )}
+                            {p.prodUrl && (
+                              <a
+                                href={p.prodUrl.startsWith('http') ? p.prodUrl : `https://${p.prodUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                title={`Mở Production WebApp: ${p.prodUrl}`}
+                              >
+                                <span>🟢 PROD Web</span>
+                              </a>
+                            )}
+                            {p.prodAdminUrl && (
+                              <a
+                                href={p.prodAdminUrl.startsWith('http') ? p.prodAdminUrl : `https://${p.prodAdminUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                title={`Mở Production Admin Portal: ${p.prodAdminUrl}`}
+                              >
+                                <span>🔷 PROD Admin</span>
+                              </a>
+                            )}
+                            {p.figmaUrl && (
+                              <a
+                                href={p.figmaUrl.startsWith('http') ? p.figmaUrl : `https://${p.figmaUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                title={`Mở Design Figma File: ${p.figmaUrl}`}
+                              >
+                                <span>🎨 Figma Link</span>
+                              </a>
+                            )}
+                            {p.bugListUrl && (
+                              <a
+                                href={p.bugListUrl.startsWith('http') ? p.bugListUrl : `https://${p.bugListUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                                className="bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                title={`Mở File Bug List: ${p.bugListUrl}`}
+                              >
+                                <span>🔴 Bug List</span>
+                              </a>
+                            )}
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.stopPropagation()
+                              setEditingProject(p)
+                            }}
+                            className="text-[11px] text-slate-400 hover:text-indigo-600 font-mono font-bold flex items-center gap-1 transition-colors"
+                          >
+                            <span>+ Cấu hình Domain WebApp/Admin, Figma & Bug List</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="pt-2.5 border-t-2 border-slate-100 flex items-center justify-center text-xs md:text-sm text-indigo-600 group-hover:text-indigo-700 font-extrabold text-center mt-3.5">
+                      <Link href={`/projects/${p.id}`} className="flex items-center justify-center w-full text-center">
+                        <span>Mở Dashboard</span>
                       </Link>
-                      <p className="text-[11px] text-slate-500 font-mono font-semibold">
-                        {new Date(p.createdAt).toLocaleDateString('vi-VN')}
-                      </p>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
-                    <button
-                      onClick={e => {
-                        e.stopPropagation()
-                        setEditingProject(p)
-                      }}
-                      className="text-slate-500 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-xs font-bold border border-slate-200"
-                      title="Chỉnh sửa dự án"
-                    >
-                      ✏️ Sửa
-                    </button>
-                  </div>
-                </div>
-
-                {/* 1-Line Truncated Description with Hover Tooltip */}
-                <div className="h-5 flex items-center min-w-0">
-                  {p.description ? (
-                    <p className="text-xs text-slate-600 font-semibold truncate leading-tight w-full" title={p.description}>
-                      {p.description}
-                    </p>
-                  ) : (
-                    <span className="text-[11px] text-slate-400 font-semibold italic">Chưa có mô tả</span>
-                  )}
-                </div>
-
-                {/* Tech Stack & Domain Quick Links Container */}
-                <div className="space-y-2 pt-0.5">
-                  {p.techStack && (
-                    <div className="flex flex-wrap gap-1">
-                      {p.techStack.split(',').map(t => (
-                        <span
-                          key={t}
-                          className="bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[11px] px-2 py-0.2 rounded-full font-bold"
-                        >
-                          {t.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Domain Environments, Figma & Bug List Quick Launcher Pills */}
-                  {(p.stagingUrl || p.stagingAdminUrl || p.prodUrl || p.prodAdminUrl || p.bugListUrl || p.figmaUrl) ? (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {p.stagingUrl && (
-                        <a
-                          href={p.stagingUrl.startsWith('http') ? p.stagingUrl : `https://${p.stagingUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
-                          title={`Mở Staging WebApp: ${p.stagingUrl}`}
-                        >
-                          <span>🟡 STG Web</span>
-                        </a>
-                      )}
-                      {p.stagingAdminUrl && (
-                        <a
-                          href={p.stagingAdminUrl.startsWith('http') ? p.stagingAdminUrl : `https://${p.stagingAdminUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="bg-orange-50 hover:bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
-                          title={`Mở Staging Admin Portal: ${p.stagingAdminUrl}`}
-                        >
-                          <span>🟧 STG Admin</span>
-                        </a>
-                      )}
-                      {p.prodUrl && (
-                        <a
-                          href={p.prodUrl.startsWith('http') ? p.prodUrl : `https://${p.prodUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
-                          title={`Mở Production WebApp: ${p.prodUrl}`}
-                        >
-                          <span>🟢 PROD Web</span>
-                        </a>
-                      )}
-                      {p.prodAdminUrl && (
-                        <a
-                          href={p.prodAdminUrl.startsWith('http') ? p.prodAdminUrl : `https://${p.prodAdminUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
-                          title={`Mở Production Admin Portal: ${p.prodAdminUrl}`}
-                        >
-                          <span>🔷 PROD Admin</span>
-                        </a>
-                      )}
-                      {p.figmaUrl && (
-                        <a
-                          href={p.figmaUrl.startsWith('http') ? p.figmaUrl : `https://${p.figmaUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
-                          title={`Mở Design Figma File: ${p.figmaUrl}`}
-                        >
-                          <span>🎨 Figma Link</span>
-                        </a>
-                      )}
-                      {p.bugListUrl && (
-                        <a
-                          href={p.bugListUrl.startsWith('http') ? p.bugListUrl : `https://${p.bugListUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={e => e.stopPropagation()}
-                          className="bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
-                          title={`Mở File Bug List: ${p.bugListUrl}`}
-                        >
-                          <span>🔴 Bug List</span>
-                        </a>
-                      )}
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={e => {
-                        e.stopPropagation()
-                        setEditingProject(p)
-                      }}
-                      className="text-[11px] text-slate-400 hover:text-indigo-600 font-mono font-bold flex items-center gap-1 transition-colors"
-                    >
-                      <span>+ Cấu hình Domain WebApp/Admin, Figma & Bug List</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-2.5 border-t-2 border-slate-100 flex items-center justify-center text-xs md:text-sm text-indigo-600 group-hover:text-indigo-700 font-extrabold text-center mt-3.5">
-                <Link href={`/projects/${p.id}`} className="flex items-center justify-center w-full text-center">
-                  <span>Mở Dashboard</span>
-                </Link>
-              </div>
+                )
+              })}
             </div>
-          )})}
-        </div>
-      )}
+          )}
         </>
       )}
 

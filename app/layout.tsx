@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span>Brain Center</span>
             </a>
             <span className="text-slate-700 font-bold">|</span>
-            <span className="text-xs text-indigo-200 font-mono font-bold hidden sm:inline-block">Trung tâm Lưu trữ Tri thức & Trợ lý Kiểm thử (ISTQB Standard)</span>
+            <span className="text-xs text-indigo-200 font-mono font-bold hidden sm:inline-block">Trung tâm Lưu trữ & Trợ lý Kiểm thử (ISTQB Standard)</span>
           </div>
           <div className="flex items-center gap-4">
             <a

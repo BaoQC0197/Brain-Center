@@ -72,32 +72,36 @@ export default function ArchitectureDocPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Top Breadcrumb & Navigation */}
-      <div className="flex items-center justify-between flex-wrap gap-4 bg-white border-2 border-slate-200 p-4 rounded-2xl shadow-xs">
-        <div className="flex items-center gap-2 text-xs md:text-sm text-slate-700 font-mono font-bold">
-          <Link href="/" className="hover:text-indigo-600 transition-colors">Dashboard</Link>
-          <span>/</span>
-          <Link href="/configs" className="hover:text-indigo-600 transition-colors">System Configs</Link>
-          <span>/</span>
-          <span className="text-slate-900 font-extrabold">Kiến trúc Hệ thống (Architecture Spec)</span>
+    <div className="space-y-6 w-full">
+      {/* Top Breadcrumb & Action Navigation Bar */}
+      <div className="bg-white border-2 border-slate-300 px-5 py-3.5 rounded-2xl shadow-xs flex items-center justify-between flex-wrap gap-3">
+        {/* Left: Back Button & Breadcrumbs */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/configs"
+            className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-extrabold border border-slate-300 transition-all flex items-center gap-1 shrink-0"
+          >
+            ← Trở về
+          </Link>
+          <div className="hidden sm:flex items-center gap-2 text-xs md:text-sm text-slate-700 font-mono font-bold">
+            <Link href="/" className="hover:text-indigo-600 transition-colors">Dashboard</Link>
+            <span>/</span>
+            <Link href="/configs" className="hover:text-indigo-600 transition-colors">System Configs</Link>
+            <span>/</span>
+            <span className="text-slate-900 font-extrabold">Architecture Spec</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Right Action Buttons: Keep 'Xuất HTML Đầy đủ' intact */}
+        <div className="flex items-center gap-2.5">
           <a
             href="/api/docs/architecture"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-indigo-50 border-2 border-indigo-300 text-indigo-900 px-4 py-2 rounded-xl text-xs font-extrabold hover:bg-indigo-100 transition-all shadow-xs"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-sm flex items-center gap-1.5"
           >
-            Xuất HTML Đầy đủ
+            Xuất HTML Đầy đủ ➔
           </a>
-          <Link
-            href="/configs"
-            className="bg-white border-2 border-slate-300 text-slate-800 px-4 py-2 rounded-xl text-xs font-extrabold hover:bg-slate-100 transition-all shadow-xs"
-          >
-            ← Quay lại Configs
-          </Link>
         </div>
       </div>
 
