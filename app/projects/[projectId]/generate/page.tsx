@@ -16,6 +16,7 @@ import {
   ClarifyQuestion,
 } from '@/lib/types'
 import DocumentViewer from '@/app/components/DocumentViewer'
+import { AiProcessingProgressModal } from '@/app/components/Skeletons'
 
 const PRIORITY_COLOR: Record<string, string> = {
   P1: 'bg-red-100 text-red-800 border border-red-300',
@@ -734,6 +735,20 @@ export default function QAAgentHubPage() {
           </div>
         </form>
       </div>
+
+      {/* Progress Loading Animation Modal for Phase 2 QA Lifecycle Operations */}
+      {clarifyPhase === 'analyzing' && (
+        <AiProcessingProgressModal
+          title={`Trợ lý đang phân tích & rà soát yêu cầu cho ${currentAgent.label}...`}
+          steps={[
+            "Đọc ngữ cảnh & tài liệu đính kèm...",
+            `Đối chiếu tiêu chuẩn ${currentAgent.testingStandard}...`,
+            "Phát hiện lỗ hổng & điểm mơ hồ nghiệp vụ...",
+            "Tạo bộ câu hỏi phỏng vấn làm rõ..."
+          ]}
+          standard={currentAgent.testingStandard}
+        />
+      )}
 
       {/* Clarify Sub-agent Q&A Panel */}
       {clarifyPhase === 'questioning' && clarifyReport && (

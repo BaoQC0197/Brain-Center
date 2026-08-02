@@ -16,7 +16,7 @@ import {
   DOC_TYPE_RECOMMENDED_STANDARDS,
 } from '@/lib/types'
 
-import { DocBuilderSkeleton } from '@/app/components/Skeletons'
+import { DocBuilderSkeleton, AiProcessingProgressModal } from '@/app/components/Skeletons'
 import DocumentViewer from '@/app/components/DocumentViewer'
 
 export default function DocBuilderPage() {
@@ -161,6 +161,15 @@ export default function DocBuilderPage() {
 
   async function generateNextRoundQuestions() {
     if (questionnaireRounds.length === 0) return
+
+    // 1. Validate required questions for current round
+    const activeQuestions = questionnaireRounds[round - 1]?.questions || []
+    const missing = activeQuestions.filter(q => !(answers[q.id] || '').trim())
+    if (missing.length > 0) {
+      setError(`Vui lòng trả lời đầy đủ các câu hỏi bắt buộc (*) của Vòng ${round} trước khi chuyển sang Vòng tiếp theo!`)
+      return
+    }
+
     setLoading(true)
     setError('')
 
@@ -231,6 +240,15 @@ export default function DocBuilderPage() {
 
   async function generateDocumentDraft(customAnswers?: Record<string, string>) {
     if (questionnaireRounds.length === 0) return
+
+    // Validate current round answers before building
+    const currentRoundQuestions = questionnaireRounds[round - 1]?.questions || []
+    const missing = currentRoundQuestions.filter(q => !(answers[q.id] || '').trim())
+    if (missing.length > 0) {
+      setError(`Vui lòng trả lời đầy đủ các câu hỏi bắt buộc (*) của Vòng ${round} trước khi biên soạn đặc tả!`)
+      return
+    }
+
     setStep(3)
     setLoading(true)
     setError('')
@@ -506,20 +524,16 @@ export default function DocBuilderPage() {
 
       {/* Progress Loading Overlay Banner when generating questions */}
       {loading && step === 1 && (
-        <div className="bg-white border-2 border-indigo-300 rounded-2xl p-8 text-center space-y-4 shadow-lg animate-pulse">
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-7 h-7 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-            <h3 className="text-lg md:text-xl font-extrabold text-slate-900">
-              Requirements Analyst Agent đang phân tích & sinh Bộ câu hỏi...
-            </h3>
-          </div>
-          <p className="text-xs md:text-sm text-slate-600 font-semibold max-w-lg mx-auto">
-            AI đang đối chiếu thông tin với chuẩn <strong className="text-indigo-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> để phát hiện toàn bộ các rủi ro & điểm mơ hồ.
-          </p>
-          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
-            <div className="bg-gradient-to-r from-indigo-600 to-sky-500 h-full w-3/4 rounded-full animate-pulse" />
-          </div>
-        </div>
+        <AiProcessingProgressModal
+          title={`Trợ lý đang phân tích & khởi tạo Bộ câu hỏi Vòng 1 cho ${DOC_BUILDER_TYPES[docType]?.label}...`}
+          steps={[
+            "Đọc mô tả đầu vào & tài liệu đính kèm...",
+            `Rà soát theo tiêu chuẩn ${DOC_BUILDER_STANDARDS[standard]?.label}...`,
+            "Phát hiện các điểm mơ hồ & lỗ hổng nghiệp vụ...",
+            "Khởi tạo bộ câu hỏi phỏng vấn tối ưu..."
+          ]}
+          standard={DOC_BUILDER_STANDARDS[standard]?.label}
+        />
       )}
 
       {/* BƯỚC 2: AI Sinh Bộ Câu Hỏi & QA/BA Trả Lời Theo Vòng */}
@@ -591,62 +605,63 @@ export default function DocBuilderPage() {
                   <span className="font-mono text-xs font-bold text-indigo-900 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md">{q.id}</span>
                   <span className="text-xs bg-slate-100 text-slate-800 border border-slate-300 px-2.5 py-0.5 rounded-md font-bold">{q.section}</span>
                   <span className="font-extrabold text-slate-900 text-sm md:text-base">{q.question}</span>
+                  <span className="text-red-600 font-extrabold text-sm" title="Bắt buộc nhập">*</span>
                 </div>
                 {q.why && <p className="text-xs text-slate-500 font-semibold">Lý do: {q.why}</p>}
                 <div>
                   <textarea
-                    value={answers[q.id] ?? ''}
-                    onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-                    placeholder="Nhập câu trả lời hoặc chỉnh sửa..."
+                    value={answers[q.id] || questionnaireRounds[activeTabRound - 1]?.answersAtSubmission[q.id] || ''}
+                    onChange={e => {
+                      const val = e.target.value
+                      setAnswers(prev => ({ ...prev, [q.id]: val }))
+                      setQuestionnaireRounds(prev => prev.map(r => r.roundNumber === activeTabRound ? {
+                        ...r,
+                        answersAtSubmission: { ...r.answersAtSubmission, [q.id]: val }
+                      } : r))
+                    }}
+                    placeholder="Nhập câu trả lời (Bắt buộc)..."
                     rows={2}
                     className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-y"
                   />
                 </div>
               </div>
             ))}
-
-            {activeTabRound === round && (
-              <div className="space-y-1 pt-2">
-                <label className="block text-xs md:text-sm font-extrabold text-slate-900">Ghi chú bổ sung khác (Tuỳ chọn)</label>
-                <textarea
-                  value={extraNotes}
-                  onChange={e => setExtraNotes(e.target.value)}
-                  placeholder="Yêu cầu thêm về thuật ngữ, quy định nghiệp vụ riêng..."
-                  rows={2}
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
-                />
-              </div>
-            )}
           </div>
 
           {/* Multi-Turn Elicitation Action Bar */}
           <div className="flex gap-3 justify-between items-center pt-4 border-t-2 border-slate-200 flex-wrap">
             <div className="flex items-center gap-2 text-xs md:text-sm font-bold text-slate-700 bg-white border border-slate-300 px-3.5 py-1.5 rounded-xl font-mono">
-              <span>💬 Vòng {round}</span>
+              <span>Vòng {round}</span>
               <span>•</span>
               <span>Tổng {questionnaireRounds.flatMap(r => r.questions).length} câu hỏi</span>
             </div>
 
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap items-center">
               <button
                 type="button"
                 onClick={generateNextRoundQuestions}
                 disabled={loading}
-                className="bg-white text-indigo-900 border-2 border-indigo-400 hover:bg-indigo-50 px-4 py-3 rounded-xl text-xs md:text-sm font-bold transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5"
-                title="Yêu cầu AI phân tích tiếp các lỗ hổng nâng cao để hỏi Vòng tiếp theo"
+                className="bg-white text-indigo-900 border-2 border-indigo-400 hover:bg-indigo-50 px-4 py-3 rounded-xl text-xs md:text-sm font-bold transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                title="Phân tích tiếp các lỗ hổng nâng cao để hỏi Vòng tiếp theo"
               >
-                <span>💬 {loading ? 'AI đang phân tích...' : `Hỏi thêm Vòng ${round + 1} (Tuỳ chọn)`}</span>
+                <span>{loading ? 'Đang phân tích...' : `Hỏi thêm Vòng ${round + 1}`}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => generateDocumentDraft()}
-                disabled={loading}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-xl text-xs md:text-sm font-bold hover:bg-indigo-500 transition-all shadow-sm flex items-center gap-1.5"
-                title="AI dùng câu trả lời hiện có + Tự động lấp lỗ hổng bằng Giả định thiết kế để ra ngay tài liệu hoàn chỉnh"
-              >
-                <span>🚀 AI Biên soạn Đặc tả Hoàn chỉnh ➔</span>
-              </button>
+              {round >= 3 ? (
+                <button
+                  type="button"
+                  onClick={() => generateDocumentDraft()}
+                  disabled={loading}
+                  className="bg-indigo-600 text-white px-6 py-3 rounded-xl text-xs md:text-sm font-bold hover:bg-indigo-500 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                  title="Biên soạn đặc tả hoàn chỉnh"
+                >
+                  <span>Biên soạn Đặc tả Hoàn chỉnh ➔</span>
+                </button>
+              ) : (
+                <span className="text-xs font-semibold text-slate-600 bg-slate-100 border border-slate-300 px-3 py-2 rounded-xl italic">
+                  (Hoàn thành ít nhất 3 vòng phỏng vấn để mở nút Biên soạn Đặc tả)
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -654,19 +669,16 @@ export default function DocBuilderPage() {
 
       {/* BƯỚC 3: Đang Sinh Tài Liệu */}
       {step === 3 && (
-        <div className="bg-white border-2 border-indigo-300 rounded-2xl p-10 text-center space-y-5 shadow-lg animate-pulse text-slate-900">
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-9 h-9 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900">AI đang biên soạn tài liệu Yêu cầu Phase 1...</h2>
-          </div>
-          <p className="text-xs md:text-sm font-semibold text-slate-600 max-w-lg mx-auto leading-relaxed">
-            AI đang áp dụng các khung chuẩn của <strong className="text-indigo-900">{DOC_BUILDER_STANDARDS[standard]?.label}</strong> kết hợp câu trả lời phỏng vấn để tổng hợp tạo file <strong className="text-indigo-900">{docType.toUpperCase()} Baseline</strong> hoàn chỉnh.
-          </p>
-          <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden max-w-md mx-auto border border-slate-300">
-            <div className="bg-gradient-to-r from-indigo-600 via-sky-500 to-emerald-500 h-full w-4/5 rounded-full animate-pulse" />
-          </div>
-          <p className="text-xs font-mono font-semibold text-slate-500">Tiến trình: Đang tổng hợp các giả định nghiệp vụ & cấu trúc tiêu chuẩn...</p>
-        </div>
+        <AiProcessingProgressModal
+          title={`Trợ lý đang biên soạn tài liệu ${DOC_BUILDER_TYPES[docType]?.label} (${DOC_BUILDER_STANDARDS[standard]?.label})...`}
+          steps={[
+            "Tổng hợp toàn bộ đáp án phỏng vấn các vòng...",
+            "Áp dụng Giả định Thiết kế Chuẩn (Business Assumptions)...",
+            `Xây dựng cấu trúc đặc tả chuẩn ${DOC_BUILDER_STANDARDS[standard]?.label}...`,
+            "Hoàn thiện file đặc tả Baseline & lưu dự án..."
+          ]}
+          standard={DOC_BUILDER_STANDARDS[standard]?.label}
+        />
       )}
 
       {/* BƯỚC 4: Review & Lưu Baseline */}

@@ -112,3 +112,50 @@ export function DocBuilderSkeleton() {
     </div>
   )
 }
+
+export function AiProcessingProgressModal({
+  title = "Đang xử lý đặc tả & phân tích dữ liệu...",
+  steps = [
+    "Đang kết nối Trợ lý phân tích...",
+    "Phân tích yêu cầu & đối chiếu tiêu chuẩn...",
+    "Kiểm tra tính đầy đủ & các bẫy lỗi nghiệp vụ...",
+    "Tổng hợp & hoàn thiện tài liệu..."
+  ],
+  standard = "ISTQB / IEEE Standard"
+}: {
+  title?: string
+  steps?: string[]
+  standard?: string
+}) {
+  return (
+    <div className="bg-white border-2 border-indigo-300 rounded-2xl p-8 text-center space-y-6 shadow-xl text-slate-900 my-4 animate-fade-in">
+      <div className="flex items-center justify-center gap-3">
+        <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin shrink-0" />
+        <h3 className="text-lg md:text-xl font-extrabold text-slate-900 tracking-tight">
+          {title}
+        </h3>
+      </div>
+
+      {/* Dynamic Animated Progress Bar */}
+      <div className="space-y-2 max-w-lg mx-auto">
+        <div className="w-full bg-indigo-50 h-3 rounded-full overflow-hidden border border-indigo-200 relative p-0.5 shadow-inner">
+          <div className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-600 h-full rounded-full animate-pulse transition-all duration-500 w-4/5" />
+        </div>
+        <div className="flex items-center justify-between text-xs text-slate-600 font-mono font-bold">
+          <span>Tiêu chuẩn: <strong className="text-indigo-900">{standard}</strong></span>
+          <span className="text-indigo-950 font-extrabold">Đang hoàn thiện...</span>
+        </div>
+      </div>
+
+      {/* Steps checklist animation */}
+      <div className="grid sm:grid-cols-2 gap-2.5 max-w-xl mx-auto text-left pt-1">
+        {steps.map((st, idx) => (
+          <div key={idx} className="bg-indigo-50/60 border border-indigo-200/80 rounded-xl p-2.5 flex items-center gap-2 text-xs font-bold text-slate-800">
+            <span className="w-2 h-2 rounded-full bg-indigo-600 animate-ping shrink-0" />
+            <span className="truncate">{st}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
