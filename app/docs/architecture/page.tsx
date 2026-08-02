@@ -80,7 +80,7 @@ export default function ArchitectureDocPage() {
           <span>/</span>
           <Link href="/configs" className="hover:text-indigo-600 transition-colors">System Configs</Link>
           <span>/</span>
-          <span className="text-slate-900 font-extrabold">Architecture & Pitching Specification</span>
+          <span className="text-slate-900 font-extrabold">Kiến trúc Hệ thống (Architecture Spec)</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -91,7 +91,6 @@ export default function ArchitectureDocPage() {
             className="bg-indigo-50 border-2 border-indigo-300 text-indigo-900 px-4 py-2 rounded-xl text-xs font-extrabold hover:bg-indigo-100 transition-all shadow-xs"
           >
             Xuất HTML Đầy đủ
-
           </a>
           <Link
             href="/configs"
@@ -102,21 +101,21 @@ export default function ArchitectureDocPage() {
         </div>
       </div>
 
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 text-white p-6 md:p-8 rounded-3xl shadow-xl space-y-3">
+      {/* Header Banner - Clean Light Theme */}
+      <div className="bg-white border-2 border-indigo-300 rounded-2xl p-6 md:p-7 shadow-xs space-y-2.5 text-slate-900">
         <div className="flex items-center gap-3">
-          <span className="text-xs bg-indigo-500 text-white px-3 py-1 rounded-md font-mono font-extrabold shadow-xs">
+          <span className="text-xs bg-indigo-600 text-white px-3 py-1 rounded-md font-mono font-extrabold shadow-xs">
             SYSTEM ARCHITECTURE SPEC
           </span>
-          <span className="text-xs bg-purple-500/40 text-purple-200 border border-purple-400/40 px-2.5 py-0.5 rounded font-mono font-extrabold">
+          <span className="text-xs bg-indigo-50 text-indigo-900 border border-indigo-200 px-2.5 py-0.5 rounded font-mono font-extrabold">
             ISTQB / IEEE / ISO Compliant
           </span>
         </div>
-        <h1 className="text-xl md:text-3xl font-extrabold tracking-tight">
-          QA-Brain Center: Tổng quan Kiến trúc System & Hướng dẫn Pitching
+        <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+          QA-Brain Center: Tài liệu Kiến trúc Hệ thống & Vận hành Pipeline
         </h1>
-        <p className="text-xs md:text-sm text-indigo-200 font-medium max-w-4xl leading-relaxed">
-          Tài liệu chuẩn hoá mô tả Tầm nhìn Dự án, ROI Doanh nghiệp, Ma trận Tiêu chuẩn Quốc tế, Sơ đồ Mermaid Sequence Diagrams và Bộ Launchers Môi trường. Bạn có thể bấm nút <b>"✏️ Edit"</b> trên trình xem bên dưới để chỉnh sửa trực tiếp nội dung!
+        <p className="text-xs md:text-sm text-slate-600 font-medium max-w-4xl leading-relaxed">
+          Tài liệu chuẩn hoá mô tả Tổng quan Hệ thống, Giá trị Doanh nghiệp, Ma trận Tiêu chuẩn Quốc tế, Sơ đồ Sequence Diagrams và Cấu trúc Prompt 6 tầng. Bạn có thể bấm nút <b>"✏️ Edit"</b> bên dưới để chỉnh sửa nội dung trực tiếp.
         </p>
       </div>
 
@@ -125,7 +124,7 @@ export default function ArchitectureDocPage() {
         <DocumentViewer
           content={content}
           docType="ARCHITECTURE SPEC"
-          title="QA-Brain Center Architecture & Pitching Specification"
+          title="QA-Brain Center Architecture Specification"
           version={1}
           createdAt={new Date().toISOString()}
           isEditable={true}

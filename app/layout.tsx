@@ -7,7 +7,7 @@ const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Brain Center",
-  description: "AI-powered QA Assistant",
+  description: "Trung tâm Lưu trữ & Trợ lý Kiểm thử ISTQB",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span>Brain Center</span>
             </a>
             <span className="text-slate-700 font-bold">|</span>
-            <span className="text-xs text-indigo-200 font-mono font-bold hidden sm:inline-block">AI-powered ISTQB QA Assistant</span>
+            <span className="text-xs text-indigo-200 font-mono font-bold hidden sm:inline-block">Trung tâm Lưu trữ Tri thức & Trợ lý Kiểm thử (ISTQB Standard)</span>
           </div>
           <div className="flex items-center gap-4">
             <a

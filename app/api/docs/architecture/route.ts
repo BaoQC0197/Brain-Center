@@ -4,9 +4,9 @@ import path from 'path'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { exportMarkdownToHtml } from '@/lib/html-export'
 
-const DEFAULT_ARCHITECTURE_DOC = `# QA-Brain Center: Tổng quan Dự án, Kiến trúc Hệ thống & Hướng dẫn Pitching
+const DEFAULT_ARCHITECTURE_DOC = `# QA-Brain Center: Tài liệu Kiến trúc Hệ thống & Vận hành Pipeline
 
-Tài liệu này tổng hợp **Tầm nhìn Chiến lược, Mục tiêu Dự án, Đối tượng Sử dụng, ROI Doanh nghiệp** và toàn bộ **Kiến trúc Kỹ thuật 2 Pha (Phase 1 Baseline & Phase 2 QA Pipeline)** chuẩn quốc tế **ISTQB / ISO / IEEE** của hệ thống **QA-Brain Center**.
+Tài liệu này tổng hợp **Mục tiêu Hệ thống, Đối tượng Sử dụng, Giá trị Doanh nghiệp** và toàn bộ **Kiến trúc Kỹ thuật 2 Pha (Phase 1 Baseline & Phase 2 QA Pipeline)** chuẩn quốc tế **ISTQB / ISO / IEEE** của **QA-Brain Center**.
 
 ---
 
@@ -45,8 +45,20 @@ export async function GET(request: Request) {
 
   let content = ''
 
-  // 1. Try Supabase global_configs first
-  if (isSupabaseConfigured && supabase) {
+  // 1. Try Local File System first (Local dev authoritative source)
+  try {
+    const artifactPath = path.join(
+      process.cwd(),
+      'storage',
+      'qa_brain_architecture_and_clarify_subagent_spec.md'
+    )
+    if (fs.existsSync(artifactPath)) {
+      content = fs.readFileSync(artifactPath, 'utf-8')
+    }
+  } catch {}
+
+  // 2. Try Supabase global_configs if local file is empty
+  if (!content && isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
       .from('global_configs')
       .select('value')
@@ -55,20 +67,6 @@ export async function GET(request: Request) {
     if (!error && data?.value) {
       content = data.value
     }
-  }
-
-  // 2. Try Local File System if content is empty
-  if (!content) {
-    try {
-      const artifactPath = path.join(
-        process.cwd(),
-        'storage',
-        'qa_brain_architecture_and_clarify_subagent_spec.md'
-      )
-      if (fs.existsSync(artifactPath)) {
-        content = fs.readFileSync(artifactPath, 'utf-8')
-      }
-    } catch {}
   }
 
   // 3. Fallback default

@@ -512,7 +512,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className="font-extrabold text-slate-900 text-lg md:text-xl">Chưa có dự án kiểm thử nào</h3>
                 <p className="text-xs md:text-sm text-slate-600 mt-1 max-w-md mx-auto font-semibold">
-                  Hãy tạo dự án đầu tiên để bắt đầu lưu trữ tài liệu Phase 1 và sử dụng 8 AI QA Agents tự động hoá công việc kiểm thử.
+                  Hãy tạo dự án đầu tiên để bắt đầu lưu trữ tài liệu Phase 1 và sử dụng các Trợ lý QA tự động hoá công việc kiểm thử.
                 </p>
               </div>
               <button

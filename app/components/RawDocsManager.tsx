@@ -109,16 +109,16 @@ export default function RawDocsManager({
   }
 
   return (
-    <div className="bg-sky-50/80 border-2 border-sky-400 border-l-8 border-l-sky-600 rounded-2xl overflow-hidden shadow-md text-slate-900">
-      {/* Top Header Banner with Soft Blue Background Tint */}
-      <div className="bg-sky-100/90 px-6 py-5 border-b-2 border-sky-300 flex items-center justify-between flex-wrap gap-4">
+    <div className="bg-indigo-50/70 border-2 border-indigo-300 border-l-8 border-l-indigo-600 rounded-2xl overflow-hidden shadow-md text-slate-900">
+      {/* Top Header Banner with Soft Indigo Background Tint */}
+      <div className="bg-indigo-100/90 px-6 py-5 border-b-2 border-indigo-200 flex items-center justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs md:text-sm bg-sky-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-xs">
+            <span className="text-xs md:text-sm bg-indigo-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-xs">
               PHASE 1 ➔ REQUIREMENT BASELINE
             </span>
             <h2 className="font-extrabold text-slate-900 text-xl md:text-2xl tracking-tight">Quản lý Tài liệu Yêu cầu Đầu vào</h2>
-            <span className="text-xs md:text-sm bg-white text-sky-800 border-2 border-sky-400 px-3 py-1 rounded-full font-mono font-extrabold shadow-xs">
+            <span className="text-xs md:text-sm bg-white text-indigo-950 border-2 border-indigo-300 px-3 py-1 rounded-full font-mono font-extrabold shadow-xs">
               {rawDocs.length} Docs
             </span>
           </div>
@@ -137,7 +137,7 @@ export default function RawDocsManager({
           </Link>
           <button
             onClick={onAddRawDoc}
-            className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md cursor-pointer"
           >
             + Upload / Thêm doc
           </button>
@@ -254,16 +254,16 @@ export default function RawDocsManager({
               return (
                 <div
                   key={doc.id}
-                  className="bg-white border-2 border-sky-200 hover:border-sky-500 rounded-xl p-4 flex flex-col justify-between space-y-3 transition-all shadow-sm group"
+                  className="bg-white border-2 border-indigo-200 hover:border-indigo-500 rounded-xl p-4 flex flex-col justify-between space-y-3 transition-all shadow-sm group"
                 >
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h4 className="font-extrabold text-slate-900 text-sm md:text-base truncate group-hover:text-sky-700 transition-colors" title={doc.name}>
+                        <h4 className="font-extrabold text-slate-900 text-sm md:text-base truncate group-hover:text-indigo-700 transition-colors" title={doc.name}>
                           {doc.name}
                         </h4>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                          <span className="text-xs bg-sky-100 text-sky-800 border border-sky-300 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
+                          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-200 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
                             {meta.label}
                           </span>
                           {doc.figmaUrl && (
@@ -276,7 +276,7 @@ export default function RawDocsManager({
 
                       <button
                         onClick={() => onDeleteRawDoc(doc.id, doc.name)}
-                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-all p-1 text-sm font-extrabold"
+                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-all p-1 text-sm font-extrabold cursor-pointer"
                       >
                         ✕
                       </button>
@@ -288,10 +288,10 @@ export default function RawDocsManager({
                   </div>
 
                   {/* Actions */}
-                  <div className="pt-3 border-t-2 border-sky-100 flex items-center justify-between gap-2 text-xs md:text-sm">
+                  <div className="pt-3 border-t-2 border-indigo-100 flex items-center justify-between gap-2 text-xs md:text-sm">
                     <button
                       onClick={() => onViewRawDoc(doc)}
-                      className="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-1.5 rounded-lg font-extrabold transition-all shadow-xs"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg font-extrabold transition-all shadow-xs cursor-pointer"
                     >
                       Đọc / Chi tiết
                     </button>
@@ -321,18 +321,18 @@ export default function RawDocsManager({
             })}
           </div>
         ) : (
-          <div className="border-2 border-sky-200 rounded-xl overflow-hidden divide-y-2 divide-sky-100 bg-white shadow-xs">
+          <div className="border-2 border-indigo-200 rounded-xl overflow-hidden divide-y-2 divide-indigo-100 bg-white shadow-xs">
             {filteredDocs.map(doc => {
               const meta = RAW_DOC_META[doc.type] || { label: doc.type, icon: '', color: 'bg-slate-100 text-slate-800' }
               return (
-                <div key={doc.id} className="p-4 bg-white hover:bg-sky-50/50 transition-colors flex items-center justify-between gap-4 group flex-wrap sm:flex-nowrap">
+                <div key={doc.id} className="p-4 bg-white hover:bg-indigo-50/50 transition-colors flex items-center justify-between gap-4 group flex-wrap sm:flex-nowrap">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="min-w-0">
-                      <p className="font-extrabold text-slate-900 text-sm md:text-base truncate group-hover:text-sky-700 transition-colors" title={doc.name}>
+                      <p className="font-extrabold text-slate-900 text-sm md:text-base truncate group-hover:text-indigo-700 transition-colors" title={doc.name}>
                         {doc.name}
                       </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-xs bg-sky-100 text-sky-800 border border-sky-300 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
+                        <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-200 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
                           {meta.label}
                         </span>
                         <span className="text-xs text-slate-600 font-mono font-medium">
@@ -345,7 +345,7 @@ export default function RawDocsManager({
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => onViewRawDoc(doc)}
-                      className="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all shadow-xs"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all shadow-xs cursor-pointer"
                     >
                       Đọc / Chi tiết
                     </button>
@@ -362,14 +362,14 @@ export default function RawDocsManager({
                     {doc.textContent && (
                       <button
                         onClick={() => downloadWord(doc)}
-                        className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold"
+                        className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
                       >
                         Word
                       </button>
                     )}
                     <button
                       onClick={() => onDeleteRawDoc(doc.id, doc.name)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-all p-1 text-sm font-extrabold"
+                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-all p-1 text-sm font-extrabold cursor-pointer"
                     >
                       ✕
                     </button>
