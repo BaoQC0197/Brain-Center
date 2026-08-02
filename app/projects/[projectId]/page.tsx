@@ -999,24 +999,21 @@ export default function ProjectPage() {
         return (
           <div className="space-y-6">
             {/* SYSTEM PIPELINE FLOW CONNECTOR BANNER */}
-            <div className="bg-gradient-to-r from-sky-100 via-slate-100 to-emerald-100 border-2 border-slate-300 rounded-xl p-4 flex items-center justify-between flex-wrap gap-4 shadow-sm font-mono text-xs md:text-sm font-extrabold">
+            <div className="bg-gradient-to-r from-sky-100 via-slate-100 to-indigo-100 border-2 border-slate-300 rounded-xl p-4 flex items-center justify-between flex-wrap gap-4 shadow-sm font-mono text-xs md:text-sm font-extrabold">
               <div className="flex items-center gap-2 text-sky-800">
                 <span>PHASE 1: YÊU CẦU BASELINE ({rawDocs.length} Docs)</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500 text-xs">
-                <span>➔ TỰ ĐỘNG CHUYỂN CONTEXT ➔</span>
-              </div>
-              <div className="flex items-center gap-2 text-emerald-800">
+              <div className="flex items-center gap-2 text-indigo-800">
                 <span>PHASE 2: QA PIPELINE (STEP 1 ➔ STEP 4)</span>
               </div>
             </div>
 
-            {/* PHASE 2 CONTAINER WITH SOFT EMERALD BACKGROUND TINT & BOLD BORDERS */}
-            <div className="bg-emerald-50/80 border-2 border-emerald-400 border-l-8 border-l-emerald-600 rounded-2xl p-6 space-y-6 shadow-md text-slate-900">
+            {/* PHASE 2 CONTAINER WITH SOFT SKY/BLUE BACKGROUND TINT & BOLD BORDERS */}
+            <div className="bg-sky-50/80 border-2 border-sky-400 border-l-8 border-l-sky-600 rounded-2xl p-6 space-y-6 shadow-md text-slate-900">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-xs md:text-sm bg-emerald-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-sm">
+                    <span className="text-xs md:text-sm bg-sky-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-sm">
                       PHASE 2 ➔ QA TESTING LIFECYCLE AGENTS
                     </span>
                     <h2 className="font-extrabold text-slate-900 text-xl md:text-2xl tracking-tight">ISTQB & IEEE 829 Streamlined Pipeline</h2>
@@ -1026,13 +1023,13 @@ export default function ProjectPage() {
                   </p>
                 </div>
 
-                <div className="text-xs md:text-sm text-emerald-900 bg-white border-2 border-emerald-400 px-3.5 py-1.5 rounded-full font-mono font-extrabold shadow-xs">
+                <div className="text-xs md:text-sm text-sky-900 bg-white border-2 border-sky-400 px-3.5 py-1.5 rounded-full font-mono font-extrabold shadow-xs">
                   {rawDocs.length} Requirements Baseline docs đã sẵn sàng
                 </div>
               </div>
 
               {/* Prompt Question Header */}
-              <div className="bg-white border-2 border-emerald-300 rounded-xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+              <div className="bg-white border-2 border-sky-300 rounded-xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
                 <div>
                   <h3 className="font-extrabold text-slate-900 text-base md:text-lg">Bạn muốn AI hỗ trợ tác vụ QA nào hôm nay?</h3>
                   <p className="text-xs md:text-sm text-slate-700 font-medium mt-0.5">Chọn 1 trong 4 Step tinh gọn bên dưới (Step 1 ➔ Step 4) để tự động hoá công việc kiểm thử:</p>
@@ -1054,7 +1051,7 @@ export default function ProjectPage() {
                       key={type}
                       className={`rounded-xl p-4 flex flex-col justify-between space-y-3.5 border-2 transition-all ${isLocked
                         ? 'bg-slate-100/90 border-slate-300 opacity-60'
-                        : 'bg-white border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 group shadow-xs hover:shadow-md'
+                        : 'bg-white border-slate-200 hover:border-sky-500 hover:bg-sky-50/40 group shadow-xs hover:shadow-md'
                         }`}
                     >
                       <div className="space-y-3">
@@ -1062,12 +1059,12 @@ export default function ProjectPage() {
                         <div className="flex items-start justify-between gap-2">
                           <span className={`text-xs font-mono px-2.5 py-0.5 rounded-md font-extrabold ${isLocked
                             ? 'bg-slate-200 text-slate-700 border border-slate-300'
-                            : 'bg-emerald-600 text-white shadow-xs'
+                            : 'bg-sky-600 text-white shadow-xs'
                             }`}>
                             Step {agent.stepOrder}
                           </span>
                           {hasRunBefore && (
-                            <span className="text-xs bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-md font-mono font-extrabold">
+                            <span className="text-xs bg-sky-100 text-sky-900 border border-sky-300 px-2 py-0.5 rounded-md font-mono font-extrabold">
                               Đã có (v{latestVersion})
                             </span>
                           )}
@@ -1075,7 +1072,7 @@ export default function ProjectPage() {
 
                         {/* Title & Testing Standard Tag */}
                         <div className="space-y-1">
-                          <h4 className={`font-extrabold text-sm md:text-base leading-snug ${isLocked ? 'text-slate-500' : 'text-slate-900 group-hover:text-emerald-800 transition-colors'}`}>
+                          <h4 className={`font-extrabold text-sm md:text-base leading-snug ${isLocked ? 'text-slate-500' : 'text-slate-900 group-hover:text-sky-900 transition-colors'}`}>
                             {agent.label}
                           </h4>
                           <div className="inline-block bg-slate-100 border border-slate-300 text-xs text-slate-700 font-mono px-2 py-0.5 rounded-md font-bold truncate max-w-full" title={agent.testingStandard}>
