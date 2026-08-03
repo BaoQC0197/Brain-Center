@@ -507,8 +507,8 @@ export default function DashboardPage() {
             type="button"
             onClick={() => setActiveNavTab('projects')}
             className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${activeNavTab === 'projects'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
               }`}
           >
             <span>Danh sách dự án</span>
@@ -518,8 +518,8 @@ export default function DashboardPage() {
             type="button"
             onClick={() => setActiveNavTab('kanban')}
             className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${activeNavTab === 'kanban'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
               }`}
           >
             <span>Kanban Board</span>
@@ -529,8 +529,8 @@ export default function DashboardPage() {
             type="button"
             onClick={() => setActiveNavTab('reports')}
             className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${activeNavTab === 'reports'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
               }`}
           >
             <span>Báo cáo tiến độ</span>
@@ -606,8 +606,8 @@ export default function DashboardPage() {
                     onDragOver={handleDragOver}
                     onDrop={e => handleDrop(e, p.id)}
                     className={`bg-white border-2 p-4.5 sm:p-5 rounded-2xl flex flex-col shadow-sm transition-all group cursor-grab active:cursor-grabbing select-none ${draggedId === p.id
-                        ? 'opacity-40 border-dashed border-indigo-600 bg-indigo-50 scale-95'
-                        : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 hover:shadow-lg'
+                      ? 'opacity-40 border-dashed border-indigo-600 bg-indigo-50 scale-95'
+                      : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/20 hover:shadow-lg'
                       }`}
                   >
                     <div className="space-y-2 flex-1 flex flex-col">
@@ -781,7 +781,7 @@ export default function DashboardPage() {
                 Kanban Taskboard — Quản lý tiến độ công việc
               </h2>
               <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
-                Kéo thả các thẻ công việc giữa các cột để cập nhật trạng thái thời gian thực.
+
               </p>
             </div>
 

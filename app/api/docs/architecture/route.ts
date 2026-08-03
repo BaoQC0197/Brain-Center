@@ -33,10 +33,9 @@ Tài liệu này tổng hợp **mục tiêu hệ thống, đối tượng sử d
 
 ## 2. Đối tượng sử dụng & vai trò trong đội ngũ (Target personas)
 
-- **BA / Product Owner**: Sử dụng Sub-agent Doc Builder & Sub-agent Clarify để làm rõ yêu cầu đặc tả (BRD, SRS, User Story).
-- **QA / Tester**: Thiết lập Master Test Plan (IEEE 829), sinh kịch bản Test Scenarios & bộ Test Cases chi tiết (ISTQB), tạo Regression Checklist & quản lý Kanban Taskboard.
-- **Developer & Technical Lead**: Tham khảo kịch bản lỗi (Negative Path) và Test Scenarios trước khi triển khai code.
-- **Project Manager & CTO**: Giám sát tiến độ hoàn thành %, tiến độ release và truy cập 1-click các môi trường Web/Admin & Bug List.
+- **Product Owner (PO) & Business Analyst (BA)**: Khởi tạo BRD, SRS, User Story với Doc Builder Agent, phỏng vấn đa vòng (Multi-turn) & điều phối Kanban Taskboard.
+- **QA / Tester**: Thiết lập Master Test Plan (IEEE 829), sinh Test Scenarios & bộ Test Cases chi tiết (P1-P3), tạo Regression Checklist & quản lý lưu trữ Release.
+- **Project Manager (PM) & CTO**: Theo dõi tiến độ hoàn thành %, tiến độ release toàn bộ dự án và truy cập 1-Click các môi trường STG/PROD & Bug Tracker.
 `
 
 export async function GET(request: Request) {
