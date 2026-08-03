@@ -462,7 +462,7 @@ export default function DocBuilderPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="block text-sm md:text-base font-extrabold text-slate-900">
-                  1. Chọn Loại tài liệu <span className="text-red-600 font-bold">*</span>
+                  1. Chọn loại tài liệu <span className="text-red-600 font-bold">*</span>
                 </label>
               </div>
 
@@ -491,7 +491,7 @@ export default function DocBuilderPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="block text-sm md:text-base font-extrabold text-slate-900">
-                  2. Chọn Tiêu chuẩn áp dụng <span className="text-red-600 font-bold">*</span>
+                  2. Chọn tiêu chuẩn áp dụng <span className="text-red-600 font-bold">*</span>
                 </label>
                 <span className="text-xs text-indigo-800 font-mono font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
                   {DOC_BUILDER_STANDARDS[standard]?.tag}

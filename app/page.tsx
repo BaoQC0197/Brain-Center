@@ -512,7 +512,7 @@ export default function DashboardPage() {
               }`}
           >
             <span>📁</span>
-            <span>Danh sách Dự án</span>
+            <span>Danh sách dự án</span>
           </button>
 
           <button
@@ -536,7 +536,7 @@ export default function DashboardPage() {
               }`}
           >
             <span>📊</span>
-            <span>Báo cáo Tiến độ</span>
+            <span>Báo cáo tiến độ</span>
           </button>
         </div>
 

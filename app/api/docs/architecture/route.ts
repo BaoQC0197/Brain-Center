@@ -4,36 +4,36 @@ import path from 'path'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { exportMarkdownToHtml } from '@/lib/html-export'
 
-const DEFAULT_ARCHITECTURE_DOC = `# QA-Brain Center: Tài liệu Kiến trúc Hệ thống & Vận hành Pipeline
+const DEFAULT_ARCHITECTURE_DOC = `# QA-Brain Center: Tài liệu kiến trúc hệ thống & vận hành pipeline
 
-Tài liệu này tổng hợp **Mục tiêu Hệ thống, Đối tượng Sử dụng, Giá trị Doanh nghiệp** và toàn bộ **Kiến trúc Kỹ thuật 2 Pha (Phase 1 Baseline & Phase 2 QA Pipeline)** chuẩn quốc tế **ISTQB / ISO / IEEE** của **QA-Brain Center**.
+Tài liệu này tổng hợp **mục tiêu hệ thống, đối tượng sử dụng, giá trị doanh nghiệp** và toàn bộ **kiến trúc kỹ thuật 2 pha (Phase 1 Baseline & Phase 2 QA Pipeline)** chuẩn quốc tế **ISTQB / ISO / IEEE** của **QA-Brain Center**.
 
 ---
 
-## 1. TẦM NHÌN, MỤC TIÊU DỰ ÁN & GIÁ TRỊ DOANH NGHIỆP (EXECUTIVE SUMMARY)
+## 1. Tầm nhìn, mục tiêu dự án & giá trị doanh nghiệp (Executive summary)
 
-### 1.1. Sứ mệnh Dự án (Project Mission)
-**QA-Brain Center** được phát triển nhằm trở thành **"Trung tâm Trí tuệ Nhân tạo Độc lập & Toàn năng"** trong hoạt động Đảm bảo Chất lượng Phần mềm (Quality Assurance). Hệ thống giải quyết triệt để bài toán biến các yêu cầu nghiệp vụ mơ hồ thành bộ tài liệu thiết kế và bộ kiểm thử (Test Suite) hoàn chỉnh 100% theo các khung tiêu chuẩn quốc tế **ISTQB, ISO/IEC/IEEE 29119 và IEEE 829**.
+### 1.1. Sứ mệnh dự án (Project mission)
+**QA-Brain Center** được phát triển nhằm trở thành **"Trung tâm trí tuệ nhân tạo độc lập & toàn năng"** trong hoạt động Đảm bảo chất lượng phần mềm (Quality Assurance). Hệ thống giải quyết triệt để bài toán biến các yêu cầu nghiệp vụ mơ hồ thành bộ tài liệu thiết kế và bộ kiểm thử (Test suite) hoàn chỉnh 100% theo các khung tiêu chuẩn quốc tế **ISTQB, ISO/IEC/IEEE 29119 và IEEE 829**.
 
-### 1.2. Vấn đề thực tế & Bài toán cần giải quyết (Pain Points)
-1. **Lãng phí 70% thời gian**: Đội ngũ QA/BA phải dành hàng trăm giờ gõ thủ công Test Plan, Test Scenarios, Test Cases và câu hỏi rà soát đặc tả.
-2. **Yêu cầu đầu vào mơ hồ & Lọt Bug**: Yêu cầu nghiệp vụ từ khách hàng thường thiếu sót kịch bản lỗi, mâu thuẫn hoặc chưa bao phủ hết giá trị biên (Boundary values), dẫn đến lọt bẫy lỗi nghiêm trọng trên môi trường Production.
-3. **Thiếu chuẩn hoá Enterprise**: Mỗi nhân sự viết Test Case theo một format ngẫu nhiên, thiếu tính nhất quán và khó đánh giá độ bao phủ (Coverage).
+### 1.2. Vấn đề thực tế & bài toán cần giải quyết (Pain points)
+1. **Lãng phí 70% thời gian**: Đội ngũ QA/BA phải dành hàng trăm giờ gõ thủ công Test plan, Test scenarios, Test cases và câu hỏi rà soát đặc tả.
+2. **Yêu cầu đầu vào mơ hồ & lọt bug**: Yêu cầu nghiệp vụ từ khách hàng thường thiếu sót kịch bản lỗi, mâu thuẫn hoặc chưa bao phủ hết giá trị biên (Boundary values), dẫn đến lọt bẫy lỗi nghiêm trọng trên môi trường Production.
+3. **Thiếu chuẩn hóa doanh nghiệp**: Mỗi nhân sự viết Test case theo một format ngẫu nhiên, thiếu tính nhất quán và khó đánh giá độ bao phủ (Coverage).
 
-### 1.3. Giá trị Cốt lõi & ROI Mang lại (Business Value & ROI for Executives)
+### 1.3. Giá trị cốt lõi & ROI mang lại (Business value & ROI for executives)
 
-| Tiêu chí | Phương pháp Thủ công (Traditional QA) | Nâng cấp với QA-Brain Center | Tác động Doanh nghiệp (Business ROI) |
+| Tiêu chí | Phương pháp thủ công (Traditional QA) | Nâng cấp với QA-Brain Center | Tác động doanh nghiệp (Business ROI) |
 | :--- | :--- | :--- | :--- |
 | **Thời gian tạo Test Suite** | 2 - 5 ngày / tính năng | **30 giây - 2 phút** | 🚀 **Tăng 10x năng suất sản xuất** |
-| **Bao phủ Kịch bản Biên** | Dễ bỏ sót 30-40% Edge cases | **Bao phủ 100% Edge/Negative Cases** | 🛡️ **Giảm 90% Bug lọt Production** |
-| **Rà soát Yêu cầu (Static Test)** | Rà soát bằng mắt, dễ cảm tính | **Sub-agent Rà soát theo bẫy lỗi nghiệp vụ** | 🎯 **Phát hiện Bug ngay từ bước Thiết kế** |
-| **Chuẩn hoá Quy trình** | Tùy thuộc trình độ cá nhân | **Chuẩn ISO 29119 & ISTQB BVA/EP** | 🏢 **Chuẩn hoá 100% quy trình QA toàn cty** |
+| **Bao phủ kịch bản biên** | Dễ bỏ sót 30-40% Edge cases | **Bao phủ 100% Edge/Negative cases** | 🛡️ **Giảm 90% Bug lọt Production** |
+| **Rà soát yêu cầu (Static Test)** | Rà soát bằng mắt, dễ cảm tính | **Sub-agent rà soát theo bẫy lỗi nghiệp vụ** | 🎯 **Phát hiện Bug ngay từ bước thiết kế** |
+| **Chuẩn hóa quy trình** | Tùy thuộc trình độ cá nhân | **Chuẩn ISO 29119 & ISTQB BVA/EP** | 🏢 **Chuẩn hóa 100% quy trình QA toàn công ty** |
 
 ---
 
-## 2. ĐỐI TƯỢNG SỬ DỤNG & VAI TRÒ TRONG ĐỘI NGHŨ (TARGET PERSONAS)
+## 2. Đối tượng sử dụng & vai trò trong đội ngũ (Target personas)
 
-- **Senior QA / QA Lead**: Thiết lập khung tiêu chuẩn Test Strategy, Test Plan & Kiểm soát độ bao phủ.
+- **Senior QA / QA Lead**: Thiết lập khung tiêu chuẩn Test Strategy, Test Plan & kiểm soát độ bao phủ.
 - **BA / Product Owner**: Sử dụng Sub-agent Doc Builder & Sub-agent Clarify để làm rõ yêu cầu nghiệp vụ.
 - **Developer**: Tham khảo kịch bản lỗi (Negative Path) và Test Scenarios trước khi triển khai code.
 - **QA Automation Tester**: Sử dụng danh sách Test Cases tiêu chuẩn để chuyển đổi thành kịch bản Playwright/Cypress.
