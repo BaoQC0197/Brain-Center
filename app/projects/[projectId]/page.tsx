@@ -17,19 +17,13 @@ import GeneratedDocsManager from '@/app/components/GeneratedDocsManager'
 import DocumentViewer from '@/app/components/DocumentViewer'
 import { ProjectDetailSkeleton } from '@/app/components/Skeletons'
 
-const RAW_DOC_TYPES: { type: RawDocType; label: string; icon: string }[] = [
-  { type: 'brd', label: 'BRD - Business Requirements Document', icon: '' },
-  { type: 'srs', label: 'SRS - Software Requirements Specification', icon: '' },
-  { type: 'user-story', label: 'User Story - Danh sách User Stories & AC', icon: '' },
-  { type: 'epic', label: 'Epic - Nhóm tính năng lớn', icon: '' },
-  { type: 'feature-request', label: 'Feature Request - Đề xuất tính năng mới', icon: '' },
-  { type: 'change-request', label: 'Change Request - Yêu cầu thay đổi (CR)', icon: '' },
-  { type: 'api-spec', label: 'API Spec - Swagger / OpenAPI', icon: '' },
-  { type: 'wireframe', label: 'Wireframe / Mockup UI', icon: '' },
-  { type: 'meeting-minutes', label: 'Meeting Minutes - Biên bản họp', icon: '' },
-  { type: 'email-notes', label: 'Email Notes / Trao đổi đối tác', icon: '' },
-  { type: 'upload-doc', label: 'File Upload (PDF / DOCX)', icon: '' },
-  { type: 'figma', label: 'Link Figma Frame / Design', icon: '' },
+const UPLOAD_DOC_TYPES: { type: RawDocType; label: string }[] = [
+  { type: 'brd', label: 'BRD - Đặc tả Yêu cầu Kinh doanh' },
+  { type: 'srs', label: 'SRS - Đặc tả Yêu cầu Phần mềm' },
+  { type: 'user-story', label: 'User Story - Danh sách User Stories & AC' },
+  { type: 'feature-request', label: 'Feature Spec - Yêu cầu tính năng' },
+  { type: 'api-spec', label: 'API Spec - Swagger / OpenAPI' },
+  { type: 'email-notes', label: 'Ghi chú / Email Yêu cầu' },
 ]
 
 function EditProjectModal({
@@ -202,7 +196,7 @@ function AddRawDocModal({
   onClose: () => void
   onSaved: (doc: RawDocument) => void
 }) {
-  const [activeTab, setActiveTab] = useState<'upload' | 'figma' | 'text' | 'audio'>('upload')
+  const [activeTab, setActiveTab] = useState<'upload' | 'figma' | 'audio'>('upload')
   const [docType, setDocType] = useState<string>('brd')
   const [name, setName] = useState('')
   const [textContent, setTextContent] = useState('')
@@ -305,7 +299,7 @@ function AddRawDocModal({
             } else if (data.error) {
               setError(`Bóc tách âm thanh: ${data.error}`)
             }
-          } catch (err: any) {
+          } catch {
             setError('Lỗi kết nối khi bóc tách âm thanh sang văn bản')
           }
           setTranscribing(false)
@@ -317,7 +311,7 @@ function AddRawDocModal({
       setMediaRecorder(recorder)
       setIsRecording(true)
       setRecordingTime(0)
-    } catch (err) {
+    } catch {
       setError('Không thể mở Microphone thiết bị. Vui lòng cho phép quyền truy cập Mic.')
     }
   }
@@ -381,9 +375,9 @@ function AddRawDocModal({
         body.audioBase64 = audioBase64
         body.audioMime = audioMime
         body.textContent = textContent.trim() || transcribedText.trim()
-        if (!body.textContent) throw new Error('Chưa có văn bản bóc tách từ ghi âm. Vui lòng thu âm hoặc dán văn bản.')
+        if (!body.textContent) throw new Error('Chưa có văn bản bóc tách từ ghi âm. Vui lòng thu âm hoặc chọn file ghi âm.')
       } else {
-        if (!textContent.trim()) throw new Error('Vui lòng upload file hoặc dán nội dung văn bản')
+        if (!textContent.trim()) throw new Error('Vui lòng chọn file văn bản hoặc ghi âm từ máy')
         body.textContent = textContent.trim()
         if (audioBase64) {
           body.audioBase64 = audioBase64
@@ -408,7 +402,7 @@ function AddRawDocModal({
   const canSave = name.trim() && (
     (activeTab === 'figma' && figmaUrl.trim()) ||
     (activeTab === 'audio' && (textContent.trim() || transcribedText.trim() || audioBase64)) ||
-    (activeTab !== 'figma' && activeTab !== 'audio' && textContent.trim())
+    (activeTab === 'upload' && textContent.trim())
   )
 
   const formatTimer = (sec: number) => {
@@ -419,25 +413,30 @@ function AddRawDocModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/65 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-xs">
-      <div className="bg-white border-2 border-indigo-300 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-3xl md:max-w-4xl space-y-6 text-slate-900 max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
+      <div className="bg-white border-2 border-indigo-300 rounded-3xl shadow-2xl p-5 md:p-6 w-full max-w-xl md:max-w-2xl space-y-4 text-slate-900 max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
           <div>
-            <h2 className="font-extrabold text-xl md:text-2xl text-slate-900">
+            <h2 className="font-extrabold text-lg md:text-xl text-slate-900">
               Thêm Tài liệu Yêu cầu Đầu vào (Phase 1 Baseline)
             </h2>
-            <p className="text-xs md:text-sm font-bold text-slate-600 mt-1">
-              Tải file, dán văn bản, ghi âm cuộc họp hoặc chèn link Figma làm ngữ cảnh cho Trợ lý Kiểm thử
+            <p className="text-xs font-bold text-slate-500 mt-0.5">
+              Tải file, ghi âm cuộc họp hoặc chèn link Figma làm ngữ cảnh cho Trợ lý Kiểm thử
             </p>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1 cursor-pointer">✕</button>
         </div>
 
-        {/* Source Tab Switcher */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-2xl border-2 border-slate-300 text-xs md:text-sm font-extrabold">
+        {/* Source Tab Switcher (3 Tabs Only: Upload, Audio, Figma) */}
+        <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl border-2 border-slate-300 text-xs md:text-sm font-extrabold">
           <button
             type="button"
-            onClick={() => setActiveTab('upload')}
-            className={`py-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'upload' ? 'bg-indigo-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
+            onClick={() => {
+              setActiveTab('upload')
+              if (docType === 'meeting-minutes' || docType === 'figma') {
+                setDocType('brd')
+              }
+            }}
+            className={`py-2 rounded-xl transition-all cursor-pointer ${activeTab === 'upload' ? 'bg-indigo-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
           >
             Upload File
           </button>
@@ -448,49 +447,58 @@ function AddRawDocModal({
               setActiveTab('audio')
               setDocType('meeting-minutes')
             }}
-            className={`py-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'audio' ? 'bg-teal-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-teal-900'}`}
+            className={`py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'audio' ? 'bg-teal-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-teal-900'}`}
           >
             <span>🎙️ Ghi âm Cuộc họp</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveTab('figma')}
-            className={`py-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'figma' ? 'bg-indigo-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
+            onClick={() => {
+              setActiveTab('figma')
+              setDocType('figma')
+            }}
+            className={`py-2 rounded-xl transition-all cursor-pointer ${activeTab === 'figma' ? 'bg-indigo-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
           >
             Link Figma
           </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('text')}
-            className={`py-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'text' ? 'bg-indigo-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
-          >
-            Dán Văn bản
-          </button>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form onSubmit={handleSave} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Loại tài liệu</label>
-              <select
-                value={docType}
-                onChange={e => setDocType(e.target.value)}
-                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-sm md:text-base text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                {RAW_DOC_TYPES.map(t => (
-                  <option key={t.type} value={t.type}>{t.label}</option>
-                ))}
-              </select>
+              <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">Loại tài liệu</label>
+              {activeTab === 'audio' ? (
+                <input
+                  disabled
+                  value="Meeting Minutes - Biên bản họp / Transcribe"
+                  className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-600 font-extrabold cursor-not-allowed"
+                />
+              ) : activeTab === 'figma' ? (
+                <input
+                  disabled
+                  value="Thiết kế Figma (UI/UX)"
+                  className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-600 font-extrabold cursor-not-allowed"
+                />
+              ) : (
+                <select
+                  value={docType}
+                  onChange={e => setDocType(e.target.value)}
+                  className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                >
+                  {UPLOAD_DOC_TYPES.map(t => (
+                    <option key={t.type} value={t.type}>{t.label}</option>
+                  ))}
+                </select>
+              )}
             </div>
             <div>
-              <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên tài liệu <span className="text-rose-600 font-bold">*</span></label>
+              <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">Tên tài liệu <span className="text-rose-600 font-bold">*</span></label>
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="Ví dụ: Ghi âm cuộc họp chốt luồng Thanh toán"
-                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-sm md:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                placeholder="Ví dụ: Tài liệu đặc tả luồng Thanh toán"
+                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
               />
             </div>
           </div>
@@ -504,7 +512,7 @@ function AddRawDocModal({
                 setDragOver(false)
                 if (e.dataTransfer.files?.[0]) handleFileUpload(e.dataTransfer.files[0])
               }}
-              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${dragOver ? 'border-indigo-500 bg-indigo-100/60' : 'border-indigo-300 bg-indigo-50/50 hover:border-indigo-500 hover:bg-indigo-50'}`}
+              className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer ${dragOver ? 'border-indigo-500 bg-indigo-100/60' : 'border-indigo-300 bg-indigo-50/50 hover:border-indigo-500 hover:bg-indigo-50'}`}
             >
               <input
                 type="file"
@@ -513,12 +521,12 @@ function AddRawDocModal({
                 accept=".txt,.md,.json,.doc,.docx,.pdf,.mp3,.wav,.m4a,.webm,.ogg"
                 onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
               />
-              <label htmlFor="file-input" className="cursor-pointer space-y-2 block">
-                <p className="text-sm md:text-lg font-extrabold text-slate-900">Kéo thả file vào đây hoặc <span className="text-indigo-600 underline">chọn file từ máy</span></p>
-                <p className="text-xs md:text-sm font-bold text-slate-500">Hỗ trợ Văn bản (.txt, .md, .doc, .pdf) & File Ghi âm (.mp3, .m4a, .wav, .webm)</p>
+              <label htmlFor="file-input" className="cursor-pointer space-y-1.5 block">
+                <p className="text-sm md:text-base font-extrabold text-slate-900">Kéo thả file vào đây hoặc <span className="text-indigo-600 underline">chọn file từ máy</span></p>
+                <p className="text-xs font-bold text-slate-500">Hỗ trợ Văn bản (.txt, .md, .doc, .pdf) và File Ghi âm (.mp3, .m4a, .wav, .webm)</p>
               </label>
               {textContent && (
-                <div className="mt-4 p-3 bg-emerald-100 rounded-xl text-xs md:text-sm text-emerald-900 font-mono font-bold truncate border-2 border-emerald-300 shadow-xs">
+                <div className="mt-3 p-2.5 bg-emerald-100 rounded-xl text-xs text-emerald-900 font-mono font-bold truncate border-2 border-emerald-300 shadow-xs">
                   Đã nhận văn bản ({textContent.length.toLocaleString('vi-VN')} ký tự)
                 </div>
               )}
@@ -526,32 +534,32 @@ function AddRawDocModal({
           )}
 
           {activeTab === 'audio' && (
-            <div className="bg-teal-50/80 border-2 border-teal-300 rounded-2xl p-6 space-y-5">
-              <div className="flex items-center justify-between flex-wrap gap-3 border-b-2 border-teal-200 pb-4">
+            <div className="bg-teal-50/80 border-2 border-teal-300 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2 border-b-2 border-teal-200 pb-3">
                 <div>
-                  <h3 className="font-extrabold text-teal-950 text-base md:text-lg">🎙️ Thu âm Trực tiếp hoặc Upload File Ghi âm Cuộc họp</h3>
-                  <p className="text-xs text-teal-800 font-bold mt-0.5">
+                  <h3 className="font-extrabold text-teal-950 text-sm md:text-base">🎙️ Thu âm Trực tiếp hoặc Upload File Ghi âm Cuộc họp</h3>
+                  <p className="text-[11px] text-teal-800 font-bold mt-0.5">
                     Trợ lý sẽ tự động lắng nghe và chuyển toàn bộ cuộc họp thành văn bản Tiếng Việt chi tiết (Transcript & Key Decisions) để làm ngữ cảnh kiểm thử.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {!isRecording ? (
                     <button
                       type="button"
                       onClick={startRecording}
-                      className="bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                     >
-                      <span className="w-3 h-3 bg-white rounded-full animate-pulse" />
+                      <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" />
                       <span>Bắt đầu Ghi âm Mic</span>
                     </button>
                   ) : (
                     <button
                       type="button"
                       onClick={stopRecording}
-                      className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                     >
-                      <span className="w-3 h-3 bg-rose-500 rounded-xs animate-ping" />
+                      <span className="w-2.5 h-2.5 bg-rose-500 rounded-xs animate-ping" />
                       <span>⏹️ Dừng Ghi âm ({formatTimer(recordingTime)})</span>
                     </button>
                   )}
@@ -559,44 +567,44 @@ function AddRawDocModal({
               </div>
 
               {/* Alternative Audio File Upload in Audio Tab */}
-              <div className="flex items-center justify-between bg-white p-3.5 border-2 border-teal-200 rounded-xl flex-wrap gap-2 text-xs md:text-sm font-bold">
+              <div className="flex items-center justify-between bg-white p-2.5 border-2 border-teal-200 rounded-xl flex-wrap gap-2 text-xs font-bold">
                 <span className="text-teal-900 font-extrabold">Hoặc chọn file ghi âm từ máy (.mp3, .m4a, .wav, .webm):</span>
                 <input
                   type="file"
                   accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg"
                   onChange={e => e.target.files?.[0] && handleAudioFileUpload(e.target.files[0])}
-                  className="text-xs text-slate-700 file:bg-teal-600 file:text-white file:border-0 file:px-3 file:py-1.5 file:rounded-lg file:font-extrabold cursor-pointer"
+                  className="text-xs text-slate-700 file:bg-teal-600 file:text-white file:border-0 file:px-2.5 file:py-1 file:rounded-lg file:font-extrabold cursor-pointer"
                 />
               </div>
 
               {/* Audio Preview Player */}
               {audioBase64 && (
-                <div className="bg-white p-3.5 border-2 border-teal-300 rounded-xl flex items-center justify-between flex-wrap gap-3 shadow-xs">
+                <div className="bg-white p-2.5 border-2 border-teal-300 rounded-xl flex items-center justify-between flex-wrap gap-2 shadow-xs">
                   <span className="text-xs font-mono font-extrabold text-teal-900">Audio Preview:</span>
-                  <audio controls src={audioBase64} className="h-9 rounded-lg max-w-full" />
+                  <audio controls src={audioBase64} className="h-8 rounded-lg max-w-full" />
                 </div>
               )}
 
               {/* Transcription Loading Indicator */}
               {transcribing && (
-                <div className="bg-amber-100 border-2 border-amber-300 text-amber-900 p-4 rounded-xl text-xs md:text-sm font-extrabold flex items-center gap-3 animate-pulse">
-                  <span className="text-xl animate-spin">⚡</span>
+                <div className="bg-amber-100 border-2 border-amber-300 text-amber-900 p-3 rounded-xl text-xs font-extrabold flex items-center gap-2 animate-pulse">
+                  <span className="text-lg animate-spin">⚡</span>
                   <span>Trợ lý đang tự động lắng nghe và chuyển đổi âm thanh cuộc họp sang văn bản...</span>
                 </div>
               )}
 
               {/* Transcribed Text Preview Editor */}
               {(textContent || transcribedText) && (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs md:text-sm font-extrabold text-teal-950">Văn bản Bóc tách từ Ghi âm (Xem & Chỉnh sửa):</label>
-                    <span className="text-xs font-mono text-teal-700 font-extrabold">{(textContent || transcribedText).length.toLocaleString('vi-VN')} ký tự</span>
+                    <label className="text-xs font-extrabold text-teal-950">Văn bản Bóc tách từ Ghi âm (Xem và Chỉnh sửa):</label>
+                    <span className="text-[11px] font-mono text-teal-700 font-extrabold">{(textContent || transcribedText).length.toLocaleString('vi-VN')} ký tự</span>
                   </div>
                   <textarea
                     value={textContent || transcribedText}
                     onChange={e => setTextContent(e.target.value)}
-                    rows={8}
-                    className="w-full bg-white border-2 border-teal-300 rounded-xl p-4 text-xs md:text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 leading-relaxed font-semibold resize-y"
+                    rows={4}
+                    className="w-full bg-white border-2 border-teal-300 rounded-xl p-3 text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 leading-relaxed font-semibold resize-y"
                     placeholder="Văn bản bóc tách từ cuộc họp..."
                   />
                 </div>
@@ -605,28 +613,28 @@ function AddRawDocModal({
           )}
 
           {activeTab === 'figma' && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">URL Figma Design</label>
-                <div className="flex gap-3">
+                <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">URL Figma Design</label>
+                <div className="flex gap-2.5">
                   <input
                     value={figmaUrl}
                     onChange={e => setFigmaUrl(e.target.value)}
                     placeholder="https://www.figma.com/file/..."
-                    className="flex-1 bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-sm md:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                    className="flex-1 bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
                   />
                   <button
                     type="button"
                     onClick={fetchFigmaMeta}
                     disabled={figmaLoading || !figmaUrl}
-                    className="bg-indigo-600 text-white px-5 py-3 rounded-xl text-sm font-extrabold hover:bg-indigo-500 disabled:opacity-40 transition-all shadow-md cursor-pointer"
+                    className="bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold hover:bg-indigo-500 disabled:opacity-40 transition-all shadow-md cursor-pointer"
                   >
                     {figmaLoading ? 'Fetching...' : 'Lấy thông tin'}
                   </button>
                 </div>
               </div>
               {figmaMeta && (
-                <div className="bg-slate-50 border-2 border-slate-300 rounded-xl p-4 text-xs md:text-sm space-y-1.5 font-mono text-slate-800 font-bold">
+                <div className="bg-slate-50 border-2 border-slate-300 rounded-xl p-3 text-xs space-y-1 font-mono text-slate-800 font-bold">
                   <div>Tên File: <strong className="text-slate-900 font-extrabold">{figmaMeta.name}</strong></div>
                   {figmaMeta.lastModified && <div>Cập nhật: {new Date(figmaMeta.lastModified).toLocaleDateString('vi-VN')}</div>}
                 </div>
@@ -634,27 +642,14 @@ function AddRawDocModal({
             </div>
           )}
 
-          {activeTab === 'text' && (
-            <div>
-              <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Nội dung Văn bản Yêu cầu</label>
-              <textarea
-                value={textContent}
-                onChange={e => setTextContent(e.target.value)}
-                placeholder="Dán trực tiếp nội dung đặc tả yêu cầu, BRD, SRS, User Story, Meeting Notes vào đây..."
-                rows={10}
-                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-4 text-xs md:text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y leading-relaxed font-semibold"
-              />
-            </div>
-          )}
+          {error && <div className="bg-red-50 border-2 border-red-200 text-red-600 px-3.5 py-2.5 rounded-xl text-xs md:text-sm font-bold">{error}</div>}
 
-          {error && <div className="bg-red-50 border-2 border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold">{error}</div>}
-
-          <div className="flex gap-4 pt-4 border-t-2 border-slate-100">
-            <button type="button" onClick={onClose} className="flex-1 border-2 border-slate-300 rounded-xl py-3 text-sm md:text-base font-extrabold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer">Huỷ</button>
+          <div className="flex gap-3 pt-3 border-t-2 border-slate-100">
+            <button type="button" onClick={onClose} className="flex-1 border-2 border-slate-300 rounded-xl py-2.5 text-xs md:text-sm font-extrabold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer">Huỷ</button>
             <button
               type="submit"
               disabled={saving || figmaLoading || transcribing || isRecording || !canSave}
-              className="flex-1 bg-indigo-600 text-white rounded-xl py-3 text-sm md:text-base font-extrabold hover:bg-indigo-500 transition-all disabled:opacity-40 shadow-md cursor-pointer"
+              className="flex-1 bg-indigo-600 text-white rounded-xl py-2.5 text-xs md:text-sm font-extrabold hover:bg-indigo-500 transition-all disabled:opacity-40 shadow-md cursor-pointer"
             >
               {figmaLoading ? 'Đang tải...' : transcribing ? 'Đang bóc tách âm thanh...' : saving ? 'Đang lưu...' : 'Lưu tài liệu Phase 1'}
             </button>
