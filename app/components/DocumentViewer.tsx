@@ -296,37 +296,14 @@ export default function DocumentViewer({
 
         {/* Streamlined Action Controls */}
         <div className="flex items-center gap-2 flex-wrap text-xs md:text-sm">
-          {canEdit && (
-            <button
-              type="button"
-              onClick={() => setActiveTab('raw')}
-              className={`px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs flex items-center gap-1.5 border-2 ${
-                activeTab === 'raw'
-                  ? 'bg-amber-500 text-white border-amber-600'
-                  : 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
-              }`}
-              title="Chỉnh sửa nội dung văn bản"
-            >
-              <span>✏️ Edit</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="bg-white text-slate-800 hover:bg-slate-100 border-2 border-slate-300 px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs"
-          >
-            {copied ? '✓ Đã copy!' : '📋 Copy'}
-          </button>
-
           {/* Clean Export Dropdown Menu */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowExportMenu(!showExportMenu)}
-              className="bg-indigo-50 text-indigo-900 hover:bg-indigo-100 border-2 border-indigo-300 px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs flex items-center gap-1.5"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-xl font-extrabold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
-              <span>📥 Export</span>
+              <span>Export</span>
               <span className="text-[10px]">▾</span>
             </button>
 
@@ -338,30 +315,30 @@ export default function DocumentViewer({
                 <button
                   type="button"
                   onClick={handleDownloadWord}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 cursor-pointer"
                 >
-                  <span>📄</span> Word (.doc)
+                  Word (.doc)
                 </button>
                 <button
                   type="button"
                   onClick={handleDownloadExcel}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 cursor-pointer"
                 >
-                  <span>📊</span> CSV / Excel (.csv)
+                  CSV / Excel (.csv)
                 </button>
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 cursor-pointer"
                 >
-                  <span>📝</span> Markdown (.md)
+                  Markdown (.md)
                 </button>
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 border-t border-slate-100 mt-1 pt-1"
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 border-t border-slate-100 mt-1 pt-1 cursor-pointer"
                 >
-                  <span>🖨️</span> In / Xuất PDF
+                  In / Xuất PDF
                 </button>
               </div>
             )}
