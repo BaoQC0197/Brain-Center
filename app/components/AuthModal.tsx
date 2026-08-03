@@ -23,7 +23,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
           setUsersList(data.users)
         }
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -128,7 +128,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
           <div>
             <label className="block text-xs font-extrabold text-slate-900 mb-1">
-              Mật khẩu (Tuỳ chọn)
+              Mật khẩu
             </label>
             <input
               type="password"

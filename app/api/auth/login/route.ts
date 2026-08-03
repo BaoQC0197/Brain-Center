@@ -9,6 +9,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Vui lòng nhập Email đăng nhập' }, { status: 400 })
     }
 
+    if (!password || !password.trim()) {
+      return NextResponse.json({ error: 'Vui lòng nhập Mật khẩu đăng nhập' }, { status: 400 })
+    }
+
     const normalizedEmail = email.trim().toLowerCase()
     const user = await storage.getUserByEmail(normalizedEmail)
 
@@ -16,7 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Tài khoản chưa tồn tại trên hệ thống Supabase DB!' }, { status: 404 })
     }
 
-    if (user.passwordHash && password && user.passwordHash !== password) {
+    if (user.passwordHash && user.passwordHash.trim() !== password.trim()) {
       return NextResponse.json({ error: 'Mật khẩu đăng nhập không chính xác!' }, { status: 401 })
     }
 
