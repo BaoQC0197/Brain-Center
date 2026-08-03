@@ -34,7 +34,7 @@ Tài liệu này tổng hợp **mục tiêu hệ thống, đối tượng sử d
 ## 2. Đối tượng sử dụng & vai trò trong đội ngũ (Target personas)
 
 - **Product Owner (PO) & Business Analyst (BA)**: Khởi tạo BRD, SRS, User Story với Doc Builder Agent & phỏng vấn đa vòng Multi-turn.
-- **QA / Tester (Phase 2 - 4 bước)**: Step 1 (Rà soát & làm rõ yêu cầu), Step 2 (Master Test Plan IEEE 829), Step 3 (Test Scenarios & Test Cases chi tiết P1-P3), Step 4 (Regression Checklist & Test Report).
+- **QA / Tester**: Rà soát & làm rõ yêu cầu, Lập kế hoạch & chiến lược kiểm thử, Sinh kịch bản & bộ Test Cases chi tiết (P1-P3), Tạo Regression Checklist & Báo cáo chất lượng.
 - **Project Manager (PM) & CTO**: Theo dõi tiến độ hoàn thành %, tiến độ release toàn bộ dự án & truy cập 1-Click các môi trường STG/PROD Web/Admin & Bug Tracker.
 `
 
