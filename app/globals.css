@@ -11,28 +11,29 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: var(--font-inter), 'Inter', var(--font-plus-jakarta), 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 html {
-  font-size: 90%;
-  zoom: 90%;
+  font-family: var(--font-sans);
 }
 
 body {
   background-color: #f8fafc;
   color: #0f172a;
   font-family: var(--font-sans);
-  font-size: 13.5px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Base Heading Overrides */
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5, h6 {
   color: #0f172a;
+  font-family: var(--font-plus-jakarta), var(--font-sans);
   letter-spacing: -0.02em;
 }
 
@@ -55,7 +56,7 @@ h1, h2, h3, h4 {
   background-color: #ffffff !important;
   border: 2px solid #cbd5e1 !important;
   color: #0f172a !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
 }
 
 .saas-input::placeholder {
@@ -87,4 +88,3 @@ h1, h2, h3, h4 {
 .mermaid .mindmap-node foreignObject {
   overflow: visible !important;
 }
-
