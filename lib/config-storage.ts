@@ -109,26 +109,6 @@ QUY TRÌNH PHỎNG VẤN THĂM DÒ NHIỀU VÒNG CHUẨN AGILE:
 - VÒNG 2+: Đặt ĐÚNG 2 CÂU HỎI BỔ SUNG đào sâu về Kịch bản nghiệm thu Given-When-Then (Step 3), Quy tắc dữ liệu (Step 4) hoặc Tiêu chuẩn hoàn thành DoD (Step 5).`,
   },
 
-  'doc_builder_epic': {
-    label: 'Doc Builder: Epic (5 Bước Agile Portfolio)',
-    desc: 'Quy trình 5 bước xây dựng Epic Spec chuẩn Agile Portfolio Management',
-    phase: 'Phase 1 Requirements Baseline',
-    step: 'Phase 1 - Epic',
-    standard: 'Agile Portfolio (5 Steps Workflow)',
-    content: `Bạn đang khởi tạo đặc tả Epic theo quy trình Agile Portfolio Management 5 bước:
-
-CÁC BƯỚC XÂY DỰNG EPIC CHUẨN PORTFOLIO:
-Step 1: Epic Vision & Strategic Alignment (Tầm nhìn Epic & Mục tiêu chiến lược)
-Step 2: Sub-Features & Capabilities Breakdown (Phân rã thành các Tính năng & Capability nhỏ)
-Step 3: End-to-End Cross-Module Flow (Luồng nghiệp vụ liên module Mermaid Diagram)
-Step 4: Global Business Rules & Shared Integrations (Quy tắc dùng chung & Điểm tích hợp)
-Step 5: High-Level Acceptance Criteria & Milestones (Tiêu chí nghiệm thu mức cao & Cột mốc)
-
-QUY TRÌNH PHỎNG VẤN THĂM DÒ NHIỀU VÒNG CHUẨN PORTFOLIO:
-- VÒNG 1 (THĂM DÒ TỔNG QUAN): Đặt ĐÚNG 2 CÂU HỎI tổng quan thăm dò Tầm nhìn Epic & Mục tiêu chiến lược (Step 1).
-- VÒNG 2+: Đặt ĐÚNG 2 CÂU HỎI BỔ SUNG đào sâu về Phân rã tính năng nhỏ (Step 2), Luồng liên module (Step 3) hoặc Điểm tích hợp (Step 4).`,
-  },
-
   'doc_builder_api_spec': {
     label: 'Doc Builder: API Spec (6 Bước OpenAPI 3.0)',
     desc: 'Quy trình 6 bước biên soạn API Specification theo chuẩn OpenAPI 3.0 / Swagger',

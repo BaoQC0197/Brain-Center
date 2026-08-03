@@ -6,7 +6,6 @@ export function getDocTypeTaskKey(docType: DocBuilderType): string {
     case 'brd': return 'doc_builder_brd'
     case 'srs': return 'doc_builder_srs'
     case 'user-story': return 'doc_builder_user_story'
-    case 'epic': return 'doc_builder_epic'
     case 'api-spec': return 'doc_builder_api_spec'
     case 'change-request': return 'doc_builder_change_request'
     default: return 'doc_builder_srs'

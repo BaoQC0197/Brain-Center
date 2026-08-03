@@ -14,6 +14,7 @@ import {
   DOC_BUILDER_STANDARDS,
   DOC_TYPE_DEFAULT_STANDARD,
   DOC_TYPE_RECOMMENDED_STANDARDS,
+  DOC_TYPE_ALLOWED_STANDARDS,
 } from '@/lib/types'
 
 import { DocBuilderSkeleton, AiProcessingProgressModal } from '@/app/components/Skeletons'
@@ -116,6 +117,17 @@ export default function DocBuilderPage() {
         imageBase64 = Buffer.from(buf).toString('base64')
       }
 
+      // Combine text from selected rawDocs (Meeting Records, Audio Transcripts, Specs)
+      const selectedDocsText = Array.from(selectedRawIds).map(id => {
+        const doc = rawDocs.find(d => d.id === id)
+        if (!doc) return ''
+        return `--- TÀI LIỆU THAM CHIẾU: ${doc.name} (${doc.type.toUpperCase()}) ---\n${doc.textContent || ''}`
+      }).filter(Boolean).join('\n\n')
+
+      const fullInputWithRawDocs = selectedDocsText
+        ? `${initialInput.trim()}\n\n## DỮ LIỆU THAM CHIẾU TỪ RAW DOCS / MEETING MINUTES / AUDIO TRANSCRIPTS:\n${selectedDocsText}`
+        : initialInput.trim()
+
       const res = await fetch('/api/generate/doc-builder/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -123,7 +135,7 @@ export default function DocBuilderPage() {
           projectId,
           docType,
           standard,
-          initialInput,
+          initialInput: fullInputWithRawDocs,
           ...(imageBase64 ? { imageBase64 } : {}),
         }),
       })
@@ -186,6 +198,17 @@ export default function DocBuilderPage() {
         })
       }).join('\n\n')
 
+      // Combine text from selected rawDocs (Meeting Records, Audio Transcripts, Specs)
+      const selectedDocsText = Array.from(selectedRawIds).map(id => {
+        const doc = rawDocs.find(d => d.id === id)
+        if (!doc) return ''
+        return `--- TÀI LIỆU THAM CHIẾU: ${doc.name} (${doc.type.toUpperCase()}) ---\n${doc.textContent || ''}`
+      }).filter(Boolean).join('\n\n')
+
+      const fullInputWithRawDocs = selectedDocsText
+        ? `${initialInput.trim()}\n\n## DỮ LIỆU THAM CHIẾU TỪ RAW DOCS / MEETING MINUTES / AUDIO TRANSCRIPTS:\n${selectedDocsText}`
+        : initialInput.trim()
+
       let imageBase64: string | undefined
       if (imageFile) {
         const buf = await imageFile.arrayBuffer()
@@ -199,7 +222,7 @@ export default function DocBuilderPage() {
           projectId,
           docType,
           standard,
-          initialInput,
+          initialInput: fullInputWithRawDocs,
           previousAnswersText: formattedQA,
           ...(imageBase64 ? { imageBase64 } : {}),
         }),
@@ -257,6 +280,17 @@ export default function DocBuilderPage() {
     const allQuestions = questionnaireRounds.flatMap(r => r.questions)
     const activeOverview = questionnaireRounds[0]?.overview || ''
 
+    // Combine text from selected rawDocs for final document compilation
+    const selectedDocsText = Array.from(selectedRawIds).map(id => {
+      const doc = rawDocs.find(d => d.id === id)
+      if (!doc) return ''
+      return `--- TÀI LIỆU THAM CHIẾU: ${doc.name} (${doc.type.toUpperCase()}) ---\n${doc.textContent || ''}`
+    }).filter(Boolean).join('\n\n')
+
+    const combinedExtraNotes = selectedDocsText
+      ? `${(extraNotes || '').trim()}\n\n## DỮ LIỆU THAM CHIẾU TỪ RAW DOCS / MEETING MINUTES / AUDIO TRANSCRIPTS:\n${selectedDocsText}`
+      : (extraNotes || '').trim()
+
     try {
       const res = await fetch('/api/generate/doc-builder/draft', {
         method: 'POST',
@@ -268,7 +302,7 @@ export default function DocBuilderPage() {
           overview: activeOverview,
           answers: effectiveAnswers,
           questions: allQuestions,
-          extraNotes,
+          extraNotes: combinedExtraNotes,
           saveAsRawDoc: true,
         }),
       })
@@ -368,17 +402,17 @@ export default function DocBuilderPage() {
       {step === 1 && (
         <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-6 space-y-6 shadow-sm text-slate-900">
           {/* Phase 1 Baseline & Audio Meeting Record Context Reference Selector */}
-          {rawDocs.length > 0 && (
-            <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="text-xs md:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                  <span>📌 Dữ liệu tham chiếu ({selectedRawIds.size}/{rawDocs.length} tài liệu)</span>
-                </span>
-                <span className="text-[10px] md:text-xs bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full font-semibold">
-                  Tích chọn để làm ngữ cảnh cho AI
-                </span>
-              </div>
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <span className="text-xs md:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                <span>📌 Dữ liệu tham chiếu ({selectedRawIds.size}/{rawDocs.length} tài liệu)</span>
+              </span>
+              <span className="text-[10px] md:text-xs bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full font-semibold">
+                {rawDocs.length > 0 ? 'Tích chọn làm ngữ cảnh tham chiếu' : 'Hỗ trợ Ghi âm cuộc họp, BRD, SRS, User Story'}
+              </span>
+            </div>
 
+            {rawDocs.length > 0 ? (
               <div className="flex flex-wrap gap-2 pt-1">
                 {rawDocs.map(doc => {
                   const isAudio = doc.type === 'meeting-minutes' || Boolean(doc.audioBase64)
@@ -390,7 +424,7 @@ export default function DocBuilderPage() {
                       key={doc.id}
                       type="button"
                       onClick={() => toggleRaw(doc.id)}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border-2 transition-all ${
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border-2 transition-all cursor-pointer ${
                         checked
                           ? isAudio
                             ? 'bg-teal-600 border-teal-700 text-white shadow-xs'
@@ -408,8 +442,18 @@ export default function DocBuilderPage() {
                   )
                 })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 font-semibold flex-wrap gap-2">
+                <span>Dự án chưa có file Ghi âm cuộc họp hoặc tài liệu tham chiếu nào.</span>
+                <Link
+                  href={`/projects/${projectId}`}
+                  className="bg-indigo-50 border border-indigo-300 text-indigo-900 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-bold transition-all text-xs flex items-center gap-1 shrink-0"
+                >
+                  <span>🎙️ + Thêm Ghi âm / Tài liệu Phase 1</span>
+                </Link>
+              </div>
+            )}
+          </div>
 
           {/* Inline Flex Grid for Section 1 & Section 2 */}
           <div className="grid md:grid-cols-2 gap-6 border-b-2 border-slate-200 pb-5">
@@ -455,7 +499,9 @@ export default function DocBuilderPage() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {(Object.entries(DOC_BUILDER_STANDARDS) as [DocBuilderStandard, typeof DOC_BUILDER_STANDARDS[DocBuilderStandard]][]).map(([k, meta]) => {
+                {(DOC_TYPE_ALLOWED_STANDARDS[docType] || Object.keys(DOC_BUILDER_STANDARDS) as DocBuilderStandard[]).map((k) => {
+                  const meta = DOC_BUILDER_STANDARDS[k]
+                  if (!meta) return null
                   const isRecommended = DOC_TYPE_RECOMMENDED_STANDARDS[docType]?.includes(k)
                   const isDefault = DOC_TYPE_DEFAULT_STANDARD[docType] === k
                   return (
@@ -463,7 +509,7 @@ export default function DocBuilderPage() {
                       key={k}
                       type="button"
                       onClick={() => setStandard(k)}
-                      className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-bold transition-all border-2 flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-xl text-xs md:text-sm font-bold transition-all border-2 flex items-center gap-1.5 cursor-pointer ${
                         standard === k
                           ? 'bg-indigo-600 border-indigo-700 text-white shadow-xs'
                           : isRecommended
@@ -497,8 +543,8 @@ export default function DocBuilderPage() {
               value={initialInput}
               onChange={e => setInitialInput(e.target.value)}
               placeholder="Ví dụ: Khách hàng muốn xây hệ thống đặt phòng họp online. Cần đăng nhập Google, xem lịch trống, đặt phòng và gửi mail thông báo..."
-              rows={4}
-              className="w-full bg-white border-2 border-slate-300 rounded-xl p-4 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+              rows={2}
+              className="w-full bg-white border-2 border-slate-300 rounded-xl p-3 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold resize-y"
             />
           </div>
 

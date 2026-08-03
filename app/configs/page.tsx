@@ -113,7 +113,6 @@ export default function SystemConfigsPage() {
     'doc_builder_brd',
     'doc_builder_srs',
     'doc_builder_user_story',
-    'doc_builder_epic',
     'doc_builder_api_spec',
     'doc_builder_change_request',
   ]
@@ -134,6 +133,11 @@ export default function SystemConfigsPage() {
     'directives_step4',
   ]
   const specializedKeys = ['clarify']
+
+  // Clean label string: remove parentheses like "(6 Bước...)"
+  function cleanLabelName(label: string): string {
+    return label.replace(/\s*\([^)]*\)/g, '').trim()
+  }
 
   return (
     <div className="space-y-6 w-full pb-16">
@@ -172,7 +176,7 @@ export default function SystemConfigsPage() {
                 <button
                   type="button"
                   onClick={() => setOpenGroup('core')}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-left"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-left cursor-pointer"
                 >
                   <span className="text-sm md:text-base font-black text-slate-900 tracking-tight">1. CORE SYSTEM ENGINE</span>
                   <div className="flex items-center gap-2">
@@ -186,46 +190,40 @@ export default function SystemConfigsPage() {
                     <button
                       type="button"
                       onClick={() => handleTabChange('system_instruction', 'core')}
-                      className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                      className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 cursor-pointer ${
                         activeTab === 'system_instruction'
                           ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
                           : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
                       }`}
                     >
-                      <span className="truncate">System Instruction (Global)</span>
-                      <span className={`text-xs px-2.5 py-0.5 rounded-md font-extrabold shrink-0 ${activeTab === 'system_instruction' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
-                        Global
-                      </span>
+                      <span>System Instruction (Global)</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleTabChange('prompt_assembly', 'core')}
-                      className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                      className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 cursor-pointer ${
                         activeTab === 'prompt_assembly'
                           ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
                           : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
                       }`}
                     >
-                      <span className="truncate">Prompt Builder Engine</span>
-                      <span className={`text-xs px-2.5 py-0.5 rounded-md font-extrabold shrink-0 ${activeTab === 'prompt_assembly' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
-                        Engine
-                      </span>
+                      <span>Prompt Builder Engine</span>
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* CATEGORY 2: PHASE 1 DOC BUILDER (6 CONFIGS) */}
+              {/* CATEGORY 2: PHASE 1 DOC BUILDER (5 CONFIGS) */}
               <div className="border-2 border-slate-300 rounded-xl overflow-hidden shadow-xs">
                 <button
                   type="button"
                   onClick={() => setOpenGroup('phase1')}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-left"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-left cursor-pointer"
                 >
                   <span className="text-sm md:text-base font-black text-slate-900 tracking-tight">2. PHASE 1: DOC BUILDER</span>
                   <div className="flex items-center gap-2">
-                    <span className="bg-indigo-100 text-indigo-950 border border-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-black">6 Configs</span>
+                    <span className="bg-indigo-100 text-indigo-950 border border-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-black">5 Configs</span>
                     <span className="text-slate-600 text-sm font-black">{openGroup === 'phase1' ? '▼' : '▶'}</span>
                   </div>
                 </button>
@@ -241,16 +239,13 @@ export default function SystemConfigsPage() {
                           key={k}
                           type="button"
                           onClick={() => handleTabChange(k, 'phase1')}
-                          className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                          className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 cursor-pointer ${
                             isActive
                               ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
                               : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
                           }`}
                         >
-                          <span className="truncate">{meta.label}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
-                            {meta.step || 'Doc'}
-                          </span>
+                          <span>{cleanLabelName(meta.label)}</span>
                         </button>
                       )
                     })}
@@ -286,16 +281,13 @@ export default function SystemConfigsPage() {
                             key={k}
                             type="button"
                             onClick={() => handleTabChange(k, 'phase2')}
-                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 cursor-pointer ${
                               isActive
                                 ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
                                 : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
                             }`}
                           >
-                            <span className="truncate">{meta.label}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
-                              {meta.step || 'Step'}
-                            </span>
+                            <span>{cleanLabelName(meta.label)}</span>
                           </button>
                         )
                       })}
@@ -313,16 +305,13 @@ export default function SystemConfigsPage() {
                             key={k}
                             type="button"
                             onClick={() => handleTabChange(k, 'phase2')}
-                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 cursor-pointer ${
                               isActive
                                 ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
                                 : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
                             }`}
                           >
-                            <span className="truncate">{meta.label}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
-                              Directive
-                            </span>
+                            <span>{cleanLabelName(meta.label)}</span>
                           </button>
                         )
                       })}
@@ -340,16 +329,13 @@ export default function SystemConfigsPage() {
                             key={k}
                             type="button"
                             onClick={() => handleTabChange(k, 'phase2')}
-                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 flex items-center justify-between gap-2 ${
+                            className={`w-full text-left p-3 rounded-xl text-sm md:text-base font-bold transition-all border-2 cursor-pointer ${
                               isActive
                                 ? 'bg-indigo-600 border-indigo-700 text-white font-black shadow-sm'
                                 : 'bg-white border-slate-300 text-slate-800 hover:bg-indigo-50/50'
                             }`}
                           >
-                            <span className="truncate">{meta.label}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-md font-extrabold shrink-0 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
-                              Subagent
-                            </span>
+                            <span>{cleanLabelName(meta.label)}</span>
                           </button>
                         )
                       })}

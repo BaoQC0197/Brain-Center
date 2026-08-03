@@ -236,8 +236,6 @@ export type DocBuilderType =
   | 'brd'
   | 'srs'
   | 'user-story'
-  | 'epic'
-  | 'feature-request'
   | 'change-request'
   | 'api-spec'
 
@@ -271,13 +269,11 @@ export interface BuiltDocument {
 }
 
 export const DOC_BUILDER_TYPES: Record<DocBuilderType, { label: string; icon: string; desc: string }> = {
-  brd:               { label: 'BRD',               icon: '', desc: 'Business Requirements Document (Nghiệp vụ doanh nghiệp)' },
-  srs:               { label: 'SRS',               icon: '', desc: 'Software Requirements Specification (Đặc tả hệ thống phần mềm)' },
-  'user-story':      { label: 'User Story',        icon: '', desc: 'Danh sách User Stories theo vai trò người dùng' },
-  epic:              { label: 'Epic',              icon: '', desc: 'Đặc tả Epic lớn & phạm vi tổng thể' },
-  'feature-request': { label: 'Feature Request',   icon: '', desc: 'Yêu cầu đề xuất tính năng mới chi tiết' },
-  'change-request':  { label: 'Change Request',    icon: '', desc: 'Yêu cầu thay đổi (CR) & tác động' },
-  'api-spec':        { label: 'API Spec',          icon: '', desc: 'Đặc tả API endpoint, request & response schema' },
+  brd:               { label: 'BRD',               icon: '', desc: 'Business Requirements Document (Nghiệp vụ doanh nghiệp & Bài toán kinh doanh)' },
+  srs:               { label: 'SRS',               icon: '', desc: 'Software Requirements Specification (Đặc tả yêu cầu hệ thống & Kỹ thuật)' },
+  'user-story':      { label: 'User Story',        icon: '', desc: 'Danh sách User Stories & Acceptance Criteria (Tiêu chí nghiệm thu)' },
+  'change-request':  { label: 'Change Request (CR)',icon: '', desc: 'Yêu cầu thay đổi (CR) & Đánh giá tác động hệ thống (Impact Analysis)' },
+  'api-spec':        { label: 'API Spec',          icon: '', desc: 'Đặc tả API Endpoint, Request/Response payload & Schema dữ liệu' },
 }
 
 export const DOC_BUILDER_STANDARDS: Record<DocBuilderStandard, { label: string; tag: string; desc: string }> = {
@@ -292,8 +288,6 @@ export const DOC_TYPE_DEFAULT_STANDARD: Record<DocBuilderType, DocBuilderStandar
   brd: 'babok',
   srs: 'ieee-830',
   'user-story': 'agile-template',
-  epic: 'agile-template',
-  'feature-request': 'custom',
   'change-request': 'custom',
   'api-spec': 'iso-25010',
 }
@@ -302,8 +296,15 @@ export const DOC_TYPE_RECOMMENDED_STANDARDS: Record<DocBuilderType, DocBuilderSt
   brd: ['babok', 'custom', 'iso-25010'],
   srs: ['ieee-830', 'iso-25010', 'custom'],
   'user-story': ['agile-template', 'babok', 'custom'],
-  epic: ['agile-template', 'babok', 'custom'],
-  'feature-request': ['custom', 'iso-25010', 'agile-template'],
+  'change-request': ['custom', 'babok', 'ieee-830'],
+  'api-spec': ['iso-25010', 'custom', 'ieee-830'],
+}
+
+// Strictly allowed standards per doc type to prevent invalid/irrelevant standards selection
+export const DOC_TYPE_ALLOWED_STANDARDS: Record<DocBuilderType, DocBuilderStandard[]> = {
+  brd: ['babok', 'iso-25010', 'custom'],
+  srs: ['ieee-830', 'iso-25010', 'custom'],
+  'user-story': ['agile-template', 'babok', 'custom'],
   'change-request': ['custom', 'babok', 'ieee-830'],
   'api-spec': ['iso-25010', 'custom', 'ieee-830'],
 }

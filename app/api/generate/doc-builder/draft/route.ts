@@ -68,8 +68,6 @@ export async function POST(request: Request) {
         brd: 'brd',
         srs: 'srs',
         'user-story': 'user-story',
-        epic: 'epic',
-        'feature-request': 'feature-request',
         'change-request': 'change-request',
         'api-spec': 'api-spec',
       }
