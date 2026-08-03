@@ -152,7 +152,7 @@ QUY TRÌNH PHỎNG VẤN THĂM DÒ NHIỀU VÒNG CHUẨN ITIL:
 
   // ── PHASE 2: STREAMLINED 4-STEP QA TESTING PIPELINE TASK PROMPTS ────────────
   'review-requirement': {
-    label: 'Step 1: Requirements Review & Acceptance Criteria',
+    label: 'Phase 2 - Step 1: Requirements Review & Acceptance Criteria',
     desc: 'Rà soát chất lượng đặc tả yêu cầu (Static Testing) & Thiết lập Tiêu chí nghiệm thu BDD Gherkin (Given-When-Then)',
     phase: 'Phase 2 QA Testing Pipeline',
     step: 'Step 1',
@@ -183,7 +183,7 @@ PHẦN 2: BỘ TIÊU CHÍ NGHIỆM THU CHUẨN AGILE BDD GHERKIN (ACCEPTANCE CRI
 Trả về tài liệu Markdown tiêu chuẩn chuyên nghiệp, đẹp mắt với đầy đủ bảng biểu, danh sách kiểm tra (checkbox), và thẻ chú thích Alert (> [!NOTE], > [!IMPORTANT]).`,
   },
   'test-plan': {
-    label: 'Step 2: Master Test Strategy & Plan',
+    label: 'Phase 2 - Step 2: Master Test Strategy & Plan',
     desc: 'Lập Kế hoạch & Chiến lược kiểm thử tổng thể (Scope in/out, Test levels, Risk Matrix, Entry/Exit criteria, Schedule & Resources)',
     phase: 'Phase 2 QA Testing Pipeline',
     step: 'Step 2',
@@ -211,7 +211,7 @@ BÁO CÁO CỦA BẠN BẮT BUỘC BAO GỒM CÁC MỤC SAU:
 Trả về JSON hợp lệ 100% đúng cấu trúc Master Test Plan schema của hệ thống.`,
   },
   'test-case': {
-    label: 'Step 3: Test Scenarios & Detailed Test Cases',
+    label: 'Phase 2 - Step 3: Test Scenarios & Detailed Test Cases',
     desc: 'Sinh danh sách Kịch bản E2E & Bộ Test Cases chi tiết (P1/P2/P3, Preconditions, Steps, Expected, Test Data)',
     phase: 'Phase 2 QA Testing Pipeline',
     step: 'Step 3',
@@ -230,7 +230,7 @@ BÁO CÁO CỦA BẠN PHẢI BAO GỒM:
 Trả về JSON hợp lệ 100% đúng cấu trúc TestCase[] schema của hệ thống.`,
   },
   'test-report': {
-    label: 'Step 4: Regression Checklist & Test Summary Report',
+    label: 'Phase 2 - Step 4: Regression Checklist & Test Summary Report',
     desc: 'Rút gọn danh mục kiểm thử hồi quy trước Release & Báo cáo tổng kết chất lượng kiểm thử kèm Quyết định Go/No-Go',
     phase: 'Phase 2 QA Testing Pipeline',
     step: 'Step 4',
