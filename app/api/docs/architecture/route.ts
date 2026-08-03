@@ -4,13 +4,13 @@ import path from 'path'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { exportMarkdownToHtml } from '@/lib/html-export'
 
-const DEFAULT_ARCHITECTURE_DOC = `# Brain Center: Tài liệu kiến trúc hệ thống & quy trình vận hành Agent
+const DEFAULT_ARCHITECTURE_DOC = `# Brain Center: Tài liệu kiến trúc hệ thống và quy trình vận hành Agent
 
 Tài liệu này tổng hợp mục tiêu hệ thống, các nhóm đối tượng sử dụng, luồng làm việc thực tế và cơ chế phối hợp giữa **Agent chính** và các **Sub-agent** trong hệ thống **Brain Center**.
 
 ---
 
-## 1. Mục tiêu & giá trị vận hành của hệ thống
+## 1. Mục tiêu và giá trị vận hành của hệ thống
 
 Hệ thống **Brain Center** được thiết kế làm trung tâm hỗ trợ công việc cho đội ngũ phát triển phần mềm (Product Owner, Business Analyst, QA/Tester và Quản lý dự án). Hệ thống giải quyết 3 bài toán thực tế:
 
@@ -31,9 +31,9 @@ Hệ thống **Brain Center** được thiết kế làm trung tâm hỗ trợ c
 
 ## 2. Các nhóm vai trò sử dụng hệ thống
 
-- **Product Owner (PO) & Business Analyst (BA)**: Khởi tạo BRD, SRS, User Story với Doc Builder Agent & phỏng vấn đa vòng Multi-turn.
-- **QA / Tester**: Rà soát & làm rõ yêu cầu, Lập kế hoạch & chiến lược kiểm thử, Sinh kịch bản & bộ Test Cases chi tiết, Tạo Regression Checklist & Báo cáo chất lượng.
-- **Project Manager (PM) & CTO**: Theo dõi tiến độ hoàn thành %, tiến độ release toàn bộ dự án & quản lý thẻ công việc trên bảng Kanban.
+- **Product Owner (PO) và Business Analyst (BA)**: Khởi tạo BRD, SRS, User Story với Doc Builder Agent và phỏng vấn đa vòng Multi-turn.
+- **QA / Tester**: Rà soát và làm rõ yêu cầu, Lập kế hoạch và chiến lược kiểm thử, Sinh kịch bản và bộ Test Cases chi tiết, Tạo Regression Checklist và Báo cáo chất lượng.
+- **Project Manager (PM) và CTO**: Theo dõi tiến độ hoàn thành %, tiến độ release toàn bộ dự án và quản lý thẻ công việc trên bảng Kanban.
 `
 
 export async function GET(request: Request) {

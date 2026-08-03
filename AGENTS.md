@@ -4,11 +4,12 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Quy tắc thiết kế UI & Biên soạn tài liệu kiến trúc (Brain Center Rules)
+# Quy tắc thiết kế UI và Biên soạn tài liệu kiến trúc (Brain Center Rules)
 
-## 1. Chuẩn hóa Ngôn ngữ & Thuật ngữ (No Jargon & No Emoji Clutter)
+## 1. Chuẩn hóa Ngôn ngữ và Thuật ngữ (No Jargon & No Emoji Clutter)
 - **Không dùng thuật ngữ tiếng Anh khô cứng hay viết tắt mơ hồ**: Không dùng `IEEE 829`, `P1-P3`, `Step 1/2/3` trong mô tả sản phẩm. Chuyển thành Tiếng Việt tự nhiên dễ hiểu (ví dụ: "Kế hoạch kiểm thử tổng thể", "phân cấp độ ưu tiên: Cao / Trung bình / Thấp").
 - **Không dùng Icon Emoji rác**: Tuyệt đối không dùng các icon trang trí gây rối mắt (như 🚀, 🛡️, 🎯, 🏢, 🟡, 🟧, 🟢, 🔷, 🔴, 📁, 📋, 📊, 🔍, ✨, 👤, 🔥, ✏️, 🗑️, 🚀, 📦). Giữ giao diện và văn bản tối giản, chuyên nghiệp.
+- **Không dùng ký hiệu `&` tùy tiện**: Tuyệt đối không dùng ký hiệu `&` trong văn bản hoặc giao diện. Thay bằng từ tiếng Việt "và" hoặc loại bỏ từ nối không cần thiết.
 
 ## 2. Tiêu chuẩn Sơ đồ Mermaid (Diagram Standards)
 - **Sơ đồ Mindmap**: Mỗi node con chỉ từ 2-4 từ ngắn gọn để tránh tràn viền hoặc đè lên hình tròn trung tâm `Brain Center`.
@@ -21,12 +22,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Khi mô tả luồng tạo tài liệu (Doc Builder hay QA Pipeline), luôn đảm bảo hệ thống tham chiếu hợp nhất 4 nguồn tri thức:
   1. Lịch sử Q&A từ N vòng phỏng vấn.
   2. Ghi âm / Transcribe cuộc họp (Meeting Audio / Transcript).
-  3. Ghi chú & văn bản thô (Raw Texts / Meeting Notes).
+  3. Ghi chú và văn bản thô (Raw Texts / Meeting Notes).
   4. Các tài liệu dự án liên quan được chọn (Selected Baseline Documents / Figma Links).
 
 ## 4. Quy tắc Bắt buộc Làm rõ trong Phase 2 (Mandatory Sub-Agent Clarification Loop)
 - **Không có tùy chọn bỏ qua**: Bước rà soát làm rõ của Clarify Sub-agent là bắt buộc 100%, không tạo tùy chọn "Bỏ qua / Chạy trực tiếp".
 - **Không gợi ý sẵn câu trả lời**: Các câu hỏi phỏng vấn rà soát của Sub-agent phải có `suggestedAnswer: ""` để người dùng tự nhập câu trả lời thực tế.
 - **Vòng lặp rà soát tới khi AI đối chiếu đạt chuẩn**: Sub-agent rà soát liên tục qua các vòng cho đến khi AI tự đối chiếu bài đặc tả + câu trả lời của user với tiêu chuẩn tài liệu đích thấy đạt 100% độ rõ ràng mới chuyển sang cho Primary QA Agent thực thi.
-
-
