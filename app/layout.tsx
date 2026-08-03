@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import AppAuthGuard from "@/app/components/AppAuthGuard";
 
-const inter = Inter({
+const roboto = Roboto({
   subsets: ["latin", "vietnamese"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin", "vietnamese"],
-  variable: "--font-plus-jakarta",
+  weight: ["300", "400", "500", "700", "900"],
+  variable: "--font-roboto",
   display: "swap",
 });
 
@@ -24,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="vi"
-      className={`${inter.variable} ${plusJakartaSans.variable} h-full`}
+      className={`${roboto.variable} h-full`}
       suppressHydrationWarning
     >
       <body

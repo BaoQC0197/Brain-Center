@@ -75,12 +75,12 @@ function EditProjectModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/65 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-xs">
-      <div className="bg-white border-2 border-indigo-400 rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-2xl space-y-6 text-slate-900">
-        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
-          <h2 className="font-extrabold text-xl md:text-2xl text-slate-900">
+      <div className="bg-white border-2 border-indigo-400 rounded-3xl shadow-2xl p-5 md:p-6 w-full max-w-xl space-y-4 text-slate-900 max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+          <h2 className="font-extrabold text-lg md:text-xl text-slate-900">
             Chỉnh sửa Dự án
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1">✕</button>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1 cursor-pointer">✕</button>
         </div>
 
         <form onSubmit={handleSave} className="space-y-5">
@@ -717,17 +717,17 @@ function ImportStepDocModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/65 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-xs">
-      <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-3xl md:max-w-4xl space-y-6 text-slate-900">
-        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
+      <div className="bg-white border-2 border-emerald-400 rounded-3xl shadow-2xl p-5 md:p-6 w-full max-w-xl md:max-w-2xl space-y-4 text-slate-900 max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
           <div>
-            <h2 className="font-extrabold text-xl md:text-2xl text-slate-900">
+            <h2 className="font-extrabold text-lg md:text-xl text-slate-900">
               Nhập File / Nội dung ngoài cho {meta.label} (Step {meta.stepOrder})
             </h2>
-            <p className="text-xs md:text-sm font-bold text-slate-600 mt-1">
+            <p className="text-xs font-bold text-slate-500 mt-0.5">
               Tải file (.txt, .md, .json, .csv, .pdf, .docx) hoặc dán tài liệu đã có để mở khoá quy trình
             </p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1">✕</button>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1 cursor-pointer">✕</button>
         </div>
 
         <form onSubmit={handleSave} className="space-y-5">

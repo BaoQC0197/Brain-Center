@@ -66,7 +66,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-sm">
-      <div className="bg-white border-2 border-indigo-500 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-md space-y-5 text-slate-900">
+      <div className="bg-white border-2 border-indigo-500 rounded-3xl shadow-2xl p-5 md:p-6 w-full max-w-md space-y-4 text-slate-900 max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
           <div>
             <h2 className="font-extrabold text-lg md:text-xl text-slate-900 leading-snug">
