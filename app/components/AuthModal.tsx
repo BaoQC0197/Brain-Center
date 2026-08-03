@@ -58,10 +58,8 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
   function handleQuickAccountSelect(selectedEmail: string) {
     setEmail(selectedEmail)
-    const found = usersList.find(u => u.email === selectedEmail)
-    if (found) {
-      setError('')
-    }
+    setPassword('')
+    setError('')
   }
 
   return (

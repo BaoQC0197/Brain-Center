@@ -151,13 +151,8 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
                     onChange={e => {
                       const selectedEmail = e.target.value
                       setEmail(selectedEmail)
+                      setPassword('')
                       setLoginError('')
-                      const foundUser = usersList.find(u => u.email === selectedEmail)
-                      if (foundUser && (foundUser as { passwordHash?: string }).passwordHash) {
-                        setPassword((foundUser as { passwordHash?: string }).passwordHash || '')
-                      } else if (selectedEmail) {
-                        setPassword('admin123')
-                      }
                     }}
                     className="w-full bg-slate-950 border-2 border-indigo-500/50 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-extrabold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-inner"
                   >
@@ -179,7 +174,11 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
                   required
                   type="text"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => {
+                    setEmail(e.target.value)
+                    setPassword('')
+                    setLoginError('')
+                  }}
                   placeholder="Nhập tên đăng nhập hoặc email..."
                   className="w-full bg-slate-950 border-2 border-slate-700/80 rounded-2xl px-4 py-3 text-sm text-white font-semibold placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 />
