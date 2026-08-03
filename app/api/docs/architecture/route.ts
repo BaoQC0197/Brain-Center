@@ -33,10 +33,10 @@ Tài liệu này tổng hợp **mục tiêu hệ thống, đối tượng sử d
 
 ## 2. Đối tượng sử dụng & vai trò trong đội ngũ (Target personas)
 
-- **Senior QA / QA Lead**: Thiết lập khung tiêu chuẩn Test Strategy, Test Plan & kiểm soát độ bao phủ.
-- **BA / Product Owner**: Sử dụng Sub-agent Doc Builder & Sub-agent Clarify để làm rõ yêu cầu nghiệp vụ.
-- **Developer**: Tham khảo kịch bản lỗi (Negative Path) và Test Scenarios trước khi triển khai code.
-- **QA Automation Tester**: Sử dụng danh sách Test Cases tiêu chuẩn để chuyển đổi thành kịch bản Playwright/Cypress.
+- **BA / Product Owner**: Sử dụng Sub-agent Doc Builder & Sub-agent Clarify để làm rõ yêu cầu đặc tả (BRD, SRS, User Story).
+- **QA / Tester**: Thiết lập Master Test Plan (IEEE 829), sinh kịch bản Test Scenarios & bộ Test Cases chi tiết (ISTQB), tạo Regression Checklist & quản lý Kanban Taskboard.
+- **Developer & Technical Lead**: Tham khảo kịch bản lỗi (Negative Path) và Test Scenarios trước khi triển khai code.
+- **Project Manager & CTO**: Giám sát tiến độ hoàn thành %, tiến độ release và truy cập 1-click các môi trường Web/Admin & Bug List.
 `
 
 export async function GET(request: Request) {
