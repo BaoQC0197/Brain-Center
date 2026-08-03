@@ -17,7 +17,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "Brain Center",
-  description: "Trung tâm lưu trữ tri thức & trợ lý kiểm thử ISTQB",
+  description: "Trung tâm lưu trữ và trợ lý kiểm thử ISTQB",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

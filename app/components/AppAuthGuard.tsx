@@ -109,41 +109,41 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
         {/* Background glow accents */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="w-full max-w-xl relative z-10 space-y-8">
+        <div className="w-full max-w-md relative z-10 space-y-5">
           {/* Header Branding */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-3 bg-slate-900 border-2 border-indigo-500/60 px-6 py-3 rounded-2xl shadow-2xl">
-              <span className="bg-indigo-600 text-white text-sm font-mono font-extrabold px-3 py-1.5 rounded-xl">QA</span>
-              <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">Brain Center</span>
+          <div className="text-center space-y-2.5">
+            <div className="inline-flex items-center gap-2.5 bg-slate-900 border-2 border-indigo-500/60 px-4 py-2 rounded-2xl shadow-2xl">
+              <span className="bg-indigo-600 text-white text-xs font-mono font-extrabold px-2.5 py-1 rounded-lg">QA</span>
+              <span className="text-xl sm:text-2xl font-black text-white tracking-tight">Brain Center</span>
             </div>
-            <p className="text-sm sm:text-base text-indigo-200 font-mono font-extrabold tracking-wide">
-              Trung tâm Lưu trữ Tri thức & Trợ lý Kiểm thử (ISTQB Standard)
+            <p className="text-xs sm:text-sm text-indigo-200 font-mono font-extrabold tracking-wide">
+              Trung tâm lưu trữ và trợ lý kiểm thử (ISTQB Standard)
             </p>
           </div>
 
-          {/* Login Card (Spacious & Clean UI) */}
-          <div className="bg-slate-900/95 border-2 border-indigo-500/50 rounded-3xl p-8 sm:p-10 shadow-2xl space-y-8 backdrop-blur-xl">
-            <div className="border-b border-slate-800 pb-5 text-center space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          {/* Login Card (Compact 80% Scale & Clean UI) */}
+          <div className="bg-slate-900/95 border-2 border-indigo-500/50 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 backdrop-blur-xl">
+            <div className="border-b border-slate-800 pb-3 text-center space-y-1">
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 Đăng nhập Hệ thống
               </h2>
-              <p className="text-sm text-slate-300 font-medium">
+              <p className="text-xs text-slate-300 font-medium">
                 Vui lòng đăng nhập tài khoản nhân sự để truy cập hệ thống
               </p>
             </div>
 
             {loginError && (
-              <div className="bg-rose-950/90 border-2 border-rose-600/80 text-rose-100 px-5 py-3.5 rounded-2xl text-sm font-extrabold flex items-center justify-between shadow-lg">
+              <div className="bg-rose-950/90 border-2 border-rose-600/80 text-rose-100 px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center justify-between shadow-lg">
                 <span>{loginError}</span>
                 <button type="button" onClick={() => setLoginError('')} className="text-rose-400 font-black hover:text-white">✕</button>
               </div>
             )}
 
-            <form onSubmit={handleLoginSubmit} className="space-y-6 text-left">
+            <form onSubmit={handleLoginSubmit} className="space-y-4 text-left">
               {/* Quick Select dropdown from Supabase User Profiles */}
               {usersList.length > 0 && (
-                <div className="space-y-2 bg-indigo-950/60 border-2 border-indigo-500/40 p-4 rounded-2xl">
-                  <label className="block text-xs sm:text-sm font-black text-indigo-200 uppercase tracking-wide">
+                <div className="space-y-1.5 bg-indigo-950/60 border-2 border-indigo-500/40 p-3 rounded-2xl">
+                  <label className="block text-xs font-black text-indigo-200 uppercase tracking-wide">
                     Chọn nhanh Tài khoản Nhân sự (Supabase DB):
                   </label>
                   <select
@@ -152,7 +152,7 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
                       setEmail(e.target.value)
                       setLoginError('')
                     }}
-                    className="w-full bg-slate-950 border-2 border-indigo-500/50 rounded-xl px-4 py-3.5 text-sm sm:text-base font-extrabold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-inner"
+                    className="w-full bg-slate-950 border-2 border-indigo-500/50 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-extrabold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-inner"
                   >
                     <option value="">-- Chọn tài khoản --</option>
                     {usersList.map(u => (
@@ -165,7 +165,7 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
               )}
 
               <div>
-                <label className="block text-sm sm:text-base font-extrabold text-slate-200 mb-2">
+                <label className="block text-xs sm:text-sm font-extrabold text-slate-200 mb-1.5">
                   Tên đăng nhập / Email <span className="text-rose-500 font-bold">*</span>
                 </label>
                 <input
@@ -174,12 +174,12 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Nhập tên đăng nhập hoặc email..."
-                  className="w-full bg-slate-950 border-2 border-slate-700/80 rounded-2xl px-5 py-4 text-base sm:text-lg text-white font-semibold placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  className="w-full bg-slate-950 border-2 border-slate-700/80 rounded-2xl px-4 py-3 text-sm text-white font-semibold placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm sm:text-base font-extrabold text-slate-200 mb-2">
+                <label className="block text-xs sm:text-sm font-extrabold text-slate-200 mb-1.5">
                   Mật khẩu (Tuỳ chọn)
                 </label>
                 <input
@@ -187,23 +187,23 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-slate-950 border-2 border-slate-700/80 rounded-2xl px-5 py-4 text-base sm:text-lg text-white font-semibold placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  className="w-full bg-slate-950 border-2 border-slate-700/80 rounded-2xl px-4 py-3 text-sm text-white font-semibold placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 />
               </div>
 
-              <div className="pt-3">
+              <div className="pt-2">
                 <button
                   type="submit"
                   disabled={loginLoading}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl py-4 text-base sm:text-lg font-extrabold transition-all shadow-xl shadow-indigo-600/30 disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl py-3 text-sm sm:text-base font-extrabold transition-all shadow-xl shadow-indigo-600/30 disabled:opacity-50 flex items-center justify-center gap-2.5 cursor-pointer"
                 >
                   {loginLoading ? (
                     <>
-                      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>Đang xác thực...</span>
                     </>
                   ) : (
-                    <span>Xác nhận Đăng nhập vào Hệ thống</span>
+                    <span>Đăng nhập</span>
                   )}
                 </button>
               </div>
@@ -228,7 +228,7 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
             <span>Brain Center</span>
           </a>
           <span className="text-slate-700 font-bold">|</span>
-          <span className="text-xs text-indigo-200 font-mono font-bold hidden sm:inline-block">Trung tâm Lưu trữ & Trợ lý Kiểm thử (ISTQB Standard)</span>
+          <span className="text-xs text-indigo-200 font-mono font-bold hidden sm:inline-block">Trung tâm lưu trữ và trợ lý kiểm thử (ISTQB Standard)</span>
         </div>
         <div className="flex items-center gap-3">
           <a
