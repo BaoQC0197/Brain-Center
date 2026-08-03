@@ -4,38 +4,36 @@ import path from 'path'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { exportMarkdownToHtml } from '@/lib/html-export'
 
-const DEFAULT_ARCHITECTURE_DOC = `# QA-Brain Center: Tài liệu kiến trúc hệ thống & vận hành pipeline
+const DEFAULT_ARCHITECTURE_DOC = `# Brain Center: Tài liệu kiến trúc hệ thống & quy trình vận hành Agent
 
-Tài liệu này tổng hợp **mục tiêu hệ thống, đối tượng sử dụng, giá trị doanh nghiệp** và toàn bộ **kiến trúc kỹ thuật 2 pha (Phase 1 Baseline & Phase 2 QA Pipeline)** chuẩn quốc tế **ISTQB / ISO / IEEE** của **QA-Brain Center**.
+Tài liệu này tổng hợp mục tiêu hệ thống, các nhóm đối tượng sử dụng, luồng làm việc thực tế và cơ chế phối hợp giữa **Agent chính** và các **Sub-agent** trong hệ thống **Brain Center**.
 
 ---
 
-## 1. Tầm nhìn, mục tiêu dự án & giá trị doanh nghiệp (Executive summary)
+## 1. Mục tiêu & giá trị vận hành của hệ thống
 
-### 1.1. Sứ mệnh dự án (Project mission)
-**QA-Brain Center** được phát triển nhằm trở thành **"Trung tâm trí tuệ nhân tạo độc lập & toàn năng"** trong hoạt động Đảm bảo chất lượng phần mềm (Quality Assurance). Hệ thống giải quyết triệt để bài toán biến các yêu cầu nghiệp vụ mơ hồ thành bộ tài liệu thiết kế và bộ kiểm thử (Test suite) hoàn chỉnh 100% theo các khung tiêu chuẩn quốc tế **ISTQB, ISO/IEC/IEEE 29119 và IEEE 829**.
+Hệ thống **Brain Center** được thiết kế làm trung tâm hỗ trợ công việc cho đội ngũ phát triển phần mềm (Product Owner, Business Analyst, QA/Tester và Quản lý dự án). Hệ thống giải quyết 3 bài toán thực tế:
 
-### 1.2. Vấn đề thực tế & bài toán cần giải quyết (Pain points)
-1. **Lãng phí 70% thời gian**: Đội ngũ QA/BA phải dành hàng trăm giờ gõ thủ công Test plan, Test scenarios, Test cases và câu hỏi rà soát đặc tả.
-2. **Yêu cầu đầu vào mơ hồ & lọt bug**: Yêu cầu nghiệp vụ từ khách hàng thường thiếu sót kịch bản lỗi, mâu thuẫn hoặc chưa bao phủ hết giá trị biên (Boundary values), dẫn đến lọt bẫy lỗi nghiêm trọng trên môi trường Production.
-3. **Thiếu chuẩn hóa doanh nghiệp**: Mỗi nhân sự viết Test case theo một format ngẫu nhiên, thiếu tính nhất quán và khó đánh giá độ bao phủ (Coverage).
+1. **Tiết kiệm thời gian lập tài liệu**: Tự động hóa việc tạo tài liệu đặc tả, kế hoạch kiểm thử và bộ test cases thay vì biên soạn thủ công kéo dài nhiều ngày.
+2. **Rà soát thiếu sót ngay từ đầu**: Giúp phát hiện các điểm mơ hồ, mâu thuẫn hoặc kịch bản lỗi bị bỏ sót trong yêu cầu nghiệp vụ trước khi tiến hành lập trình.
+3. **Chuẩn hóa chất lượng kiểm thử**: Đảm bảo toàn bộ tài liệu kiểm thử được trình bày nhất quán, đầy đủ tiêu chí nghiệm thu và bao phủ các kịch bản biên.
 
-### 1.3. Giá trị cốt lõi & ROI mang lại (Business value & ROI for executives)
+### Bảng so sánh hiệu quả vận hành:
 
-| Tiêu chí | Phương pháp thủ công (Traditional QA) | Nâng cấp với QA-Brain Center | Tác động doanh nghiệp (Business ROI) |
+| Tiêu chí | Phương pháp thủ công | Vận hành cùng Brain Center | Hiệu quả mang lại |
 | :--- | :--- | :--- | :--- |
-| **Thời gian tạo Test Suite** | 2 - 5 ngày / tính năng | **30 giây - 2 phút** | 🚀 **Tăng 10x năng suất sản xuất** |
-| **Bao phủ kịch bản biên** | Dễ bỏ sót 30-40% Edge cases | **Bao phủ 100% Edge/Negative cases** | 🛡️ **Giảm 90% Bug lọt Production** |
-| **Rà soát yêu cầu (Static Test)** | Rà soát bằng mắt, dễ cảm tính | **Sub-agent rà soát theo bẫy lỗi nghiệp vụ** | 🎯 **Phát hiện Bug ngay từ bước thiết kế** |
-| **Chuẩn hóa quy trình** | Tùy thuộc trình độ cá nhân | **Chuẩn ISO 29119 & ISTQB BVA/EP** | 🏢 **Chuẩn hóa 100% quy trình QA toàn công ty** |
+| **Thời gian tạo bộ kiểm thử** | 2 - 5 ngày cho một tính năng | 30 giây - 2 phút | Tăng 10 lần tốc độ chuẩn bị kiểm thử |
+| **Bao phủ kịch bản biên** | Dễ bỏ sót 30% - 40% trường hợp ngoại lệ | Bao phủ đầy đủ các trường hợp ngoại lệ và kịch bản lỗi | Hạn chế tối đa lỗi phát sinh trên môi trường thật |
+| **Rà soát yêu cầu** | Rà soát bằng mắt, phụ thuộc cảm tính | Sub-agent rà soát theo các bẫy nghiệp vụ thực tế | Phát hiện lỗ hổng ngay ở bước thiết kế |
+| **Chuẩn hóa quy trình** | Tùy thuộc vào kinh nghiệm từng cá nhân | Đưa về một chuẩn nhất quán toàn công ty | Dễ dàng quản lý và bàn giao công việc |
 
 ---
 
-## 2. Đối tượng sử dụng & vai trò trong đội ngũ (Target personas)
+## 2. Các nhóm vai trò sử dụng hệ thống
 
 - **Product Owner (PO) & Business Analyst (BA)**: Khởi tạo BRD, SRS, User Story với Doc Builder Agent & phỏng vấn đa vòng Multi-turn.
-- **QA / Tester**: Rà soát & làm rõ yêu cầu, Lập kế hoạch & chiến lược kiểm thử, Sinh kịch bản & bộ Test Cases chi tiết (P1-P3), Tạo Regression Checklist & Báo cáo chất lượng.
-- **Project Manager (PM) & CTO**: Theo dõi tiến độ hoàn thành %, tiến độ release toàn bộ dự án & truy cập 1-Click các môi trường STG/PROD Web/Admin & Bug Tracker.
+- **QA / Tester**: Rà soát & làm rõ yêu cầu, Lập kế hoạch & chiến lược kiểm thử, Sinh kịch bản & bộ Test Cases chi tiết, Tạo Regression Checklist & Báo cáo chất lượng.
+- **Project Manager (PM) & CTO**: Theo dõi tiến độ hoàn thành %, tiến độ release toàn bộ dự án & quản lý thẻ công việc trên bảng Kanban.
 `
 
 export async function GET(request: Request) {
