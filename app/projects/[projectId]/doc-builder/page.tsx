@@ -405,7 +405,7 @@ export default function DocBuilderPage() {
           <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 space-y-3 shadow-xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <span className="text-xs md:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                <span>📌 Dữ liệu tham chiếu ({selectedRawIds.size}/{rawDocs.length} tài liệu)</span>
+                <span>Dữ liệu tham chiếu ({selectedRawIds.size}/{rawDocs.length} tài liệu)</span>
               </span>
               <span className="text-[10px] md:text-xs bg-slate-100 text-slate-700 border border-slate-300 px-2.5 py-0.5 rounded-full font-semibold">
                 {rawDocs.length > 0 ? 'Tích chọn làm ngữ cảnh tham chiếu' : 'Hỗ trợ Ghi âm cuộc họp, BRD, SRS, User Story'}
@@ -433,7 +433,6 @@ export default function DocBuilderPage() {
                       }`}
                     >
                       <span>{checked ? '✓' : '○'}</span>
-                      <span>{isAudio ? '🎙️' : '📄'}</span>
                       <span className="max-w-[200px] truncate">{doc.name}</span>
                       <span className="text-[10px] bg-slate-100 text-slate-800 px-1.5 py-0.2 rounded font-mono font-semibold">
                         {isAudio ? 'Audio' : meta.label} {len > 0 ? `(${len.toLocaleString('vi-VN')} ký tự)` : ''}
@@ -449,7 +448,7 @@ export default function DocBuilderPage() {
                   href={`/projects/${projectId}`}
                   className="bg-indigo-50 border border-indigo-300 text-indigo-900 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-bold transition-all text-xs flex items-center gap-1 shrink-0"
                 >
-                  <span>🎙️ + Thêm Ghi âm / Tài liệu Phase 1</span>
+                  <span>+ Thêm Ghi âm / Tài liệu Phase 1</span>
                 </Link>
               </div>
             )}

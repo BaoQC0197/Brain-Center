@@ -38,64 +38,64 @@ const TYPE_LABEL: Record<string, string> = {
 
 export const STEP_DIRECTIVES: Record<QAAgentType, { id: string; label: string }[]> = {
   'review-requirement': [
-    { id: 'req-gaps', label: '🔍 Rà soát Lỗ hổng & Điểm mơ hồ (Gaps & Ambiguities)' },
-    { id: 'bdd-gherkin', label: '📐 Tiêu chuẩn Nghiệm thu BDD Gherkin (Given-When-Then)' },
-    { id: 'business-rules', label: '🛑 Ràng buộc Quy tắc Nghiệp vụ (Business Rules & Constraints)' },
-    { id: 'rbac-matrix', label: '🔑 Phân quyền người dùng & Ma trận RBAC' },
-    { id: 'edge-cases', label: '⚠️ Phân tích Trường hợp biên & Kịch bản lỗi (Edge Cases)' },
+    { id: 'req-gaps', label: 'Rà soát Lỗ hổng và Điểm mơ hồ (Gaps và Ambiguities)' },
+    { id: 'bdd-gherkin', label: 'Tiêu chuẩn Nghiệm thu BDD Gherkin (Given-When-Then)' },
+    { id: 'business-rules', label: 'Ràng buộc Quy tắc Nghiệp vụ (Business Rules)' },
+    { id: 'rbac-matrix', label: 'Phân quyền người dùng và Ma trận RBAC' },
+    { id: 'edge-cases', label: 'Phân tích Trường hợp biên và Kịch bản lỗi (Edge Cases)' },
   ],
   'acceptance-criteria': [
-    { id: 'req-gaps', label: '🔍 Rà soát Lỗ hổng & Điểm mơ hồ (Gaps & Ambiguities)' },
-    { id: 'bdd-gherkin', label: '📐 Tiêu chuẩn Nghiệm thu BDD Gherkin (Given-When-Then)' },
-    { id: 'business-rules', label: '🛑 Ràng buộc Quy tắc Nghiệp vụ (Business Rules & Constraints)' },
-    { id: 'rbac-matrix', label: '🔑 Phân quyền người dùng & Ma trận RBAC' },
-    { id: 'edge-cases', label: '⚠️ Phân tích Trường hợp biên & Kịch bản lỗi (Edge Cases)' },
+    { id: 'req-gaps', label: 'Rà soát Lỗ hổng và Điểm mơ hồ (Gaps và Ambiguities)' },
+    { id: 'bdd-gherkin', label: 'Tiêu chuẩn Nghiệm thu BDD Gherkin (Given-When-Then)' },
+    { id: 'business-rules', label: 'Ràng buộc Quy tắc Nghiệp vụ (Business Rules)' },
+    { id: 'rbac-matrix', label: 'Phân quyền người dùng và Ma trận RBAC' },
+    { id: 'edge-cases', label: 'Phân tích Trường hợp biên và Kịch bản lỗi (Edge Cases)' },
   ],
   'test-plan': [
-    { id: 'risk-matrix', label: '🎯 Ma trận Bao phủ Rủi ro (Risk-Based Testing Matrix)' },
-    { id: 'test-env', label: '💻 Môi trường & Thiết bị Kiểm thử (Test Environments & Devices)' },
-    { id: 'exit-criteria', label: '🚦 Tiêu chuẩn Dừng & Chấp nhận (Entry & Exit Criteria)' },
-    { id: 'test-levels', label: '📊 Phân bổ Cấp độ Test (Integration, System & UAT)' },
-    { id: 'resource-schedule', label: '⚡ Lịch trình & Phân bổ Nguồn lực (Test Schedule & Resources)' },
+    { id: 'risk-matrix', label: 'Ma trận Bao phủ Rủi ro (Risk-Based Testing Matrix)' },
+    { id: 'test-env', label: 'Môi trường và Thiết bị Kiểm thử (Test Environments)' },
+    { id: 'exit-criteria', label: 'Tiêu chuẩn Dừng và Chấp nhận (Entry và Exit Criteria)' },
+    { id: 'test-levels', label: 'Phân bổ Cấp độ Test (Integration, System và UAT)' },
+    { id: 'resource-schedule', label: 'Lịch trình và Phân bổ Nguồn lực (Test Schedule)' },
   ],
   'test-strategy': [
-    { id: 'risk-matrix', label: '🎯 Ma trận Bao phủ Rủi ro (Risk-Based Testing Matrix)' },
-    { id: 'test-env', label: '💻 Môi trường & Thiết bị Kiểm thử (Test Environments & Devices)' },
-    { id: 'exit-criteria', label: '🚦 Tiêu chuẩn Dừng & Chấp nhận (Entry & Exit Criteria)' },
-    { id: 'test-levels', label: '📊 Phân bổ Cấp độ Test (Integration, System & UAT)' },
-    { id: 'resource-schedule', label: '⚡ Lịch trình & Phân bổ Nguồn lực (Test Schedule & Resources)' },
+    { id: 'risk-matrix', label: 'Ma trận Bao phủ Rủi ro (Risk-Based Testing Matrix)' },
+    { id: 'test-env', label: 'Môi trường và Thiết bị Kiểm thử (Test Environments)' },
+    { id: 'exit-criteria', label: 'Tiêu chuẩn Dừng và Chấp nhận (Entry và Exit Criteria)' },
+    { id: 'test-levels', label: 'Phân bổ Cấp độ Test (Integration, System và UAT)' },
+    { id: 'resource-schedule', label: 'Lịch trình và Phân bổ Nguồn lực (Test Schedule)' },
   ],
   'test-scenario': [
-    { id: 'functional', label: '⚙️ Functional (Luồng chính Happy Path)' },
-    { id: 'non-functional', label: '🚫 Negative (Kịch bản lỗi & Boundary Cases)' },
-    { id: 'security', label: '🔒 Security & RBAC (Bảo mật & Phân quyền)' },
-    { id: 'performance', label: '🚀 Performance & Load (Hiệu năng & SLA)' },
-    { id: 'cross-platform', label: '📲 Cross-Platform UI/UX (Đa thiết bị, Responsive)' },
-    { id: 'api-schema', label: '🔗 API & Integration (Tích hợp Endpoint & Schema)' },
-    { id: 'exception-fallback', label: '🔄 Exception & Recovery (Xử lý lỗi & Phục hồi)' },
+    { id: 'functional', label: 'Functional (Luồng chính Happy Path)' },
+    { id: 'non-functional', label: 'Negative (Kịch bản lỗi và Boundary Cases)' },
+    { id: 'security', label: 'Security và RBAC (Bảo mật và Phân quyền)' },
+    { id: 'performance', label: 'Performance và Load (Hiệu năng và SLA)' },
+    { id: 'cross-platform', label: 'Cross-Platform UI/UX (Đa thiết bị, Responsive)' },
+    { id: 'api-schema', label: 'API và Integration (Tích hợp Endpoint và Schema)' },
+    { id: 'exception-fallback', label: 'Exception và Recovery (Xử lý lỗi và Phục hồi)' },
   ],
   'test-case': [
-    { id: 'functional', label: '⚙️ Functional (Luồng chính Happy Path)' },
-    { id: 'non-functional', label: '🚫 Negative (Kịch bản lỗi & Boundary Cases)' },
-    { id: 'security', label: '🔒 Security & RBAC (Bảo mật & Phân quyền)' },
-    { id: 'performance', label: '🚀 Performance & Load (Hiệu năng & SLA)' },
-    { id: 'cross-platform', label: '📲 Cross-Platform UI/UX (Đa thiết bị, Responsive)' },
-    { id: 'api-schema', label: '🔗 API & Integration (Tích hợp Endpoint & Schema)' },
-    { id: 'exception-fallback', label: '🔄 Exception & Recovery (Xử lý lỗi & Phục hồi)' },
+    { id: 'functional', label: 'Functional (Luồng chính Happy Path)' },
+    { id: 'non-functional', label: 'Negative (Kịch bản lỗi và Boundary Cases)' },
+    { id: 'security', label: 'Security và RBAC (Bảo mật và Phân quyền)' },
+    { id: 'performance', label: 'Performance và Load (Hiệu năng và SLA)' },
+    { id: 'cross-platform', label: 'Cross-Platform UI/UX (Đa thiết bị, Responsive)' },
+    { id: 'api-schema', label: 'API và Integration (Tích hợp Endpoint và Schema)' },
+    { id: 'exception-fallback', label: 'Exception và Recovery (Xử lý lỗi và Phục hồi)' },
   ],
   'regression-checklist': [
-    { id: 'go-nogo', label: '🚦 Quyết định Release (Go/No-Go Decision Matrix)' },
-    { id: 'critical-suite', label: '🔥 Danh mục Kiểm thử Hồi quy Trọng yếu (Critical Regression Suite)' },
-    { id: 'outstanding-bugs', label: '🐞 Phân tích Rủi ro lỗi còn tồn đọng (Outstanding Defects & Risks)' },
-    { id: 'coverage-stats', label: '📊 Thống kê Tỷ lệ Pass/Fail & Test Coverage' },
-    { id: 'qa-recommendations', label: '📋 Khuyên nghị cho Đội ngũ Dev/PO (Actionable QA Recommendations)' },
+    { id: 'go-nogo', label: 'Quyết định Release (Go/No-Go Decision Matrix)' },
+    { id: 'critical-suite', label: 'Danh mục Kiểm thử Hồi quy Trọng yếu (Critical Regression Suite)' },
+    { id: 'outstanding-bugs', label: 'Phân tích Rủi ro lỗi còn tồn đọng (Outstanding Defects)' },
+    { id: 'coverage-stats', label: 'Thống kê Tỷ lệ Pass/Fail và Test Coverage' },
+    { id: 'qa-recommendations', label: 'Khuyến nghị cho Đội ngũ Dev/PO (Actionable QA Recommendations)' },
   ],
   'test-report': [
-    { id: 'go-nogo', label: '🚦 Quyết định Release (Go/No-Go Decision Matrix)' },
-    { id: 'critical-suite', label: '🔥 Danh mục Kiểm thử Hồi quy Trọng yếu (Critical Regression Suite)' },
-    { id: 'outstanding-bugs', label: '🐞 Phân tích Rủi ro lỗi còn tồn đọng (Outstanding Defects & Risks)' },
-    { id: 'coverage-stats', label: '📊 Thống kê Tỷ lệ Pass/Fail & Test Coverage' },
-    { id: 'qa-recommendations', label: '📋 Khuyên nghị cho Đội ngũ Dev/PO (Actionable QA Recommendations)' },
+    { id: 'go-nogo', label: 'Quyết định Release (Go/No-Go Decision Matrix)' },
+    { id: 'critical-suite', label: 'Danh mục Kiểm thử Hồi quy Trọng yếu (Critical Regression Suite)' },
+    { id: 'outstanding-bugs', label: 'Phân tích Rủi ro lỗi còn tồn đọng (Outstanding Defects)' },
+    { id: 'coverage-stats', label: 'Thống kê Tỷ lệ Pass/Fail và Test Coverage' },
+    { id: 'qa-recommendations', label: 'Khuyến nghị cho Đội ngũ Dev/PO (Actionable QA Recommendations)' },
   ],
 }
 
@@ -441,81 +441,68 @@ export default function QAAgentHubPage() {
   return (
     <div className="space-y-6 w-full pb-16">
       {/* Compact High-Density Header Bar */}
-      <div className="bg-white border-2 border-slate-300 px-5 py-3.5 rounded-2xl shadow-xs flex items-center justify-between flex-wrap gap-3">
-        <Link
-          href={`/projects/${projectId}`}
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-extrabold border border-slate-300 transition-all flex items-center gap-1 shrink-0"
-        >
-          ← Trở về
-        </Link>
-
-        <h1 className="text-xl md:text-2xl font-black text-slate-900 ml-auto tracking-tight">Phase 2: QA Testing Lifecycle Agents</h1>
-      </div>
-
-      {/* Hero Header & Agent Selector Banner */}
-      <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 border-2 border-indigo-300 rounded-2xl p-6 md:p-8 space-y-6 shadow-md text-slate-900">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-xs md:text-sm bg-indigo-600 text-white px-3 py-1 rounded-md font-mono font-extrabold shadow-xs">
-                PHASE 2 QA AGENT (Step {currentAgent.stepOrder})
-              </span>
-              <h1 className="text-xl md:text-3xl font-extrabold text-slate-900 tracking-tight">{currentAgent.label}</h1>
-            </div>
-            <p className="text-xs md:text-sm text-slate-700 mt-2 font-bold leading-relaxed">{currentAgent.desc}</p>
+      <div className="bg-white border-2 border-indigo-300 rounded-2xl p-4 md:p-5 space-y-3.5 shadow-sm text-slate-900">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <Link
+              href={`/projects/${projectId}`}
+              className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1 rounded-xl text-xs font-extrabold border border-slate-300 transition-all shrink-0 cursor-pointer"
+            >
+              ← Trở về
+            </Link>
+            <span className="text-xs bg-indigo-600 text-white px-2.5 py-0.5 rounded-md font-mono font-extrabold shadow-xs">
+              Step {currentAgent.stepOrder}
+            </span>
+            <h1 className="text-base md:text-xl font-extrabold text-slate-900 tracking-tight">{currentAgent.label}</h1>
           </div>
         </div>
 
-        {/* 4 Agent Selector Tabs with Lock Indicators */}
-        <div className="pt-2 border-t-2 border-indigo-100 space-y-2">
-          <p className="text-xs md:text-sm font-extrabold text-slate-900">Chọn 1 trong 4 Step theo quy trình kiểm thử tinh gọn chuẩn quốc tế (Step 1 ➔ Step 4):</p>
-          <div className="flex flex-wrap gap-2">
-            {(Object.entries(QA_AGENTS) as [QAAgentType, typeof QA_AGENTS[QAAgentType]][]).map(([type, agent]) => {
-              const tabLocked = getGenerateLockInfo(type).isLocked
-              const isCurrent = selectedAgent === type
-              return (
-                <button
-                  key={type}
-                  onClick={() => handleSelectAgent(type)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all border-2 ${
-                    isCurrent
-                      ? 'bg-indigo-600 border-indigo-700 text-white shadow-sm'
-                      : tabLocked
-                      ? 'bg-slate-100 border-slate-300 text-slate-500 hover:text-slate-700 opacity-70'
-                      : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-100 hover:border-slate-400'
-                  }`}
-                >
-                  <span>{tabLocked ? '🔒 Step' : 'Step'} {agent.stepOrder}</span>
-                  <span>{agent.label}</span>
-                </button>
-              )
-            })}
-          </div>
+        {/* 4 Agent Selector Tabs */}
+        <div className="pt-2 border-t-2 border-slate-100 flex flex-wrap gap-2">
+          {(Object.entries(QA_AGENTS) as [QAAgentType, typeof QA_AGENTS[QAAgentType]][]).map(([type, agent]) => {
+            const tabLocked = getGenerateLockInfo(type).isLocked
+            const isCurrent = selectedAgent === type
+            return (
+              <button
+                key={type}
+                onClick={() => handleSelectAgent(type)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs md:text-sm font-extrabold transition-all border-2 cursor-pointer ${
+                  isCurrent
+                    ? 'bg-indigo-600 border-indigo-700 text-white shadow-xs'
+                    : tabLocked
+                    ? 'bg-slate-100 border-slate-300 text-slate-400 opacity-60'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <span>Step {agent.stepOrder}:</span>
+                <span>{agent.label}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {/* Sequential Dependency Warning Banner */}
       {dependencyWarning && (
-        <div className={`p-5 rounded-2xl text-xs md:text-sm flex items-center justify-between gap-4 flex-wrap border-2 shadow-sm font-bold ${
+        <div className={`p-4 rounded-2xl text-xs md:text-sm flex items-center justify-between gap-4 flex-wrap border-2 shadow-sm font-bold ${
           isLocked
             ? 'bg-amber-50 border-amber-300 text-amber-900'
             : 'bg-blue-50 border-blue-300 text-blue-900'
         }`}>
-          <div className="flex items-center gap-3">
-            <span className="text-xl">{isLocked ? '🔒' : 'ℹ️'}</span>
+          <div className="flex items-center gap-2">
             <span className="font-extrabold leading-relaxed">{dependencyWarning}</span>
           </div>
           {missingPrerequisiteAgent ? (
             <button
               onClick={() => { setSelectedAgent(missingPrerequisiteAgent); setResult(null); setRawMarkdownOutput('') }}
-              className="bg-amber-600 text-white px-5 py-2.5 rounded-xl font-extrabold hover:bg-amber-500 transition-all shadow-sm shrink-0"
+              className="bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-extrabold hover:bg-amber-500 transition-all shadow-xs shrink-0 cursor-pointer"
             >
-              Mở khoá bằng cách chạy Step {QA_AGENTS[missingPrerequisiteAgent].stepOrder} ({QA_AGENTS[missingPrerequisiteAgent].label}) ➔
+              Mở khoá bằng Step {QA_AGENTS[missingPrerequisiteAgent].stepOrder} ({QA_AGENTS[missingPrerequisiteAgent].label}) ➔
             </button>
           ) : (
             <Link
               href={!hasPhase1Docs ? `/projects/${projectId}` : `/projects/${projectId}/generate?agent=acceptance-criteria`}
-              className="bg-amber-600 text-white px-5 py-2.5 rounded-xl font-extrabold hover:bg-amber-500 transition-all shadow-sm shrink-0"
+              className="bg-amber-600 text-white px-4 py-2 rounded-xl text-xs font-extrabold hover:bg-amber-500 transition-all shadow-xs shrink-0"
             >
               Bổ sung tài liệu ➔
             </Link>
@@ -524,12 +511,12 @@ export default function QAAgentHubPage() {
       )}
 
       {/* Input Configuration Panel */}
-      <div className="bg-sky-50/80 border-2 border-sky-400 border-l-8 border-l-sky-600 rounded-2xl p-6 space-y-5 shadow-md text-slate-900">
-        {/* 1. Saved Phase 1 raw docs selector (NOW ON TOP) */}
+      <div className="bg-sky-50/80 border-2 border-sky-400 border-l-8 border-l-sky-600 rounded-2xl p-5 space-y-4 shadow-md text-slate-900">
+        {/* 1. Saved Phase 1 raw docs selector */}
         {rawDocs.length > 0 ? (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <p className="text-xs md:text-sm font-extrabold text-slate-900 flex items-center justify-between">
-              <span>📌 Chọn Tài liệu Baseline & Ghi âm Cuộc họp làm ngữ cảnh cho Agent ({selectedRawIds.size}/{rawDocs.length} Docs đã chọn):</span>
+              <span>Chọn Tài liệu Baseline và Ghi âm Cuộc họp làm ngữ cảnh ({selectedRawIds.size}/{rawDocs.length} Docs đã chọn):</span>
             </p>
             <div className="flex flex-wrap gap-2">
               {rawDocs.map(doc => {
@@ -542,7 +529,7 @@ export default function QAAgentHubPage() {
                     key={doc.id}
                     type="button"
                     onClick={() => toggleRaw(doc.id)}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs md:text-sm font-extrabold border-2 transition-all ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-extrabold border-2 transition-all cursor-pointer ${
                       checked
                         ? isAudio
                           ? 'bg-teal-600 border-teal-700 text-white shadow-xs'
@@ -551,7 +538,6 @@ export default function QAAgentHubPage() {
                     }`}
                   >
                     <span>{checked ? '✓' : '○'}</span>
-                    <span>{isAudio ? '🎙️' : '📄'}</span>
                     <span className="max-w-[240px] truncate">{doc.name}</span>
                     <span className="text-[10px] bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-mono font-bold">
                       {isAudio ? 'Audio Transcript' : meta.label} {len > 0 ? `(${len.toLocaleString('vi-VN')} ký tự)` : ''}
@@ -562,19 +548,17 @@ export default function QAAgentHubPage() {
             </div>
           </div>
         ) : (
-
           <div className="bg-white border-2 border-slate-300 rounded-xl p-4 text-xs md:text-sm text-slate-700 flex items-center justify-between font-bold">
             <span>Dự án chưa chọn tài liệu Phase 1 nào. Bạn có thể dán nội dung trực tiếp bên dưới.</span>
             <Link href={`/projects/${projectId}`} className="text-indigo-600 underline font-extrabold">Thêm doc ở Phase 1</Link>
           </div>
         )}
 
-
-        {/* 2. Smart Context Reference Pipeline Card (NOW BELOW) */}
-        <div className="bg-white border-2 border-sky-300 rounded-xl p-4 space-y-3 shadow-xs">
+        {/* 2. Smart Context Reference Pipeline Card */}
+        <div className="bg-white border-2 border-sky-300 rounded-xl p-3.5 space-y-2.5 shadow-xs">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <span className="text-xs md:text-sm font-extrabold font-mono text-sky-900 uppercase tracking-wide flex items-center gap-1.5">
-              <span>🔗 Tham chiếu Kế thừa Ngữ cảnh cho Step {currentAgent.stepOrder} ({currentAgent.label})</span>
+            <span className="text-xs md:text-sm font-extrabold font-mono text-sky-900 uppercase tracking-wide">
+              Tham chiếu Kế thừa Ngữ cảnh cho Step {currentAgent.stepOrder} ({currentAgent.label})
             </span>
             <span className="text-[10px] md:text-xs bg-sky-100 text-sky-900 border border-sky-300 px-2.5 py-0.5 rounded-full font-mono font-bold">
               Kế thừa Tự động Pipeline
@@ -585,11 +569,11 @@ export default function QAAgentHubPage() {
             {selectedAgent === 'review-requirement' && (
               <div className="bg-sky-50 border-2 border-sky-200 rounded-xl p-3 text-sky-950 col-span-2 space-y-1">
                 <div className="font-extrabold text-sky-900 flex items-center gap-1.5">
-                  <span>🟣 Nguồn Ngữ cảnh Chính:</span>
+                  <span>Nguồn Ngữ cảnh Chính:</span>
                   <span>Tài liệu Yêu cầu Baseline Phase 1</span>
                 </div>
                 <p className="text-[11px] text-slate-600 font-medium">
-                  Agent Step 1 phân tích trực tiếp các file BRD, SRS, Wireframe, Figma từ Phase 1 để tìm lỗi hổng & tạo Acceptance Criteria.
+                  Agent Step 1 phân tích trực tiếp các file BRD, SRS, Wireframe, Figma từ Phase 1 để tìm lỗ hổng và tạo Acceptance Criteria.
                 </p>
               </div>
             )}
@@ -598,14 +582,14 @@ export default function QAAgentHubPage() {
               <>
                 <div className="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-3 text-emerald-950 space-y-1">
                   <div className="font-extrabold text-emerald-900 flex items-center gap-1.5">
-                    <span>🔗 Kế thừa từ Step 1:</span>
-                    <span className="underline">{hasStep1Doc ? '✓ Review Requirements & AC' : '⚠️ Chưa có (Nên chạy Step 1 trước)'}</span>
+                    <span>Kế thừa từ Step 1:</span>
+                    <span className="underline">{hasStep1Doc ? '✓ Review Requirements và AC' : 'Chưa có (Nên chạy Step 1 trước)'}</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 font-medium">Lấy kết quả Acceptance Criteria của Step 1 để tính toán phạm vi & nguồn lực kiểm thử.</p>
+                  <p className="text-[11px] text-slate-600 font-medium">Lấy kết quả Acceptance Criteria của Step 1 để tính toán phạm vi và nguồn lực kiểm thử.</p>
                 </div>
                 <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 text-purple-950 space-y-1">
                   <div className="font-extrabold text-purple-900 flex items-center gap-1.5">
-                    <span>🟣 Kết hợp:</span>
+                    <span>Kết hợp:</span>
                     <span>Tài liệu Phase 1 Baseline</span>
                   </div>
                   <p className="text-[11px] text-slate-600 font-medium">Đối chiếu trực tiếp với đặc tả nghiệp vụ gốc.</p>
@@ -617,15 +601,15 @@ export default function QAAgentHubPage() {
               <>
                 <div className="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-3 text-emerald-950 space-y-1">
                   <div className="font-extrabold text-emerald-900 flex items-center gap-1.5">
-                    <span>🔗 Kế thừa từ Step 2:</span>
-                    <span className="underline">{hasStep2Doc ? '✓ Master Test Plan & Strategy' : '⚠️ Chưa có (Nên chạy Step 2 trước)'}</span>
+                    <span>Kế thừa từ Step 2:</span>
+                    <span className="underline">{hasStep2Doc ? '✓ Master Test Plan và Strategy' : 'Chưa có (Nên chạy Step 2 trước)'}</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 font-medium">Lấy Ma trận tính năng & Chiến lược test từ Step 2 để sinh Test Scenarios & Test Cases.</p>
+                  <p className="text-[11px] text-slate-600 font-medium">Lấy Ma trận tính năng và Chiến lược test từ Step 2 để sinh Test Scenarios và Test Cases.</p>
                 </div>
                 <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 text-purple-950 space-y-1">
                   <div className="font-extrabold text-purple-900 flex items-center gap-1.5">
-                    <span>🟣 Kết hợp đồng thời:</span>
-                    <span>Tiêu chí nghiệm thu (Step 1) & Tài liệu Yêu cầu gốc (Phase 1)</span>
+                    <span>Kết hợp đồng thời:</span>
+                    <span>Tiêu chí nghiệm thu (Step 1) và Tài liệu Yêu cầu gốc (Phase 1)</span>
                   </div>
                   <p className="text-[11px] text-slate-600 font-medium">Đảm bảo các Test Cases vừa bám sát màn hình/file gốc Phase 1, vừa phủ 100% Tiêu chí nghiệm thu BDD của Step 1.</p>
                 </div>
@@ -636,15 +620,15 @@ export default function QAAgentHubPage() {
               <>
                 <div className="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-3 text-emerald-950 space-y-1">
                   <div className="font-extrabold text-emerald-900 flex items-center gap-1.5">
-                    <span>🔥 Kế thừa Cốt lõi từ Step 3:</span>
-                    <span className="underline">{hasStep3Doc ? '✓ Bộ Test Cases & Trạng thái Pass/Fail' : '⚠️ Chưa có Test Cases'}</span>
+                    <span>Kế thừa Cốt lõi từ Step 3:</span>
+                    <span className="underline">{hasStep3Doc ? '✓ Bộ Test Cases và Trạng thái Pass/Fail' : 'Chưa có Test Cases'}</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 font-medium">Tự động trích xuất toàn bộ số lượng Test Cases & Kết quả thực thi từ Step 3.</p>
+                  <p className="text-[11px] text-slate-600 font-medium">Tự động trích xuất toàn bộ số lượng Test Cases và Kết quả thực thi từ Step 3.</p>
                 </div>
                 <div className="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-3 text-indigo-950 space-y-1">
                   <div className="font-extrabold text-indigo-900 flex items-center gap-1.5">
-                    <span>🔗 Kế thừa Tiêu chí dừng từ Step 2:</span>
-                    <span className="underline">{hasStep2Doc ? '✓ Exit Criteria Benchmark' : '⚠️ Khuyên dùng thêm Step 2'}</span>
+                    <span>Kế thừa Tiêu chí dừng từ Step 2:</span>
+                    <span className="underline">{hasStep2Doc ? '✓ Exit Criteria Benchmark' : 'Khuyên dùng thêm Step 2'}</span>
                   </div>
                   <p className="text-[11px] text-slate-600 font-medium">So sánh tỷ lệ Pass Rate với Benchmark của Step 2 để đưa ra quyết định Go/No-Go.</p>
                 </div>
@@ -731,13 +715,13 @@ export default function QAAgentHubPage() {
                 }`}
               >
                 {clarifyPhase === 'analyzing' ? (
-                  <>🔍 Sub-agent đang phân tích...</>
+                  <>Sub-agent đang phân tích...</>
                 ) : isLocked ? (
-                  <>🔒 Nút bị Khoá (Cần hoàn thành Step trước)</>
+                  <>Nút bị Khoá (Cần hoàn thành Step trước)</>
                 ) : clarifyPhase === 'idle' ? (
-                  <>🔍 Phân tích & Làm rõ Yêu cầu ➔</>
+                  <>Phân tích và Làm rõ Yêu cầu ➔</>
                 ) : (
-                  <>⚡ Chạy lại Agent (không Làm rõ)</>
+                  <>Chạy lại Agent (không Làm rõ)</>
                 )}
               </button>
             </div>
@@ -748,11 +732,11 @@ export default function QAAgentHubPage() {
       {/* Progress Loading Animation Modal for Phase 2 QA Lifecycle Operations */}
       {clarifyPhase === 'analyzing' && (
         <AiProcessingProgressModal
-          title={`Trợ lý đang phân tích & rà soát yêu cầu cho ${currentAgent.label}...`}
+          title={`Trợ lý đang phân tích và rà soát yêu cầu cho ${currentAgent.label}...`}
           steps={[
-            "Đọc ngữ cảnh & tài liệu đính kèm...",
+            "Đọc ngữ cảnh và tài liệu đính kèm...",
             `Đối chiếu tiêu chuẩn ${currentAgent.testingStandard}...`,
-            "Phát hiện lỗ hổng & điểm mơ hồ nghiệp vụ...",
+            "Phát hiện lỗ hổng và điểm mơ hồ nghiệp vụ...",
             "Tạo bộ câu hỏi phỏng vấn làm rõ..."
           ]}
           standard={currentAgent.testingStandard}
@@ -766,18 +750,18 @@ export default function QAAgentHubPage() {
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-xs bg-amber-600 text-white px-3 py-1 rounded-md font-mono font-extrabold shadow-xs">🔍 REQUIREMENTS ANALYST SUB-AGENT</span>
-                <h2 className="font-extrabold text-slate-900 text-lg md:text-xl">Báo cáo Phân tích & Làm rõ Yêu cầu</h2>
+                <span className="text-xs bg-amber-600 text-white px-3 py-1 rounded-md font-mono font-extrabold shadow-xs">REQUIREMENTS ANALYST SUB-AGENT</span>
+                <h2 className="font-extrabold text-slate-900 text-lg md:text-xl">Báo cáo Phân tích và Làm rõ Yêu cầu</h2>
               </div>
               <p className="text-xs md:text-sm text-slate-700 mt-2 font-bold leading-relaxed">
-                Sub-agent đã phân tích tài liệu và đưa ra các câu hỏi làm rõ. Đọc và chỉnh sửa câu trả lời (nếu cần), sau đó bấm <strong>Xác nhận & Chạy Agent</strong>.
+                Sub-agent đã phân tích tài liệu và đưa ra các câu hỏi làm rõ. Đọc và chỉnh sửa câu trả lời (nếu cần), sau đó bấm <strong>Xác nhận và Chạy Agent</strong>.
               </p>
             </div>
           </div>
 
           {/* Understanding Summary */}
           <div className="bg-white border-2 border-amber-200 rounded-xl p-4 space-y-2">
-            <p className="text-xs md:text-sm font-extrabold text-amber-800 uppercase tracking-wide">📋 Hiểu biết hệ thống</p>
+            <p className="text-xs md:text-sm font-extrabold text-amber-800 uppercase tracking-wide">Hiểu biết hệ thống</p>
             <p className="text-xs md:text-sm text-slate-800 font-semibold leading-relaxed">{clarifyReport.understanding}</p>
             {clarifyReport.actors.length > 0 && (
               <p className="text-xs text-slate-600 font-bold">
@@ -786,7 +770,7 @@ export default function QAAgentHubPage() {
             )}
             {clarifyReport.gaps.length > 0 && (
               <div className="mt-2">
-                <p className="text-xs font-extrabold text-red-700 mb-1">⚠️ Điểm còn thiếu / mơ hồ:</p>
+                <p className="text-xs font-extrabold text-red-700 mb-1">Điểm còn thiếu hoặc mơ hồ:</p>
                 <ul className="list-disc ml-4 space-y-0.5">
                   {clarifyReport.gaps.map((g, i) => <li key={i} className="text-xs text-red-700 font-semibold">{g}</li>)}
                 </ul>
