@@ -184,16 +184,20 @@ CREATE POLICY "Allow anonymous delete access" ON public.global_configs FOR DELET
 CREATE TABLE IF NOT EXISTS public.kanban_tasks (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
+  description TEXT,
   project TEXT NOT NULL,
   role TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('TODO', 'IN_PROGRESS', 'DONE')),
   priority TEXT NOT NULL CHECK (priority IN ('High', 'Medium', 'Low')),
   assignee TEXT,
+  "assigneeId" TEXT,
   "isReleased" BOOLEAN DEFAULT false,
   "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP::text,
   "updatedAt" TEXT
 );
 
+ALTER TABLE public.kanban_tasks ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.kanban_tasks ADD COLUMN IF NOT EXISTS "assigneeId" TEXT;
 ALTER TABLE public.kanban_tasks ADD COLUMN IF NOT EXISTS "isReleased" BOOLEAN DEFAULT false;
 
 ALTER TABLE public.kanban_tasks ENABLE ROW LEVEL SECURITY;
@@ -206,5 +210,27 @@ CREATE POLICY "Allow anonymous read access" ON public.kanban_tasks FOR SELECT US
 CREATE POLICY "Allow anonymous insert access" ON public.kanban_tasks FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.kanban_tasks FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.kanban_tasks FOR DELETE USING (true);
+
+-- 8. User Profiles Table (Accounts for Team Members & Assignees)
+CREATE TABLE IF NOT EXISTS public.user_profiles (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  "fullName" TEXT NOT NULL,
+  role TEXT NOT NULL,
+  "avatarUrl" TEXT,
+  "passwordHash" TEXT,
+  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP::text
+);
+
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow anonymous read access" ON public.user_profiles;
+DROP POLICY IF EXISTS "Allow anonymous insert access" ON public.user_profiles;
+DROP POLICY IF EXISTS "Allow anonymous update access" ON public.user_profiles;
+DROP POLICY IF EXISTS "Allow anonymous delete access" ON public.user_profiles;
+CREATE POLICY "Allow anonymous read access" ON public.user_profiles FOR SELECT USING (true);
+CREATE POLICY "Allow anonymous insert access" ON public.user_profiles FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow anonymous update access" ON public.user_profiles FOR UPDATE USING (true);
+CREATE POLICY "Allow anonymous delete access" ON public.user_profiles FOR DELETE USING (true);
 
 

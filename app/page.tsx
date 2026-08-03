@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Project, KanbanTask } from '@/lib/types'
+import { Project, KanbanTask, UserAccount } from '@/lib/types'
 import { ProjectSkeletonGrid } from '@/app/components/Skeletons'
+import AuthModal from '@/app/components/AuthModal'
 import Link from 'next/link'
 
 function EditProjectModal({
@@ -69,7 +70,7 @@ function EditProjectModal({
 
         <form onSubmit={handleSave} className="space-y-5">
           <div>
-            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên dự án *</label>
+            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên dự án <span className="text-rose-600 font-bold">*</span></label>
             <input
               autoFocus
               value={name}
@@ -197,6 +198,11 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [draggedId, setDraggedId] = useState<string | null>(null)
 
+  // ── AUTH & USER PROFILES STATE ──
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [usersList, setUsersList] = useState<UserAccount[]>([])
+
   // ── KANBAN FULL CRUD & PERSISTENCE STATE ──
   const [kanbanTasks, setKanbanTasks] = useState<KanbanTask[]>([])
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
@@ -204,25 +210,66 @@ export default function DashboardPage() {
   const [editingTask, setEditingTask] = useState<KanbanTask | null>(null)
   const [taskForm, setTaskForm] = useState<{
     title: string
+    description: string
     project: string
     role: string
     status: 'TODO' | 'IN_PROGRESS' | 'DONE'
     priority: 'High' | 'Medium' | 'Low'
     assignee: string
+    assigneeId?: string
   }>({
     title: '',
+    description: '',
     project: 'Med PH',
     role: 'QA Engineer',
     status: 'TODO',
     priority: 'Medium',
     assignee: '',
+    assigneeId: '',
   })
 
-  // Load Kanban Tasks from LocalStorage (with fallback defaults)
+  // Load User Accounts & Session
+  async function fetchUsersList() {
+    try {
+      const res = await fetch('/api/users')
+      if (res.ok) {
+        const data = await res.json()
+        setUsersList(data.users || [])
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Sync current user session
+  function checkUserSession() {
+    try {
+      const stored = localStorage.getItem('qa_brain_current_user')
+      if (stored) {
+        setCurrentUser(JSON.parse(stored))
+      } else {
+        setCurrentUser(null)
+      }
+    } catch {
+      setCurrentUser(null)
+    }
+  }
+
+  // Load Kanban Tasks & Current User Session
   useEffect(() => {
     fetch('/api/projects')
       .then(r => r.json())
       .then(data => { setProjects(data); setLoading(false) })
+
+    fetchUsersList()
+    checkUserSession()
+
+    const handleUserChanged = () => checkUserSession()
+    const handleOpenLogin = () => setShowAuthModal(true)
+
+    window.addEventListener('storage', handleUserChanged)
+    window.addEventListener('qa_brain_user_changed', handleUserChanged)
+    window.addEventListener('open_login_modal', handleOpenLogin)
 
     try {
       const savedTasks = localStorage.getItem('qa_brain_kanban_tasks')
@@ -230,18 +277,24 @@ export default function DashboardPage() {
         setKanbanTasks(JSON.parse(savedTasks))
       } else {
         const initialDefaults: KanbanTask[] = [
-          { id: 'task-1', title: 'Rà soát tài liệu SRS & BRD Med PH', project: 'Med PH', role: 'BA / PO', status: 'TODO', priority: 'High', assignee: 'Minh Tuấn', isReleased: false },
-          { id: 'task-2', title: 'Thiết kế API Spec & Schema DB', project: 'Med PH', role: 'Dev Lead', status: 'IN_PROGRESS', priority: 'High', assignee: 'Quốc Bảo', isReleased: false },
-          { id: 'task-3', title: 'Chạy Agent Clarify phát hiện lỗ hổng', project: 'Med PH', role: 'QA Lead', status: 'IN_PROGRESS', priority: 'Medium', assignee: 'Phương Anh', isReleased: false },
-          { id: 'task-4', title: 'Sinh 45 Test Cases BDD Gherkin', project: 'Med PH', role: 'QA Engineer', status: 'DONE', priority: 'High', assignee: 'Trần Nam', isReleased: true },
-          { id: 'task-5', title: 'Nghiệm thu Change Request ITIL v2', project: 'Fintech Hub', role: 'PO', status: 'TODO', priority: 'Medium', assignee: 'Hoàng Long', isReleased: false },
-          { id: 'task-6', title: 'Xuất Báo cáo Release (.doc/.csv)', project: 'Fintech Hub', role: 'QA Lead', status: 'DONE', priority: 'Low', assignee: 'Minh Tuấn', isReleased: false },
+          { id: 'task-1', title: 'Rà soát tài liệu SRS & BRD Med PH', description: 'Kiểm tra chi tiết tính đầy đủ và nhất quán của tài liệu đặc tả', project: 'Med PH', role: 'BA / PO', status: 'TODO', priority: 'High', assignee: 'Minh Tuấn', isReleased: false },
+          { id: 'task-2', title: 'Thiết kế API Spec & Schema DB', description: 'Đặc tả OpenAPI 3.0 cho 12 endpoints quản lý đơn hàng', project: 'Med PH', role: 'Dev Lead', status: 'IN_PROGRESS', priority: 'High', assignee: 'Quốc Bảo', isReleased: false },
+          { id: 'task-3', title: 'Chạy Agent Clarify phát hiện lỗ hổng', description: 'Phân tích tĩnh phát hiện 8 điểm mơ hồ cần BA/PO phỏng vấn làm rõ', project: 'Med PH', role: 'QA Lead', status: 'IN_PROGRESS', priority: 'Medium', assignee: 'Phương Anh', isReleased: false },
+          { id: 'task-4', title: 'Sinh 45 Test Cases BDD Gherkin', description: 'Đã hoàn thành sinh bộ Test Cases Given-When-Then', project: 'Med PH', role: 'QA Engineer', status: 'DONE', priority: 'High', assignee: 'Trần Nam', isReleased: true },
+          { id: 'task-5', title: 'Nghiệm thu Change Request ITIL v2', description: 'Đánh giá tác động thay đổi hệ thống thanh toán mới', project: 'Fintech Hub', role: 'PO', status: 'TODO', priority: 'Medium', assignee: 'Hoàng Long', isReleased: false },
+          { id: 'task-6', title: 'Xuất Báo cáo Release (.doc/.csv)', description: 'Tổng hợp danh mục kiểm thử hồi quy trình Sếp duyệt Go-Live', project: 'Fintech Hub', role: 'QA Lead', status: 'DONE', priority: 'Low', assignee: 'Minh Tuấn', isReleased: false },
         ]
         setKanbanTasks(initialDefaults)
         localStorage.setItem('qa_brain_kanban_tasks', JSON.stringify(initialDefaults))
       }
     } catch {
       // Fallback ignore error
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleUserChanged)
+      window.removeEventListener('qa_brain_user_changed', handleUserChanged)
+      window.removeEventListener('open_login_modal', handleOpenLogin)
     }
   }, [])
 
@@ -255,6 +308,11 @@ export default function DashboardPage() {
     }
   }
 
+  function handleLogout() {
+    localStorage.removeItem('qa_brain_current_user')
+    setCurrentUser(null)
+  }
+
   function handleToggleRelease(taskId: string, e: React.MouseEvent) {
     e.stopPropagation()
     const updated = kanbanTasks.map(t => {
@@ -263,7 +321,6 @@ export default function DashboardPage() {
         return {
           ...t,
           isReleased: nextReleased,
-          // If released, automatically ensure status is DONE
           status: nextReleased ? ('DONE' as const) : t.status,
         }
       }
@@ -286,30 +343,47 @@ export default function DashboardPage() {
   }
 
   function handleCreateTask() {
+    fetchUsersList()
     setEditingTask(null)
     setTaskForm({
       title: '',
-      project: projects[0]?.name || 'Med PH',
-      role: 'QA Engineer',
+      description: '',
+      project: selectedKanbanProject !== 'ALL' ? selectedKanbanProject : (projects[0]?.name || 'Med PH'),
+      role: currentUser?.role || 'QA Engineer',
       status: 'TODO',
       priority: 'Medium',
-      assignee: '',
+      assignee: currentUser?.fullName || '',
+      assigneeId: currentUser?.id || '',
     })
     setShowTaskModal(true)
   }
 
   function handleEditTask(t: KanbanTask, e: React.MouseEvent) {
     e.stopPropagation()
+    fetchUsersList()
     setEditingTask(t)
     setTaskForm({
       title: t.title,
+      description: t.description || '',
       project: t.project,
       role: t.role,
       status: t.status,
       priority: t.priority,
       assignee: t.assignee,
+      assigneeId: t.assigneeId || '',
     })
     setShowTaskModal(true)
+  }
+
+  function handleAssigneeSelect(assigneeName: string) {
+    const foundUser = usersList.find(u => u.fullName === assigneeName || u.email === assigneeName)
+    setTaskForm(f => ({
+      ...f,
+      assignee: assigneeName,
+      assigneeId: foundUser?.id || f.assigneeId,
+      // Auto fill role if matched from DB
+      ...(foundUser?.role ? { role: foundUser.role } : {}),
+    }))
   }
 
   function handleDeleteTask(taskId: string, e: React.MouseEvent) {
@@ -330,12 +404,14 @@ export default function DashboardPage() {
         t.id === editingTask.id
           ? {
             ...t,
-            title: taskForm.title,
+            title: taskForm.title.trim(),
+            description: taskForm.description.trim(),
             project: taskForm.project,
             role: taskForm.role,
             status: taskForm.status,
             priority: taskForm.priority,
             assignee: taskForm.assignee || 'Unassigned',
+            assigneeId: taskForm.assigneeId,
           }
           : t
       )
@@ -344,12 +420,14 @@ export default function DashboardPage() {
       // Create new
       const newTask: KanbanTask = {
         id: `task-${Date.now()}`,
-        title: taskForm.title,
+        title: taskForm.title.trim(),
+        description: taskForm.description.trim(),
         project: taskForm.project,
         role: taskForm.role,
         status: taskForm.status,
         priority: taskForm.priority,
         assignee: taskForm.assignee || 'Unassigned',
+        assigneeId: taskForm.assigneeId,
       }
       saveKanbanTasksToStorage([newTask, ...kanbanTasks])
     }
@@ -463,8 +541,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Side: Version Badge */}
-        <div className="flex items-center gap-2 ml-auto shrink-0 font-mono text-xs">
-          <span className="bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-xl font-extrabold shadow-2xs">
+        <div className="flex items-center gap-2.5 ml-auto shrink-0 font-mono text-xs">
+          <span className="bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1.5 rounded-xl font-extrabold shadow-2xs">
             v1.0 Internal EZG
           </span>
         </div>
@@ -799,6 +877,11 @@ export default function DashboardPage() {
                       <h4 className="font-extrabold text-slate-900 text-xs md:text-sm leading-snug">
                         {t.title}
                       </h4>
+                      {t.description && (
+                        <p className="text-[11px] text-slate-600 font-medium leading-relaxed bg-slate-50 border border-slate-200 rounded-lg p-2 line-clamp-2">
+                          {t.description}
+                        </p>
+                      )}
                       <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500 font-semibold">
                         <span>👤 {t.assignee}</span>
                         <span className="text-rose-600 font-bold">🔥 {t.priority}</span>
@@ -863,6 +946,11 @@ export default function DashboardPage() {
                       <h4 className="font-extrabold text-slate-900 text-xs md:text-sm leading-snug">
                         {t.title}
                       </h4>
+                      {t.description && (
+                        <p className="text-[11px] text-slate-600 font-medium leading-relaxed bg-slate-50 border border-slate-200 rounded-lg p-2 line-clamp-2">
+                          {t.description}
+                        </p>
+                      )}
                       <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500 font-semibold">
                         <span>👤 {t.assignee}</span>
                         <span className="text-indigo-600 font-bold">🔥 {t.priority}</span>
@@ -927,6 +1015,11 @@ export default function DashboardPage() {
                       <h4 className="font-extrabold text-slate-900 text-xs md:text-sm leading-snug line-through text-slate-600">
                         {t.title}
                       </h4>
+                      {t.description && (
+                        <p className="text-[11px] text-slate-600 font-medium leading-relaxed bg-slate-50 border border-slate-200 rounded-lg p-2 line-clamp-2">
+                          {t.description}
+                        </p>
+                      )}
                       <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100 font-semibold">
                         <span>👤 {t.assignee}</span>
                         <button
@@ -977,6 +1070,11 @@ export default function DashboardPage() {
                       <h4 className="font-extrabold text-slate-800 text-xs truncate" title={t.title}>
                         {t.title}
                       </h4>
+                      {t.description && (
+                        <p className="text-[10px] text-slate-600 font-medium line-clamp-1 bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5">
+                          {t.description}
+                        </p>
+                      )}
                       <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100 font-semibold">
                         <span>👤 {t.assignee}</span>
                         <button
@@ -1149,7 +1247,7 @@ export default function DashboardPage() {
 
             <form onSubmit={createProject} className="space-y-5">
               <div>
-                <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên dự án *</label>
+                <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên dự án <span className="text-rose-600 font-bold">*</span></label>
                 <input
                   autoFocus
                   value={form.name}
@@ -1275,42 +1373,58 @@ export default function DashboardPage() {
 
       {/* Kanban Task Modal (Create / Edit Task) */}
       {showTaskModal && (
-        <div className="fixed inset-0 bg-slate-900/65 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-xs">
-          <div className="bg-white border-2 border-indigo-400 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-lg space-y-5 text-slate-900">
-            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
-              <h2 className="font-extrabold text-lg md:text-xl text-slate-900">
-                {editingTask ? '✏️ Chỉnh sửa Công việc' : '📋 Thêm Công việc Kanban mới'}
+        <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-sm">
+          <div className="bg-white border-2 border-indigo-500 rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-3xl space-y-6 text-slate-900">
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-4">
+              <h2 className="font-extrabold text-xl md:text-2xl text-slate-900">
+                {editingTask ? 'Chỉnh sửa Công việc' : 'Thêm Công việc Kanban mới'}
               </h2>
               <button
                 type="button"
                 onClick={() => setShowTaskModal(false)}
-                className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1"
+                className="text-slate-400 hover:text-slate-700 text-xl font-extrabold p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveTaskSubmit} className="space-y-4">
+            <form onSubmit={handleSaveTaskSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">
-                  Tên công việc (Task Title) *
+                <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">
+                  Tên công việc (Task Title) <span className="text-rose-600 font-bold">*</span>
                 </label>
                 <input
                   autoFocus
                   value={taskForm.title}
                   onChange={e => setTaskForm(f => ({ ...f, title: e.target.value }))}
                   placeholder="Ví dụ: Review SRS & chuẩn bị kịch bản Test..."
-                  className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-sm md:text-base text-slate-900 font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">
+                  Chi tiết công việc (Task Description)
+                </label>
+                <textarea
+                  value={taskForm.description}
+                  onChange={e => setTaskForm(f => ({ ...f, description: e.target.value }))}
+                  rows={4}
+                  placeholder="Mô tả nội dung công việc chi tiết, kịch bản cần rà soát..."
+                  className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-sm md:text-base text-slate-900 font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y leading-relaxed"
+                />
+              </div>
+
+              {/* Row 1: Project & Assignee Dropdowns */}
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Dự án áp dụng</label>
+                  <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1.5">
+                    Dự án áp dụng
+                  </label>
                   <select
                     value={taskForm.project}
                     onChange={e => setTaskForm(f => ({ ...f, project: e.target.value }))}
-                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-xs md:text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
                     {projects.length > 0 ? (
                       projects.map(p => (
@@ -1325,28 +1439,56 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Vai trò đảm nhận</label>
-                  <select
-                    value={taskForm.role}
-                    onChange={e => setTaskForm(f => ({ ...f, role: e.target.value }))}
-                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="PO / BA">PO / BA</option>
-                    <option value="Dev Lead">Dev Lead</option>
-                    <option value="QA Lead">QA Lead</option>
-                    <option value="QA Engineer">QA Engineer</option>
-                    <option value="Tester">Tester</option>
-                  </select>
+                  <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1.5">
+                    Người phụ trách (Account Supabase)
+                  </label>
+                  {usersList.length > 0 ? (
+                    <select
+                      value={taskForm.assignee}
+                      onChange={e => handleAssigneeSelect(e.target.value)}
+                      className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-xs md:text-sm text-slate-900 font-extrabold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                    >
+                      <option value="">-- Chọn nhân sự --</option>
+                      {usersList.map(u => (
+                        <option key={u.id} value={u.fullName}>
+                          {u.fullName} ({u.role})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      value={taskForm.assignee}
+                      onChange={e => setTaskForm(f => ({ ...f, assignee: e.target.value }))}
+                      placeholder="Tên nhân sự..."
+                      className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-xs md:text-sm text-slate-900 font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  )}
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-3 gap-3">
+              {/* Row 2: Role, Status, Priority Dropdowns */}
+              <div className="grid sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Trạng thái</label>
+                  <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1.5">
+                    Vai trò
+                  </label>
+                  <input
+                    disabled
+                    readOnly
+                    value={taskForm.role || 'Chưa gán'}
+                    title="Vai trò tự động gán từ Database nhân sự"
+                    className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-4 py-3 text-xs md:text-sm text-slate-700 font-extrabold cursor-not-allowed opacity-85 select-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1.5">
+                    Trạng thái
+                  </label>
                   <select
                     value={taskForm.status}
                     onChange={e => setTaskForm(f => ({ ...f, status: e.target.value as any }))}
-                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-3 text-xs md:text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
                     <option value="TODO">Cần làm (TODO)</option>
                     <option value="IN_PROGRESS">Đang làm</option>
@@ -1355,41 +1497,33 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Độ ưu tiên</label>
+                  <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1.5">
+                    Độ ưu tiên
+                  </label>
                   <select
                     value={taskForm.priority}
                     onChange={e => setTaskForm(f => ({ ...f, priority: e.target.value as any }))}
-                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-3 text-xs md:text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
-                    <option value="High">Cao 🔥</option>
+                    <option value="High">Cao</option>
                     <option value="Medium">Trung bình</option>
                     <option value="Low">Thấp</option>
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-extrabold text-slate-900 mb-1">Người phụ trách</label>
-                  <input
-                    value={taskForm.assignee}
-                    onChange={e => setTaskForm(f => ({ ...f, assignee: e.target.value }))}
-                    placeholder="Tên nhân sự..."
-                    className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-semibold placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
               </div>
 
-              <div className="flex gap-3 pt-3 border-t border-slate-200">
+              <div className="flex gap-4 pt-4 border-t-2 border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowTaskModal(false)}
-                  className="flex-1 border-2 border-slate-300 rounded-xl py-2.5 text-xs md:text-sm font-extrabold text-slate-700 hover:bg-slate-100 transition-all"
+                  className="flex-1 border-2 border-slate-300 rounded-xl py-3 text-sm md:text-base font-extrabold text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
                 >
                   Huỷ
                 </button>
                 <button
                   type="submit"
                   disabled={!taskForm.title.trim()}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl py-2.5 text-xs md:text-sm font-extrabold transition-all disabled:opacity-50 shadow-md"
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl py-3 text-sm md:text-base font-extrabold transition-all disabled:opacity-50 shadow-md cursor-pointer"
                 >
                   {editingTask ? 'Lưu cập nhật' : 'Tạo Task mới'}
                 </button>
@@ -1397,6 +1531,18 @@ export default function DashboardPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Auth Modal (Sign In / Register) */}
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={user => {
+            setCurrentUser(user)
+            setShowAuthModal(false)
+            fetchUsersList()
+          }}
+        />
       )}
     </div>
   )

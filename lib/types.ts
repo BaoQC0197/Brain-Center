@@ -45,14 +45,25 @@ export const RAW_DOC_META: Record<RawDocType, { label: string; icon: string; des
   figma:             { label: 'Figma',             icon: '', desc: 'Link Figma frame / design file',         color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
 }
 
+export interface UserAccount {
+  id: string
+  email: string
+  fullName: string
+  role: string
+  avatarUrl?: string
+  createdAt: string
+}
+
 export interface KanbanTask {
   id: string
   title: string
+  description?: string
   project: string
   role: string
   status: 'TODO' | 'IN_PROGRESS' | 'DONE'
   priority: 'High' | 'Medium' | 'Low'
   assignee: string
+  assigneeId?: string
   isReleased?: boolean
 }
 

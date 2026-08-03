@@ -91,7 +91,7 @@ function EditProjectModal({
 
         <form onSubmit={handleSave} className="space-y-5">
           <div>
-            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên dự án *</label>
+            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên dự án <span className="text-rose-600 font-bold">*</span></label>
             <input
               autoFocus
               value={name}
@@ -485,7 +485,7 @@ function AddRawDocModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên tài liệu *</label>
+              <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên tài liệu <span className="text-rose-600 font-bold">*</span></label>
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
@@ -737,7 +737,7 @@ function ImportStepDocModal({
 
         <form onSubmit={handleSave} className="space-y-5">
           <div>
-            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên tài liệu / Tiêu đề *</label>
+            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Tên tài liệu / Tiêu đề <span className="text-rose-600 font-bold">*</span></label>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
@@ -757,7 +757,7 @@ function ImportStepDocModal({
           </div>
 
           <div>
-            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Hoặc dán trực tiếp nội dung văn bản *</label>
+            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Hoặc dán trực tiếp nội dung văn bản <span className="text-rose-600 font-bold">*</span></label>
             <textarea
               value={textContent}
               onChange={e => setTextContent(e.target.value)}

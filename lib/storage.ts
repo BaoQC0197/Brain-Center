@@ -1,10 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import { Project, GeneratedDocument, RawDocument, BuiltDocument } from './types'
+import { Project, GeneratedDocument, RawDocument, BuiltDocument, UserAccount } from './types'
 import { isSupabaseConfigured, supabase } from './supabase'
 
 const STORAGE_DIR = path.join(process.cwd(), 'storage')
 const PROJECTS_FILE = path.join(STORAGE_DIR, 'projects.json')
+const USERS_FILE = path.join(STORAGE_DIR, 'users.json')
 
 // ── Local file helpers (only used when Supabase is NOT configured) ──────────
 
@@ -305,5 +306,63 @@ export const storage = {
     }
     ensureProjectDir(projectId)
     fs.writeFileSync(getInstructionFile(projectId), content, 'utf-8')
+  },
+
+  // ── User Accounts & Profiles ─────────────────────────────────────────────
+
+  async getUsers(): Promise<UserAccount[]> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, email, "fullName", role, "avatarUrl", "createdAt"')
+        .order('createdAt', { ascending: false })
+      if (!error && data) return data as UserAccount[]
+    }
+    ensureStorageDir()
+    if (!fs.existsSync(USERS_FILE)) return []
+    try {
+      return JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8')) as UserAccount[]
+    } catch {
+      return []
+    }
+  },
+
+  async createUser(user: UserAccount & { passwordHash?: string }): Promise<UserAccount> {
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.from('user_profiles').upsert(user)
+      if (error) console.error('Supabase createUser error:', error)
+    } else {
+      ensureStorageDir()
+      const users = await this.getUsers()
+      const existingIdx = users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase())
+      if (existingIdx >= 0) {
+        users[existingIdx] = user
+      } else {
+        users.unshift(user)
+      }
+      fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2))
+    }
+    const { passwordHash, ...cleanUser } = user
+    return cleanUser
+  },
+
+  async getUserByEmail(email: string): Promise<(UserAccount & { passwordHash?: string }) | null> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('email', email.toLowerCase())
+        .single()
+      if (!error && data) return data as UserAccount & { passwordHash?: string }
+      return null
+    }
+    ensureStorageDir()
+    if (!fs.existsSync(USERS_FILE)) return null
+    try {
+      const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8')) as (UserAccount & { passwordHash?: string })[]
+      return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null
+    } catch {
+      return null
+    }
   },
 }
