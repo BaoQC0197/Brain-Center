@@ -24,3 +24,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
   3. Ghi chú & văn bản thô (Raw Texts / Meeting Notes).
   4. Các tài liệu dự án liên quan được chọn (Selected Baseline Documents / Figma Links).
 
+## 4. Quy tắc Bắt buộc Làm rõ trong Phase 2 (Mandatory Sub-Agent Clarification Loop)
+- **Không có tùy chọn bỏ qua**: Bước rà soát làm rõ của Clarify Sub-agent là bắt buộc 100%, không tạo tùy chọn "Bỏ qua / Chạy trực tiếp".
+- **Không gợi ý sẵn câu trả lời**: Các câu hỏi phỏng vấn rà soát của Sub-agent phải có `suggestedAnswer: ""` để người dùng tự nhập câu trả lời thực tế.
+- **Vòng lặp rà soát tới khi AI đối chiếu đạt chuẩn**: Sub-agent rà soát liên tục qua các vòng cho đến khi AI tự đối chiếu bài đặc tả + câu trả lời của user với tiêu chuẩn tài liệu đích thấy đạt 100% độ rõ ràng mới chuyển sang cho Primary QA Agent thực thi.
+
+
