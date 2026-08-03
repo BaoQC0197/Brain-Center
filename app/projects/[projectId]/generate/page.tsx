@@ -16,7 +16,7 @@ import {
   ClarifyQuestion,
 } from '@/lib/types'
 import DocumentViewer from '@/app/components/DocumentViewer'
-import { AiProcessingProgressModal } from '@/app/components/Skeletons'
+import { AiProcessingProgressModal, ProjectDetailSkeleton } from '@/app/components/Skeletons'
 
 const PRIORITY_COLOR: Record<string, string> = {
   P1: 'bg-red-100 text-red-800 border border-red-300',
@@ -156,7 +156,10 @@ export default function QAAgentHubPage() {
   const [rawMarkdownOutput, setRawMarkdownOutput] = useState<string>('')
   const [error, setError] = useState('')
 
+  const [pageLoading, setPageLoading] = useState(true)
+
   useEffect(() => {
+    setPageLoading(true)
     Promise.all([
       fetch(`/api/projects/${projectId}`).then(r => r.json()),
       fetch(`/api/projects/${projectId}/raw-docs`).then(r => r.json()),
@@ -189,6 +192,8 @@ export default function QAAgentHubPage() {
       setSelectedAgent(initialAgent)
       const currentDirectives = currentMap[initialAgent] || []
       setSelectedDirectives(new Set(currentDirectives.slice(0, 3).map(d => d.id)))
+    }).finally(() => {
+      setPageLoading(false)
     })
   }, [projectId, agentParam])
 
@@ -428,6 +433,10 @@ export default function QAAgentHubPage() {
   const hasStep1Doc = generatedDocs.some(d => (d.type as string) === 'review-requirement' || (d.type as string) === 'acceptance-criteria')
   const hasStep2Doc = generatedDocs.some(d => (d.type as string) === 'test-plan' || (d.type as string) === 'test-strategy')
   const hasStep3Doc = generatedDocs.some(d => (d.type as string) === 'test-case' || (d.type as string) === 'test-cases' || (d.type as string) === 'test-scenario')
+
+  if (pageLoading) {
+    return <ProjectDetailSkeleton />
+  }
 
   return (
     <div className="space-y-6 w-full pb-16">
