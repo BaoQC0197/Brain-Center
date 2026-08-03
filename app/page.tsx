@@ -511,7 +511,6 @@ export default function DashboardPage() {
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
               }`}
           >
-            <span>📁</span>
             <span>Danh sách dự án</span>
           </button>
 
@@ -523,7 +522,6 @@ export default function DashboardPage() {
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
               }`}
           >
-            <span>📋</span>
             <span>Kanban Board</span>
           </button>
 
@@ -535,7 +533,6 @@ export default function DashboardPage() {
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300'
               }`}
           >
-            <span>📊</span>
             <span>Báo cáo tiến độ</span>
           </button>
         </div>
@@ -599,7 +596,6 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-
               {filteredProjects.map(p => {
                 const initialLetter = p.name ? p.name.trim().charAt(0).toUpperCase() : 'P'
                 return (
@@ -638,10 +634,10 @@ export default function DashboardPage() {
                               e.stopPropagation()
                               setEditingProject(p)
                             }}
-                            className="text-slate-500 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-xs font-bold border border-slate-200"
+                            className="text-slate-500 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-xs font-bold border border-slate-200 cursor-pointer"
                             title="Chỉnh sửa dự án"
                           >
-                            ✏️ Sửa
+                            Sửa
                           </button>
                         </div>
                       </div>
@@ -684,7 +680,7 @@ export default function DashboardPage() {
                                 className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Staging WebApp: ${p.stagingUrl}`}
                               >
-                                <span>🟡 STG Web</span>
+                                <span>STG Web</span>
                               </a>
                             )}
                             {p.stagingAdminUrl && (
@@ -696,7 +692,7 @@ export default function DashboardPage() {
                                 className="bg-orange-50 hover:bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Staging Admin Portal: ${p.stagingAdminUrl}`}
                               >
-                                <span>🟧 STG Admin</span>
+                                <span>STG Admin</span>
                               </a>
                             )}
                             {p.prodUrl && (
@@ -708,7 +704,7 @@ export default function DashboardPage() {
                                 className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Production WebApp: ${p.prodUrl}`}
                               >
-                                <span>🟢 PROD Web</span>
+                                <span>PROD Web</span>
                               </a>
                             )}
                             {p.prodAdminUrl && (
@@ -720,7 +716,7 @@ export default function DashboardPage() {
                                 className="bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Production Admin Portal: ${p.prodAdminUrl}`}
                               >
-                                <span>🔷 PROD Admin</span>
+                                <span>PROD Admin</span>
                               </a>
                             )}
                             {p.figmaUrl && (
@@ -732,7 +728,7 @@ export default function DashboardPage() {
                                 className="bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Design Figma File: ${p.figmaUrl}`}
                               >
-                                <span>🎨 Figma Link</span>
+                                <span>Figma Link</span>
                               </a>
                             )}
                             {p.bugListUrl && (
@@ -744,7 +740,7 @@ export default function DashboardPage() {
                                 className="bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở File Bug List: ${p.bugListUrl}`}
                               >
-                                <span>🔴 Bug List</span>
+                                <span>Bug List</span>
                               </a>
                             )}
                           </div>
@@ -776,13 +772,13 @@ export default function DashboardPage() {
         </>
       )}
 
-      {/* TAB 2: KANBAN BOARD (TRELLO DRAG & DROP VIEW) */}
+      {/* TAB 2: KANBAN BOARD */}
       {activeNavTab === 'kanban' && (
         <div className="space-y-4">
           <div className="bg-white border-2 border-slate-300 rounded-2xl p-5 shadow-sm flex items-center justify-between flex-wrap gap-4">
             <div>
               <h2 className="text-lg md:text-xl font-black text-slate-900">
-                📋 Kanban Taskboard — Quản lý Tiến độ Công việc Team (PO • BA • Dev • QA)
+                Kanban Taskboard — Quản lý tiến độ công việc
               </h2>
               <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
                 Kéo thả các thẻ công việc giữa các cột để cập nhật trạng thái thời gian thực.
@@ -792,16 +788,16 @@ export default function DashboardPage() {
             {/* Dynamic Project Filter Dropdown & Add Task Button */}
             <div className="flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2 bg-slate-50 border-2 border-slate-300 rounded-xl px-3 py-1.5 shadow-2xs">
-                <span className="text-xs font-black text-slate-700">🔍 Lọc Dự án:</span>
+                <span className="text-xs font-bold text-slate-700">Lọc dự án:</span>
                 <select
                   value={selectedKanbanProject}
                   onChange={e => setSelectedKanbanProject(e.target.value)}
-                  className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                 >
-                  <option value="ALL">✨ Tất cả Dự án ({projects.length})</option>
+                  <option value="ALL">Tất cả dự án ({projects.length})</option>
                   {projects.map(p => (
                     <option key={p.id} value={p.name}>
-                      📁 {p.name}
+                      {p.name}
                     </option>
                   ))}
                 </select>
@@ -831,7 +827,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between border-b-2 border-slate-200 pb-2 px-1">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-amber-500" />
-                  <h3 className="font-black text-slate-800 text-sm">CẦN LÀM (TO-DO)</h3>
+                  <h3 className="font-extrabold text-slate-800 text-sm">Cần làm (TODO)</h3>
                 </div>
                 <span className="bg-white text-slate-700 px-2.5 py-0.5 rounded-full text-xs font-black border border-slate-300">
                   {kanbanTasks.filter(t => t.status === 'TODO' && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)).length}
@@ -859,18 +855,18 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={e => handleEditTask(t, e)}
-                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold"
+                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold cursor-pointer"
                             title="Sửa task"
                           >
-                            ✏️
+                            Sửa
                           </button>
                           <button
                             type="button"
                             onClick={e => handleDeleteTask(t.id, e)}
-                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold"
+                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold cursor-pointer"
                             title="Xóa task"
                           >
-                            🗑️
+                            Xóa
                           </button>
                         </div>
                       </div>
@@ -883,8 +879,8 @@ export default function DashboardPage() {
                         </p>
                       )}
                       <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500 font-semibold">
-                        <span>👤 {t.assignee}</span>
-                        <span className="text-rose-600 font-bold">🔥 {t.priority}</span>
+                        <span>{t.assignee}</span>
+                        <span className="text-rose-600 font-bold">{t.priority}</span>
                       </div>
                     </div>
                   ))}
@@ -900,7 +896,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between border-b-2 border-indigo-200 pb-2 px-1">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-indigo-600 animate-pulse" />
-                  <h3 className="font-black text-indigo-950 text-sm">ĐANG THỰC HIỆN (IN PROGRESS)</h3>
+                  <h3 className="font-extrabold text-indigo-950 text-sm">Đang thực hiện (In progress)</h3>
                 </div>
                 <span className="bg-white text-indigo-950 px-2.5 py-0.5 rounded-full text-xs font-black border border-indigo-300">
                   {kanbanTasks.filter(t => t.status === 'IN_PROGRESS' && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)).length}
@@ -928,18 +924,18 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={e => handleEditTask(t, e)}
-                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold"
+                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold cursor-pointer"
                             title="Sửa task"
                           >
-                            ✏️
+                            Sửa
                           </button>
                           <button
                             type="button"
                             onClick={e => handleDeleteTask(t.id, e)}
-                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold"
+                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold cursor-pointer"
                             title="Xóa task"
                           >
-                            🗑️
+                            Xóa
                           </button>
                         </div>
                       </div>
@@ -952,8 +948,8 @@ export default function DashboardPage() {
                         </p>
                       )}
                       <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500 font-semibold">
-                        <span>👤 {t.assignee}</span>
-                        <span className="text-indigo-600 font-bold">🔥 {t.priority}</span>
+                        <span>{t.assignee}</span>
+                        <span className="text-indigo-600 font-bold">{t.priority}</span>
                       </div>
                     </div>
                   ))}
@@ -969,7 +965,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between border-b-2 border-emerald-200 pb-2 px-1">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <h3 className="font-black text-emerald-950 text-sm">HOÀN THÀNH (DONE)</h3>
+                  <h3 className="font-extrabold text-emerald-950 text-sm">Hoàn thành (Done)</h3>
                 </div>
                 <span className="bg-white text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-black border border-emerald-300">
                   {kanbanTasks.filter(t => t.status === 'DONE' && !t.isReleased && (selectedKanbanProject === 'ALL' || t.project === selectedKanbanProject)).length}
@@ -997,18 +993,18 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={e => handleEditTask(t, e)}
-                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold"
+                            className="text-slate-400 hover:text-indigo-600 text-xs px-1 font-bold cursor-pointer"
                             title="Sửa task"
                           >
-                            ✏️
+                            Sửa
                           </button>
                           <button
                             type="button"
                             onClick={e => handleDeleteTask(t.id, e)}
-                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold"
+                            className="text-slate-400 hover:text-rose-600 text-xs px-1 font-bold cursor-pointer"
                             title="Xóa task"
                           >
-                            🗑️
+                            Xóa
                           </button>
                         </div>
                       </div>
@@ -1021,13 +1017,13 @@ export default function DashboardPage() {
                         </p>
                       )}
                       <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100 font-semibold">
-                        <span>👤 {t.assignee}</span>
+                        <span>{t.assignee}</span>
                         <button
                           type="button"
                           onClick={e => handleToggleRelease(t.id, e)}
                           className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-black transition-all shadow-xs cursor-pointer"
                         >
-                          🚀 Đánh dấu Release
+                          Đánh dấu Release
                         </button>
                       </div>
                     </div>
@@ -1041,9 +1037,8 @@ export default function DashboardPage() {
             <div className="bg-slate-100 border-2 border-slate-300 rounded-2xl p-5 space-y-3">
               <div className="flex items-center justify-between border-b border-slate-300 pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">📦</span>
-                  <h3 className="font-black text-slate-800 text-sm md:text-base">
-                    MỤC LƯU TRỮ (RELEASED ARCHIVE)
+                  <h3 className="font-extrabold text-slate-800 text-sm md:text-base">
+                    Mục lưu trữ (Released archive)
                   </h3>
                 </div>
                 <span className="bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-0.5 rounded-full text-xs font-black">
@@ -1064,7 +1059,7 @@ export default function DashboardPage() {
                           {t.project}
                         </span>
                         <span className="bg-emerald-100 text-emerald-900 font-black px-2 py-0.5 rounded">
-                          ✓ Đã Release
+                          Đã Release
                         </span>
                       </div>
                       <h4 className="font-extrabold text-slate-800 text-xs truncate" title={t.title}>
@@ -1076,11 +1071,11 @@ export default function DashboardPage() {
                         </p>
                       )}
                       <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100 font-semibold">
-                        <span>👤 {t.assignee}</span>
+                        <span>{t.assignee}</span>
                         <button
                           type="button"
                           onClick={e => handleToggleRelease(t.id, e)}
-                          className="text-indigo-600 hover:underline font-bold"
+                          className="text-indigo-600 hover:underline font-bold cursor-pointer"
                         >
                           Khôi phục về Board
                         </button>
@@ -1093,17 +1088,17 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* TAB 3: BÁO CÁO TIẾN ĐỘ VIEW (TIẾN ĐỘ HOÀN THÀNH & TIẾN ĐỘ RELEASE) */}
+      {/* TAB 3: BÁO CÁO TIẾN ĐỘ VIEW */}
       {activeNavTab === 'reports' && (
         <div className="space-y-6">
           <div className="bg-white border-2 border-slate-300 rounded-2xl p-6 shadow-sm flex items-center justify-between flex-wrap gap-4">
             <div>
               <h2 className="text-xl font-black text-slate-900">
-                📊 Báo cáo Tiến độ Hoàn thành & Tiến độ Release theo Dự án
+                Báo cáo tiến độ hoàn thành & tiến độ release theo dự án
               </h2>
               <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
-                • <strong>Tiến độ Hoàn thành:</strong> Số task có trạng thái DONE / Tổng task.<br />
-                • <strong>Tiến độ Release:</strong> Số task đã đánh dấu RELEASE / Tổng task (Tự động di chuyển vào Lưu trữ).
+                • <strong>Tiến độ hoàn thành:</strong> Số task có trạng thái DONE / Tổng task.<br />
+                • <strong>Tiến độ release:</strong> Số task đã đánh dấu RELEASE / Tổng task (Tự động di chuyển vào Lưu trữ).
               </p>
             </div>
             <div className="flex items-center gap-2">
