@@ -13,6 +13,7 @@ interface DocumentViewerProps {
   projectId?: string
   docId?: string
   audioBase64?: string
+  figmaUrl?: string
   isEditable?: boolean
   onClose?: () => void
   onSaveContent?: (newContent: string) => void
@@ -27,6 +28,7 @@ export default function DocumentViewer({
   projectId,
   docId,
   audioBase64,
+  figmaUrl,
   isEditable = false,
   onClose,
   onSaveContent,
@@ -378,6 +380,27 @@ export default function DocumentViewer({
               <span>Ghi âm cuộc họp gốc (Audio Record):</span>
             </div>
             <audio controls src={audioBase64} className="h-10 rounded-lg max-w-full" />
+          </div>
+        )}
+
+        {(figmaUrl || docType === 'figma' || docType === 'wireframe') && (
+          <div className="bg-pink-50 border-2 border-pink-300 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+            <div className="flex items-center gap-2 text-xs md:text-sm font-extrabold text-pink-950">
+              <span className="text-lg">🎨</span>
+              <span>Thiết kế Figma (UI/UX Design File):</span>
+            </div>
+            {figmaUrl ? (
+              <a
+                href={figmaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Mở File Thiết kế Figma ↗</span>
+              </a>
+            ) : (
+              <span className="text-xs text-pink-700 font-bold italic">Chưa gắn URL Figma</span>
+            )}
           </div>
         )}
 

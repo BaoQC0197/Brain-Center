@@ -301,15 +301,16 @@ export default function RawDocsManager({
                         <a
                           href={doc.figmaUrl}
                           target="_blank"
-                          className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold"
+                          rel="noopener noreferrer"
+                          className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all shadow-xs flex items-center gap-1"
                         >
-                          Figma
+                          <span>🎨 Figma ↗</span>
                         </a>
                       )}
                       {doc.textContent && (
                         <button
                           onClick={() => downloadWord(doc)}
-                          className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold"
+                          className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer"
                         >
                           Word
                         </button>
@@ -353,9 +354,10 @@ export default function RawDocsManager({
                       <a
                         href={doc.figmaUrl}
                         target="_blank"
-                        className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold"
+                        rel="noopener noreferrer"
+                        className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all shadow-xs flex items-center gap-1"
                       >
-                        Figma
+                        <span>🎨 Figma ↗</span>
                       </a>
                     )}
 

@@ -19,12 +19,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
 
   let name: string, type: RawDocType, textContent: string | undefined
   let imageBase64: string | undefined, imageMime: string | undefined
+  let figmaUrl: string | undefined, audioBase64: string | undefined, audioMime: string | undefined
 
   if (contentType.includes('multipart/form-data')) {
     const form = await request.formData()
     name = form.get('name') as string
     type = form.get('type') as RawDocType
     textContent = (form.get('textContent') as string) || undefined
+    figmaUrl = (form.get('figmaUrl') as string) || undefined
 
     const file = form.get('image') as File | null
     const docFile = form.get('file') as File | null
@@ -51,6 +53,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
     name = body.name
     type = body.type
     textContent = body.textContent
+    figmaUrl = body.figmaUrl
+    audioBase64 = body.audioBase64
+    audioMime = body.audioMime
   }
 
   if (!name?.trim() || !type) {
@@ -65,6 +70,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
     textContent,
     imageBase64,
     imageMime,
+    audioBase64,
+    audioMime,
+    figmaUrl,
     createdAt: new Date().toISOString(),
   }
 

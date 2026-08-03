@@ -615,9 +615,13 @@ function AddRawDocModal({
           {activeTab === 'figma' && (
             <div className="space-y-3">
               <div>
-                <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">URL Figma Design</label>
+                <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">
+                  URL Figma Design <span className="text-rose-600 font-bold">*</span>
+                </label>
                 <div className="flex gap-2.5">
                   <input
+                    required
+                    type="url"
                     value={figmaUrl}
                     onChange={e => setFigmaUrl(e.target.value)}
                     placeholder="https://www.figma.com/file/..."
@@ -793,7 +797,7 @@ export default function ProjectPage() {
   const [showAddRaw, setShowAddRaw] = useState(false)
   const [showEditProject, setShowEditProject] = useState(false)
   const [importingAgent, setImportingAgent] = useState<QAAgentType | null>(null)
-  const [viewingDoc, setViewingDoc] = useState<{ title: string; docType: string; content: string; version?: number; createdAt?: string; docId?: string; isRawDoc?: boolean; audioBase64?: string } | null>(null)
+  const [viewingDoc, setViewingDoc] = useState<{ title: string; docType: string; content: string; version?: number; createdAt?: string; docId?: string; isRawDoc?: boolean; audioBase64?: string; figmaUrl?: string } | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -890,44 +894,15 @@ export default function ProjectPage() {
             </span>
             <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full ${activeTab === 'phase2' ? 'bg-white text-amber-950 font-black shadow-xs' : 'bg-slate-100 text-slate-700 border border-slate-200'
               }`}>
-              4 Steps
-            </span>
-          </div>
-          <div>
-            <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'phase2' ? 'text-white' : 'text-slate-900'}`}>
-              Quy trình QA Agents
-            </h2>
-            <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'phase2' ? 'text-amber-50' : 'text-slate-500'}`}>
-              Review Requirement, Strategy, Cases & Report
-            </p>
-          </div>
-        </button>
-
-        {/* Tab 3: Artifacts */}
-        <button
-          type="button"
-          onClick={() => setActiveTab('artifacts')}
-          className={`p-6 rounded-2xl transition-all text-left border-2 flex flex-col justify-between space-y-4 cursor-pointer ${activeTab === 'artifacts'
-            ? 'bg-gradient-to-br from-amber-500 to-orange-600 border-amber-600 text-white shadow-lg shadow-amber-500/25 ring-4 ring-amber-200 translate-y-[-2px]'
-            : 'bg-white border-slate-200 text-slate-900 hover:border-amber-400 hover:bg-amber-50/40 shadow-xs'
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className={`text-xs font-mono font-extrabold px-3 py-1 rounded-md tracking-wider ${activeTab === 'artifacts' ? 'bg-amber-950/40 text-amber-100 border border-amber-300/40' : 'bg-amber-100 text-amber-950 border border-amber-200'
-              }`}>
-              KHO TÀI LIỆU
-            </span>
-            <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full ${activeTab === 'artifacts' ? 'bg-white text-amber-950 font-black shadow-xs' : 'bg-slate-100 text-slate-700 border border-slate-200'
-              }`}>
               {docs.length} Files
             </span>
           </div>
           <div>
-            <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'artifacts' ? 'text-white' : 'text-slate-900'}`}>
-              Lưu trữ & Quản lý tài liệu Testing
+            <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'phase2' ? 'text-white' : 'text-slate-900'}`}>
+              Quy trình QA Testing Lifecycle
             </h2>
-            <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'artifacts' ? 'text-amber-50' : 'text-slate-500'}`}>
-              Xuất file Markdown, Word (.doc) & Quản lý bản vết
+            <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'phase2' ? 'text-amber-50' : 'text-slate-500'}`}>
+              Review Requirement, Strategy, Cases & Report
             </p>
           </div>
         </button>
@@ -944,7 +919,10 @@ export default function ProjectPage() {
             docId: doc.id,
             title: doc.name,
             docType: doc.type,
-            content: doc.textContent || (doc.figmaUrl ? `### Link Figma\n[${doc.figmaUrl}](${doc.figmaUrl})` : 'Tài liệu dạng hình ảnh/file đính kèm.'),
+            content: doc.figmaUrl
+              ? `🔗 **URL Figma Design**: [${doc.figmaUrl}](${doc.figmaUrl})\n\n---\n\n${doc.textContent || ''}`
+              : (doc.textContent || 'Tài liệu dạng hình ảnh hoặc file đính kèm.'),
+            figmaUrl: doc.figmaUrl,
             audioBase64: doc.audioBase64,
             createdAt: doc.createdAt,
             isRawDoc: true,
@@ -1164,6 +1142,7 @@ export default function ProjectPage() {
               projectId={projectId}
               docId={viewingDoc.docId}
               audioBase64={viewingDoc.audioBase64}
+              figmaUrl={viewingDoc.figmaUrl}
               isEditable={true}
 
               onClose={() => setViewingDoc(null)}
