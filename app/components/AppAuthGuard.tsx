@@ -37,7 +37,7 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
           setUsersList(d.users)
         }
       })
-      .catch(() => {})
+      .catch(() => { })
   }
 
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function AppAuthGuard({ children }: { children: React.ReactNode }
               {usersList.length > 0 && (
                 <div className="space-y-1.5 bg-indigo-950/60 border-2 border-indigo-500/40 p-3 rounded-2xl">
                   <label className="block text-xs font-black text-indigo-200 uppercase tracking-wide">
-                    Chọn nhanh Tài khoản Nhân sự (Supabase DB):
+                    Chọn nhanh Tài khoản Nhân sự:
                   </label>
                   <select
                     value={email}

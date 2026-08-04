@@ -93,7 +93,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
           {usersList.length > 0 && (
             <div className="space-y-1.5 bg-indigo-50/70 border border-indigo-200 p-3.5 rounded-2xl">
               <label className="block text-xs font-black text-indigo-950 uppercase tracking-wide">
-                Chọn nhanh Tài khoản Nhân sự (Từ Supabase DB):
+                Chọn nhanh Tài khoản Nhân sự:
               </label>
               <select
                 value={email}

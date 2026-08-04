@@ -969,22 +969,22 @@ export default function ProjectPage() {
           switch (type) {
             case 'review-requirement':
             case 'acceptance-criteria':
-              if (!hasPhase1Docs) return { isLocked: true, reason: 'Cần upload/tạo ít nhất 1 tài liệu Yêu cầu ở Phase 1 Baseline.', reqName: 'Phase 1 Baseline' }
+              if (!hasPhase1Docs) return { isLocked: true, reason: 'Cần upload hoặc tạo ít nhất 1 tài liệu Yêu cầu ở Phase 1 Baseline.', reqName: 'Phase 1 Baseline' }
               return { isLocked: false, reason: '', reqName: '' }
 
             case 'test-plan':
             case 'test-strategy':
-              if (!hasDoc('review-requirement') && !hasDoc('acceptance-criteria') && !hasPhase1Docs) return { isLocked: true, reason: 'Bắt buộc phải có tài liệu từ Step 1 (Requirements Review & AC) trước!', reqName: 'Step 1 Review & AC' }
+              if (!hasDoc('review-requirement') && !hasDoc('acceptance-criteria')) return { isLocked: true, reason: 'Bắt buộc phải có tài liệu từ Step 1 (Requirements Review và AC) trước!', reqName: 'Step 1 Review và AC' }
               return { isLocked: false, reason: '', reqName: '' }
 
             case 'test-case':
             case 'test-scenario':
-              if (!hasDoc('test-plan') && !hasDoc('test-strategy') && !hasDoc('review-requirement')) return { isLocked: true, reason: 'Bắt buộc phải có tài liệu từ Step 2 (Master Test Strategy & Plan) trước!', reqName: 'Step 2 Test Plan' }
+              if (!hasDoc('test-plan') && !hasDoc('test-strategy')) return { isLocked: true, reason: 'Bắt buộc phải có tài liệu từ Step 2 (Master Test Strategy và Plan) trước!', reqName: 'Step 2 Test Plan' }
               return { isLocked: false, reason: '', reqName: '' }
 
             case 'test-report':
             case 'regression-checklist':
-              if (!hasDoc('test-case') && !hasDoc('test-cases') && !hasDoc('test-scenario')) return { isLocked: true, reason: 'Bắt buộc phải có tài liệu từ Step 3 (Test Scenarios & Detailed Cases) trước!', reqName: 'Step 3 Test Case' }
+              if (!hasDoc('test-case') && !hasDoc('test-cases') && !hasDoc('test-scenario')) return { isLocked: true, reason: 'Bắt buộc phải có tài liệu từ Step 3 (Test Scenarios và Detailed Cases) trước!', reqName: 'Step 3 Test Case' }
               return { isLocked: false, reason: '', reqName: '' }
           }
         }

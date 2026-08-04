@@ -411,15 +411,15 @@ export default function QAAgentHubPage() {
         return { isLocked: false, warning: '' }
       case 'test-plan':
       case 'test-strategy':
-        if (!hasDoc('review-requirement') && !hasDoc('acceptance-criteria') && !hasPhase1Docs) return { isLocked: true, warning: 'Chưa có tài liệu Step 1 (Requirements Review & AC). Hãy chạy Step 1 trước!', reqAgent: 'review-requirement' }
+        if (!hasDoc('review-requirement') && !hasDoc('acceptance-criteria')) return { isLocked: true, warning: 'Chưa có tài liệu Step 1 (Requirements Review và AC). Hãy chạy Step 1 trước!', reqAgent: 'review-requirement' }
         return { isLocked: false, warning: '' }
       case 'test-case':
       case 'test-scenario':
-        if (!hasDoc('test-plan') && !hasDoc('test-strategy') && !hasDoc('review-requirement')) return { isLocked: true, warning: 'Chưa có tài liệu Step 2 (Master Test Strategy & Plan). Hãy chạy Step 2 trước!', reqAgent: 'test-plan' }
+        if (!hasDoc('test-plan') && !hasDoc('test-strategy')) return { isLocked: true, warning: 'Chưa có tài liệu Step 2 (Master Test Strategy và Plan). Hãy chạy Step 2 trước!', reqAgent: 'test-plan' }
         return { isLocked: false, warning: '' }
       case 'test-report':
       case 'regression-checklist':
-        if (!hasDoc('test-case') && !hasDoc('test-cases') && !hasDoc('test-scenario')) return { isLocked: true, warning: 'Chưa có tài liệu Step 3 (Test Scenarios & Detailed Cases). Hãy chạy Step 3 trước!', reqAgent: 'test-case' }
+        if (!hasDoc('test-case') && !hasDoc('test-cases') && !hasDoc('test-scenario')) return { isLocked: true, warning: 'Chưa có tài liệu Step 3 (Test Scenarios và Detailed Cases). Hãy chạy Step 3 trước!', reqAgent: 'test-case' }
         return { isLocked: false, warning: '' }
       default:
         return { isLocked: false, warning: '' }
