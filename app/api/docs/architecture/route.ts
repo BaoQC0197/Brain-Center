@@ -12,8 +12,9 @@ Tài liệu này tổng hợp mục tiêu hệ thống, sơ đồ Use Case theo 
 
 ## 1. Mục tiêu hệ thống
 
-Brain Center là trung tâm điều hành và tự động hóa kiểm thử tập trung cho dự án phần mềm với 4 mục tiêu cốt lõi:
+Brain Center là trung tâm điều hành và tự động hóa kiểm thử tập trung cho dự án phần mềm với 5 mục tiêu cốt lõi:
 
+- **Tạo tài liệu và Biên soạn cùng AI**: Tận dụng sức mạnh của các Trợ lý AI (Doc Builder Agent, Clarify Sub-agent và QA Testing Agent) để tự động hóa việc biên soạn bài đặc tả (BRD, SRS, User Story), rà soát bẫy nghiệp vụ và lập bộ tài liệu kiểm thử chuẩn mực trong thời gian ngắn.
 - **Quản lý dự án tập trung**: Quản lý toàn bộ thông tin dự án, cấu hình môi trường, liên kết Figma và danh sách Bug.
 - **Tài liệu và Kho lưu trữ**: Quản lý tài liệu yêu cầu Phase 1 Baseline (BRD, SRS, User Story, Ghi âm cuộc họp) và lưu trữ kho tài liệu kiểm thử Phase 2.
 - **Task board và Tiến độ**: Theo dõi danh mục công việc Kanban, phân loại mức độ ưu tiên, phân công nhân sự và tiến độ phát hành (Release).
