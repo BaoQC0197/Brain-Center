@@ -90,16 +90,8 @@ export function createClaudeStream(
   }
 
   const client = new GoogleGenerativeAI(currentKey)
-  const modelName = process.env.GEMINI_MODEL || 'gemini-flash-latest'
-
-  const model = client.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemPrompt,
-    generationConfig: {
-      maxOutputTokens: 16384,
-      ...(responseMimeType ? { responseMimeType } : {}),
-    },
-  })
+  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro']))
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [
@@ -117,38 +109,56 @@ export function createClaudeStream(
 
   async function* generator() {
     let resultStream: any = null
-    let attempts = 0
-    const maxAttempts = 3
+    let lastError: any = null
 
-    while (attempts < maxAttempts) {
-      try {
-        attempts++
-        resultStream = await model.generateContentStream(contents)
-        break
-      } catch (err: any) {
-        const errStr = err?.message || String(err)
-        if ((errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) && attempts < maxAttempts) {
-          console.warn(`[Gemini API 503] High demand spike detected. Retrying attempt ${attempts}/${maxAttempts} in 2s...`)
-          await new Promise(res => setTimeout(res, 2000))
-          continue
+    for (const modelToUse of fallbackModels) {
+      let attempts = 0
+      const maxAttempts = 2
+
+      while (attempts < maxAttempts) {
+        try {
+          attempts++
+          const model = client.getGenerativeModel({
+            model: modelToUse,
+            systemInstruction: systemPrompt,
+            generationConfig: {
+              maxOutputTokens: 16384,
+              ...(responseMimeType ? { responseMimeType } : {}),
+            },
+          })
+          resultStream = await model.generateContentStream(contents)
+          if (resultStream) break
+        } catch (err: any) {
+          lastError = err
+          const errStr = err?.message || String(err)
+          if ((errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand') || errStr.includes('404')) && attempts < maxAttempts) {
+            console.warn(`[Gemini API 503] Model ${modelToUse} high demand / unavailable (attempt ${attempts}/${maxAttempts}). Retrying...`)
+            await new Promise(res => setTimeout(res, 1000))
+            continue
+          }
+          if (errStr.includes('API_KEY_SERVICE_BLOCKED') || errStr.includes('UNAUTHENTICATED') || errStr.includes('401')) {
+            throw new Error('⚠️ API Key hiện tại thuộc Dự án Google Cloud đang bị KHÓA DỊCH VỤ Gemini API (API_KEY_SERVICE_BLOCKED). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới) để có Key hoạt động ngay lập tức.')
+          }
+          if (errStr.includes('429') || errStr.includes('Quota exceeded')) {
+            throw new Error('⚠️ Dự án Google Cloud của Key hiện tại bị hạn chế dung lượng (Limit = 0 hoặc 429 Rate Limit). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới).')
+          }
+          if (errStr.includes('API_KEY_INVALID') || errStr.includes('API key not valid')) {
+            throw new Error('⚠️ API Key Gemini không hợp lệ. Vui lòng lấy Key chuẩn (bắt đầu bằng AIzaSy...) từ https://aistudio.google.com/app/apikey và dán vào file .env.local')
+          }
+          console.warn(`[Gemini API] Model ${modelToUse} failed: ${errStr}. Trying fallback model...`)
+          break
         }
-        if (errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) {
-          throw new Error('⚠️ Máy chủ Google Gemini hiện đang quá tải tạm thời (503 Service Unavailable). Hệ thống đã tự động thử lại 3 lần nhưng chưa thành công, vui lòng thử lại sau 10 giây.')
-        }
-        if (errStr.includes('API_KEY_SERVICE_BLOCKED') || errStr.includes('UNAUTHENTICATED') || errStr.includes('401')) {
-          throw new Error('⚠️ API Key hiện tại thuộc Dự án Google Cloud đang bị KHÓA DỊCH VỤ Gemini API (API_KEY_SERVICE_BLOCKED). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới) để có Key hoạt động ngay lập tức.')
-        }
-        if (errStr.includes('429') || errStr.includes('Quota exceeded')) {
-          throw new Error('⚠️ Dự án Google Cloud của Key hiện tại bị hạn chế dung lượng (Limit = 0 hoặc 429 Rate Limit). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới).')
-        }
-        if (errStr.includes('404') || errStr.includes('not found')) {
-          throw new Error(`⚠️ Model "${modelName}" không hỗ trợ hoặc đã thay đổi. Vui lòng kiểm tra lại cấu hình GEMINI_MODEL.`)
-        }
-        if (errStr.includes('API_KEY_INVALID') || errStr.includes('API key not valid')) {
-          throw new Error('⚠️ API Key Gemini không hợp lệ. Vui lòng lấy Key chuẩn (bắt đầu bằng AIzaSy...) từ https://aistudio.google.com/app/apikey và dán vào file .env.local')
-        }
-        throw new Error(errStr)
       }
+
+      if (resultStream) break
+    }
+
+    if (!resultStream) {
+      const lastErrStr = lastError?.message || String(lastError)
+      if (lastErrStr.includes('503') || lastErrStr.includes('Service Unavailable') || lastErrStr.includes('high demand')) {
+        throw new Error('⚠️ Máy chủ Google Gemini hiện đang quá tải tạm thời (503 Service Unavailable). Hệ thống đã tự động thử chuyển sang các model dự phòng (Gemini 2.5/2.0/1.5 Flash) nhưng chưa thành công, vui lòng bấm nút "Chạy lại Agent" sau 5-10 giây.')
+      }
+      throw new Error(lastErrStr || 'Không thể kết nối đến máy chủ AI')
     }
 
     try {
@@ -212,30 +222,45 @@ async function callClaude(
       }
     }
     if (fullText.trim()) return fullText
-  } catch (err) {
-    console.warn('[callClaude] Stream failed, attempting direct generateContent fallback:', err)
+  } catch (err: any) {
+    const errStr = err?.message || String(err)
+    if (errStr.includes('API_KEY') || errStr.includes('401') || errStr.includes('429')) {
+      throw err
+    }
+    console.warn('[callClaude] Stream failed, attempting direct generateContent fallback:', errStr)
   }
 
-  // Resilient Non-Streaming Fallback for JSON generation
+  // Resilient Non-Streaming Fallback with Model Failover
   const currentKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim()
   const client = new GoogleGenerativeAI(currentKey)
-  const modelName = process.env.GEMINI_MODEL || 'gemini-flash-latest'
-
-  const model = client.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemPrompt,
-    generationConfig: {
-      maxOutputTokens: 16384,
-      ...(responseMimeType ? { responseMimeType } : {}),
-    },
-  })
+  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro']))
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [{ inlineData: { data: imageBase64, mimeType: imageMime || 'image/png' } }, userPrompt]
     : [userPrompt]
 
-  const res = await model.generateContent(contents)
-  return res.response.text()
+  let lastError: any = null
+  for (const modelToUse of fallbackModels) {
+    try {
+      const model = client.getGenerativeModel({
+        model: modelToUse,
+        systemInstruction: systemPrompt,
+        generationConfig: {
+          maxOutputTokens: 16384,
+          ...(responseMimeType ? { responseMimeType } : {}),
+        },
+      })
+      const res = await model.generateContent(contents)
+      const text = res.response.text()
+      if (text) return text
+    } catch (err: any) {
+      lastError = err
+      console.warn(`[callClaude non-stream] Model ${modelToUse} failed:`, err?.message || err)
+    }
+  }
+
+  throw lastError || new Error('⚠️ Máy chủ Google Gemini đang quá tải. Vui lòng bấm nút "Chạy lại Agent" sau 5-10 giây.')
 }
 
 export async function refineTestCases(
