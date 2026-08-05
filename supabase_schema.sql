@@ -104,6 +104,7 @@ ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS "docType" TEXT;
 ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS standard TEXT;
 ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS "contentMarkdown" TEXT;
 ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS answers JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE public.built_documents ADD COLUMN IF NOT EXISTS "fileUrl" TEXT;
 
 -- 5. Project Instructions Table
 CREATE TABLE IF NOT EXISTS public.project_instructions (
@@ -235,5 +236,21 @@ CREATE POLICY "Allow anonymous read access" ON public.user_profiles FOR SELECT U
 CREATE POLICY "Allow anonymous insert access" ON public.user_profiles FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow anonymous update access" ON public.user_profiles FOR UPDATE USING (true);
 CREATE POLICY "Allow anonymous delete access" ON public.user_profiles FOR DELETE USING (true);
+
+-- 9. Storage Bucket Auto-Creation & Public Access Policies
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('raw-documents', 'raw-documents', true)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS "Public Read raw-documents" ON storage.objects;
+DROP POLICY IF EXISTS "Public Insert raw-documents" ON storage.objects;
+DROP POLICY IF EXISTS "Public Update raw-documents" ON storage.objects;
+DROP POLICY IF EXISTS "Public Delete raw-documents" ON storage.objects;
+
+CREATE POLICY "Public Read raw-documents" ON storage.objects FOR SELECT USING (bucket_id = 'raw-documents');
+CREATE POLICY "Public Insert raw-documents" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'raw-documents');
+CREATE POLICY "Public Update raw-documents" ON storage.objects FOR UPDATE USING (bucket_id = 'raw-documents');
+CREATE POLICY "Public Delete raw-documents" ON storage.objects FOR DELETE USING (bucket_id = 'raw-documents');
+
 
 
