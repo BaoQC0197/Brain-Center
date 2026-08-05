@@ -44,9 +44,35 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
     } else if (docFile) {
       const buf = Buffer.from(await docFile.arrayBuffer())
       if (!name) name = docFile.name
-      // Extract text content from text/md/json files directly
-      const text = buf.toString('utf-8')
-      textContent = textContent ? `${textContent}\n\n${text}` : text
+      const fileNameLower = (docFile.name || '').toLowerCase()
+      const mimeType = (docFile.type || '').toLowerCase()
+
+      let extracted = ''
+      if (fileNameLower.endsWith('.pdf') || mimeType.includes('pdf')) {
+        try {
+          const pdfParse = require('pdf-parse')
+          const pdfData = await pdfParse(buf)
+          extracted = (pdfData.text || '').trim()
+          extracted = extracted.replace(/\0/g, '').replace(/\r\n/g, '\n')
+        } catch (pdfErr) {
+          console.error('[raw-docs POST] Failed to parse PDF:', pdfErr)
+        }
+      } else if (fileNameLower.endsWith('.docx') || mimeType.includes('wordprocessingml')) {
+        try {
+          const mammoth = (await import('mammoth')).default
+          const result = await mammoth.extractRawText({ buffer: buf })
+          extracted = (result.value || '').trim()
+        } catch (docxErr) {
+          console.error('[raw-docs POST] Failed to parse DOCX:', docxErr)
+        }
+      } else {
+        // Plain text, Markdown, JSON, CSV files
+        extracted = buf.toString('utf-8').replace(/\0/g, '')
+      }
+
+      if (extracted) {
+        textContent = textContent ? `${textContent}\n\n${extracted}` : extracted
+      }
     }
   } else {
     const body = await request.json()

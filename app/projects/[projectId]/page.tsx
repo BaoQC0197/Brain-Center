@@ -200,6 +200,7 @@ function AddRawDocModal({
   const [docType, setDocType] = useState<string>('brd')
   const [name, setName] = useState('')
   const [textContent, setTextContent] = useState('')
+  const [uploadedDocFile, setUploadedDocFile] = useState<File | null>(null)
   const [figmaUrl, setFigmaUrl] = useState('')
   const [figmaMeta, setFigmaMeta] = useState<{ name?: string; lastModified?: string } | null>(null)
   const [figmaLoading, setFigmaLoading] = useState(false)
@@ -250,17 +251,23 @@ function AddRawDocModal({
 
   function handleFileUpload(file: File) {
     if (!name) setName(file.name.replace(/\.[^/.]+$/, ''))
+    setUploadedDocFile(file)
 
     if (file.type.startsWith('audio/')) {
       handleAudioFileUpload(file)
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = e => {
-      setTextContent(e.target?.result as string)
+    const fileNameLower = file.name.toLowerCase()
+    if (fileNameLower.endsWith('.pdf') || fileNameLower.endsWith('.docx') || fileNameLower.endsWith('.doc')) {
+      setTextContent('')
+    } else {
+      const reader = new FileReader()
+      reader.onload = e => {
+        setTextContent(e.target?.result as string)
+      }
+      reader.readAsText(file)
     }
-    reader.readAsText(file)
   }
 
   async function startRecording() {
@@ -363,6 +370,24 @@ function AddRawDocModal({
     setSaving(true)
     setError('')
     try {
+      if (activeTab === 'upload' && uploadedDocFile) {
+        const formData = new FormData()
+        formData.append('name', name.trim())
+        formData.append('type', docType)
+        formData.append('file', uploadedDocFile)
+        if (figmaUrl.trim()) formData.append('figmaUrl', figmaUrl.trim())
+        if (textContent.trim()) formData.append('textContent', textContent.trim())
+
+        const res = await fetch(`/api/projects/${projectId}/raw-docs`, {
+          method: 'POST',
+          body: formData,
+        })
+        const doc = await res.json()
+        if (!res.ok) throw new Error(doc.error || 'Có lỗi xảy ra khi bóc tách và lưu tài liệu')
+        onSaved(doc)
+        return
+      }
+
       const body: any = { type: docType, name: name.trim() }
 
       if (activeTab === 'figma') {
@@ -377,7 +402,7 @@ function AddRawDocModal({
         body.textContent = textContent.trim() || transcribedText.trim()
         if (!body.textContent) throw new Error('Chưa có văn bản bóc tách từ ghi âm. Vui lòng thu âm hoặc chọn file ghi âm.')
       } else {
-        if (!textContent.trim()) throw new Error('Vui lòng chọn file văn bản hoặc ghi âm từ máy')
+        if (!textContent.trim() && !uploadedDocFile) throw new Error('Vui lòng chọn file văn bản hoặc dán nội dung')
         body.textContent = textContent.trim()
         if (audioBase64) {
           body.audioBase64 = audioBase64
@@ -402,7 +427,7 @@ function AddRawDocModal({
   const canSave = name.trim() && (
     (activeTab === 'figma' && figmaUrl.trim()) ||
     (activeTab === 'audio' && (textContent.trim() || transcribedText.trim() || audioBase64)) ||
-    (activeTab === 'upload' && textContent.trim())
+    (activeTab === 'upload' && (textContent.trim() || uploadedDocFile))
   )
 
   const formatTimer = (sec: number) => {
