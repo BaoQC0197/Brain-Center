@@ -116,9 +116,42 @@ export function createClaudeStream(
   let finishReason = 'end_turn'
 
   async function* generator() {
-    try {
-      const resultStream = await model.generateContentStream(contents)
+    let resultStream: any = null
+    let attempts = 0
+    const maxAttempts = 3
 
+    while (attempts < maxAttempts) {
+      try {
+        attempts++
+        resultStream = await model.generateContentStream(contents)
+        break
+      } catch (err: any) {
+        const errStr = err?.message || String(err)
+        if ((errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) && attempts < maxAttempts) {
+          console.warn(`[Gemini API 503] High demand spike detected. Retrying attempt ${attempts}/${maxAttempts} in 2s...`)
+          await new Promise(res => setTimeout(res, 2000))
+          continue
+        }
+        if (errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) {
+          throw new Error('⚠️ Máy chủ Google Gemini hiện đang quá tải tạm thời (503 Service Unavailable). Hệ thống đã tự động thử lại 3 lần nhưng chưa thành công, vui lòng thử lại sau 10 giây.')
+        }
+        if (errStr.includes('API_KEY_SERVICE_BLOCKED') || errStr.includes('UNAUTHENTICATED') || errStr.includes('401')) {
+          throw new Error('⚠️ API Key hiện tại thuộc Dự án Google Cloud đang bị KHÓA DỊCH VỤ Gemini API (API_KEY_SERVICE_BLOCKED). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới) để có Key hoạt động ngay lập tức.')
+        }
+        if (errStr.includes('429') || errStr.includes('Quota exceeded')) {
+          throw new Error('⚠️ Dự án Google Cloud của Key hiện tại bị hạn chế dung lượng (Limit = 0 hoặc 429 Rate Limit). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới).')
+        }
+        if (errStr.includes('404') || errStr.includes('not found')) {
+          throw new Error(`⚠️ Model "${modelName}" không hỗ trợ hoặc đã thay đổi. Vui lòng kiểm tra lại cấu hình GEMINI_MODEL.`)
+        }
+        if (errStr.includes('API_KEY_INVALID') || errStr.includes('API key not valid')) {
+          throw new Error('⚠️ API Key Gemini không hợp lệ. Vui lòng lấy Key chuẩn (bắt đầu bằng AIzaSy...) từ https://aistudio.google.com/app/apikey và dán vào file .env.local')
+        }
+        throw new Error(errStr)
+      }
+    }
+
+    try {
       for await (const chunk of resultStream.stream) {
         let text = ''
         try {
@@ -149,17 +182,8 @@ export function createClaudeStream(
       }
     } catch (err: any) {
       const errStr = err?.message || String(err)
-      if (errStr.includes('API_KEY_SERVICE_BLOCKED') || errStr.includes('UNAUTHENTICATED') || errStr.includes('401')) {
-        throw new Error('⚠️ API Key hiện tại thuộc Dự án Google Cloud đang bị KHÓA DỊCH VỤ Gemini API (API_KEY_SERVICE_BLOCKED). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới) để có Key hoạt động ngay lập tức.')
-      }
-      if (errStr.includes('429') || errStr.includes('Quota exceeded')) {
-        throw new Error('⚠️ Dự án Google Cloud của Key hiện tại bị hạn chế dung lượng (Limit = 0 hoặc 429 Rate Limit). Vui lòng vào https://aistudio.google.com/app/apikey ➔ Bấm "Create API key" ➔ Chọn "Create API key in NEW project" (Tạo trong dự án mới).')
-      }
-      if (errStr.includes('404') || errStr.includes('not found')) {
-        throw new Error(`⚠️ Model "${modelName}" không hỗ trợ hoặc đã thay đổi. Vui lòng kiểm tra lại cấu hình GEMINI_MODEL.`)
-      }
-      if (errStr.includes('API_KEY_INVALID') || errStr.includes('API key not valid')) {
-        throw new Error('⚠️ API Key Gemini không hợp lệ. Vui lòng lấy Key chuẩn (bắt đầu bằng AIzaSy...) từ https://aistudio.google.com/app/apikey và dán vào file .env.local')
+      if (errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) {
+        throw new Error('⚠️ Máy chủ Google Gemini hiện đang quá tải tạm thời (503 Service Unavailable). Vui lòng thử lại sau vài giây.')
       }
       throw new Error(errStr)
     }
