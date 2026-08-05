@@ -4,37 +4,52 @@ import path from 'path'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { exportMarkdownToHtml } from '@/lib/html-export'
 
-const DEFAULT_ARCHITECTURE_DOC = `# Brain Center: Tài liệu kiến trúc hệ thống và quy trình vận hành Agent
+const DEFAULT_ARCHITECTURE_DOC = `# Brain Center: Tài liệu Kiến trúc Hệ thống và Quy trình Vận hành
 
-Tài liệu này tổng hợp mục tiêu hệ thống, các nhóm đối tượng sử dụng, luồng làm việc thực tế và cơ chế phối hợp giữa **Agent chính** và các **Sub-agent** trong hệ thống **Brain Center**.
-
----
-
-## 1. Mục tiêu và giá trị vận hành của hệ thống
-
-Hệ thống **Brain Center** được thiết kế làm trung tâm hỗ trợ công việc cho đội ngũ phát triển phần mềm (Product Owner, Business Analyst, QA/Tester và Quản lý dự án). Hệ thống giải quyết 3 bài toán thực tế:
-
-1. **Tiết kiệm thời gian lập tài liệu**: Tự động hóa việc tạo tài liệu đặc tả, kế hoạch kiểm thử và bộ test cases thay vì biên soạn thủ công kéo dài nhiều ngày.
-2. **Rà soát thiếu sót ngay từ đầu**: Giúp phát hiện các điểm mơ hồ, mâu thuẫn hoặc kịch bản lỗi bị bỏ sót trong yêu cầu nghiệp vụ trước khi tiến hành lập trình.
-3. **Chuẩn hóa chất lượng kiểm thử**: Đảm bảo toàn bộ tài liệu kiểm thử được trình bày nhất quán, đầy đủ tiêu chí nghiệm thu và bao phủ các kịch bản biên.
-
-### Bảng so sánh hiệu quả vận hành:
-
-| Tiêu chí | Phương pháp thủ công | Vận hành cùng Brain Center | Hiệu quả mang lại |
-| :--- | :--- | :--- | :--- |
-| **Thời gian tạo bộ kiểm thử** | 2 - 5 ngày cho một tính năng | 30 giây - 2 phút | Tăng 10 lần tốc độ chuẩn bị kiểm thử |
-| **Bao phủ kịch bản biên** | Dễ bỏ sót 30% - 40% trường hợp ngoại lệ | Bao phủ đầy đủ các trường hợp ngoại lệ và kịch bản lỗi | Hạn chế tối đa lỗi phát sinh trên môi trường thật |
-| **Rà soát yêu cầu** | Rà soát bằng mắt, phụ thuộc cảm tính | Sub-agent rà soát theo các bẫy nghiệp vụ thực tế | Phát hiện lỗ hổng ngay ở bước thiết kế |
-| **Chuẩn hóa quy trình** | Tùy thuộc vào kinh nghiệm từng cá nhân | Đưa về một chuẩn nhất quán toàn công ty | Dễ dàng quản lý và bàn giao công việc |
+Tài liệu này tổng hợp mục tiêu hệ thống, sơ đồ Use Case theo vai trò, quy trình biên soạn đặc tả với Doc Builder Agent và luồng rà soát làm rõ 6 tầng của hệ thống Brain Center.
 
 ---
 
-## 2. Các nhóm vai trò sử dụng hệ thống
+## 1. Mục tiêu hệ thống
 
-- **Product Owner (PO) và Business Analyst (BA)**: Khởi tạo BRD, SRS, User Story với Doc Builder Agent và phỏng vấn đa vòng Multi-turn.
-- **QA / Tester**: Rà soát và làm rõ yêu cầu, Lập kế hoạch và chiến lược kiểm thử, Sinh kịch bản và bộ Test Cases chi tiết, Tạo Regression Checklist và Báo cáo chất lượng.
-- **Project Manager (PM) và CTO**: Theo dõi tiến độ hoàn thành %, tiến độ release toàn bộ dự án và quản lý thẻ công việc trên bảng Kanban.
+Brain Center là trung tâm điều hành và tự động hóa kiểm thử tập trung cho dự án phần mềm với 4 mục tiêu cốt lõi:
+
+- **Quản lý dự án tập trung**: Quản lý toàn bộ thông tin dự án, cấu hình môi trường, liên kết Figma và danh sách Bug.
+- **Tài liệu và Kho lưu trữ**: Quản lý tài liệu yêu cầu Phase 1 Baseline (BRD, SRS, User Story, Ghi âm cuộc họp) và lưu trữ kho tài liệu kiểm thử Phase 2.
+- **Task board và Tiến độ**: Theo dõi danh mục công việc Kanban, phân loại mức độ ưu tiên, phân công nhân sự và tiến độ phát hành (Release).
+- **Resource và Truy cập nhanh**: Cung cấp liên kết trực tiếp tới các sản phẩm của dự án, trang quản trị Admin, tài liệu thiết kế và môi trường Staging, Production.
+
+---
+
+## 2. Sơ đồ Use Case (Use Case Diagram)
+
+\`\`\`mermaid
+mindmap
+  root((Brain Center))
+    Product Owner và BA
+      Khởi tạo BRD SRS User Story
+      Biên soạn qua Doc Builder
+      Quản lý Kanban Taskboard
+    QA và Tester
+      Rà soát yêu cầu nghiệp vụ
+      Lập kế hoạch kiểm thử
+      Sinh kịch bản và Test Cases
+      Tạo Regression Checklist
+    Project Manager và CTO
+      Theo dõi tiến độ Release
+      Quản lý tài nguyên dự án
+      Truy cập nhanh Staging Prod
+\`\`\`
+
+### 2.1. Phân quyền và Chức năng theo Vai trò
+
+| Nhóm người dùng | Chức năng chính trên Brain Center |
+| :--- | :--- |
+| **Product Owner (PO) và BA** | Tạo và quản lý tài liệu Baseline Phase 1 (BRD, SRS, User Story), ghi âm cuộc họp, điều phối công việc trên bảng Kanban. |
+| **QA / Tester** | Rà soát đặc tả yêu cầu với Clarify Sub-agent, lập Test Plan và Strategy, sinh Test Cases chi tiết và xuất báo cáo kiểm thử. |
+| **PM và CTO** | Đánh giá tổng quan tiến độ dự án, điều phối thẻ công việc Kanban, truy cập nhanh liên kết Figma, Bug list và môi trường Staging, Production. |
 `
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
