@@ -78,6 +78,7 @@ ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS title TEXT;
 ALTER TABLE public.generated_documents ALTER COLUMN title DROP NOT NULL;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "inputType" TEXT;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "inputSummary" TEXT;
+ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "fileUrl" TEXT;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS version INT DEFAULT 1;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS "parentDocId" TEXT;
 ALTER TABLE public.generated_documents ADD COLUMN IF NOT EXISTS scenarios JSONB DEFAULT '[]'::jsonb;

@@ -178,9 +178,38 @@ export const storage = {
 
   async saveDocument(doc: GeneratedDocument): Promise<void> {
     const normalizedType = (doc.type === ('test-case' as any) ? 'test-cases' : doc.type) as any
+    let fileUrl = doc.fileUrl
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { exportToHtml } = await import('./html-export')
+        const htmlContent = exportToHtml(doc, 'QA-Brain')
+        const buf = Buffer.from(htmlContent, 'utf-8')
+        const storagePath = `${doc.projectId}/generated-${doc.id}.html`
+        const { data: uploadData, error: uploadErr } = await supabase.storage
+          .from('raw-documents')
+          .upload(storagePath, buf, {
+            contentType: 'text/html; charset=utf-8',
+            upsert: true,
+          })
+
+        if (!uploadErr && uploadData) {
+          const { data: pubUrlData } = supabase.storage
+            .from('raw-documents')
+            .getPublicUrl(storagePath)
+          if (pubUrlData?.publicUrl) {
+            fileUrl = pubUrlData.publicUrl
+          }
+        }
+      } catch (stErr) {
+        console.warn('saveDocument storage upload error:', stErr)
+      }
+    }
+
     const normalizedDoc = {
       ...doc,
       type: normalizedType,
+      fileUrl,
       content: typeof doc.content === 'string' ? { rawText: doc.content } : doc.content,
       scenarios: doc.scenarios || [],
       inputData: doc.inputData || [],
@@ -233,8 +262,39 @@ export const storage = {
   },
 
   async saveRawDocument(doc: RawDocument): Promise<void> {
+    let fileUrl = doc.fileUrl
+
+    if (isSupabaseConfigured && supabase && !fileUrl) {
+      try {
+        let contentToUpload = doc.textContent || doc.figmaUrl || ''
+        if (contentToUpload) {
+          const buf = Buffer.from(contentToUpload, 'utf-8')
+          const storagePath = `${doc.projectId}/raw-${doc.id}.md`
+          const { data: uploadData, error: uploadErr } = await supabase.storage
+            .from('raw-documents')
+            .upload(storagePath, buf, {
+              contentType: 'text/markdown; charset=utf-8',
+              upsert: true,
+            })
+
+          if (!uploadErr && uploadData) {
+            const { data: pubUrlData } = supabase.storage
+              .from('raw-documents')
+              .getPublicUrl(storagePath)
+            if (pubUrlData?.publicUrl) {
+              fileUrl = pubUrlData.publicUrl
+            }
+          }
+        }
+      } catch (stErr) {
+        console.warn('saveRawDocument storage upload error:', stErr)
+      }
+    }
+
+    const docToSave = { ...doc, fileUrl }
+
     if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('raw_documents').upsert(doc)
+      const { error } = await supabase.from('raw_documents').upsert(docToSave)
       if (error) console.error('Supabase saveRawDocument error:', error)
       return
     }
@@ -244,8 +304,8 @@ export const storage = {
       ? JSON.parse(fs.readFileSync(file, 'utf-8'))
       : []
     const idx = docs.findIndex(d => d.id === doc.id)
-    if (idx >= 0) docs[idx] = doc
-    else docs.unshift(doc)
+    if (idx >= 0) docs[idx] = docToSave
+    else docs.unshift(docToSave)
     fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 

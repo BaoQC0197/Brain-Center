@@ -236,6 +236,7 @@ export interface GeneratedDocument {
   inputSummary: string
   version: number
   parentDocId?: string
+  fileUrl?: string
   createdAt: string
   content: any
   // for test-cases only
