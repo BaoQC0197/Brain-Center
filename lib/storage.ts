@@ -266,14 +266,16 @@ export const storage = {
 
     if (isSupabaseConfigured && supabase && !fileUrl) {
       try {
-        let contentToUpload = doc.textContent || doc.figmaUrl || ''
-        if (contentToUpload) {
-          const buf = Buffer.from(contentToUpload, 'utf-8')
-          const storagePath = `${doc.projectId}/raw-${doc.id}.md`
+        if (doc.audioBase64) {
+          const cleanBase64 = doc.audioBase64.replace(/^data:audio\/\w+;base64,/, '')
+          const buf = Buffer.from(cleanBase64, 'base64')
+          const mimeType = doc.audioMime || 'audio/webm'
+          const ext = mimeType.includes('mp3') ? 'mp3' : 'webm'
+          const storagePath = `${doc.projectId}/audio-${doc.id}.${ext}`
           const { data: uploadData, error: uploadErr } = await supabase.storage
             .from('raw-documents')
             .upload(storagePath, buf, {
-              contentType: 'text/markdown; charset=utf-8',
+              contentType: mimeType,
               upsert: true,
             })
 
@@ -283,6 +285,27 @@ export const storage = {
               .getPublicUrl(storagePath)
             if (pubUrlData?.publicUrl) {
               fileUrl = pubUrlData.publicUrl
+            }
+          }
+        } else {
+          let contentToUpload = doc.textContent || doc.figmaUrl || ''
+          if (contentToUpload) {
+            const buf = Buffer.from(contentToUpload, 'utf-8')
+            const storagePath = `${doc.projectId}/raw-${doc.id}.md`
+            const { data: uploadData, error: uploadErr } = await supabase.storage
+              .from('raw-documents')
+              .upload(storagePath, buf, {
+                contentType: 'text/markdown; charset=utf-8',
+                upsert: true,
+              })
+
+            if (!uploadErr && uploadData) {
+              const { data: pubUrlData } = supabase.storage
+                .from('raw-documents')
+                .getPublicUrl(storagePath)
+              if (pubUrlData?.publicUrl) {
+                fileUrl = pubUrlData.publicUrl
+              }
             }
           }
         }
