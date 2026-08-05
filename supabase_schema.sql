@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS public.raw_documents (
 
 -- Ensure all columns exist for raw_documents
 ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "textContent" TEXT;
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "fileUrl" TEXT;
+ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "fileName" TEXT;
 ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "imageBase64" TEXT;
 ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "imageMime" TEXT;
 ALTER TABLE public.raw_documents ADD COLUMN IF NOT EXISTS "audioBase64" TEXT;

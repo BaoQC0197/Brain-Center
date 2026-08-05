@@ -22,6 +22,8 @@ export interface RawDocument {
   type: RawDocType
   name: string
   textContent?: string
+  fileUrl?: string
+  fileName?: string
   imageBase64?: string
   imageMime?: string
   audioBase64?: string

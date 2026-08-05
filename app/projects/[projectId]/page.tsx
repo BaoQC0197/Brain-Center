@@ -975,6 +975,8 @@ export default function ProjectPage() {
             docType: doc.type,
             content: doc.figmaUrl
               ? `🔗 **URL Figma Design**: [${doc.figmaUrl}](${doc.figmaUrl})\n\n---\n\n${doc.textContent || ''}`
+              : doc.fileUrl
+              ? `📥 **File gốc đính kèm**: [${doc.fileName || 'Tải file đính kèm'}](${doc.fileUrl})\n\n---\n\n${doc.textContent || ''}`
               : (doc.textContent || 'Tài liệu dạng file đính kèm (Chưa có nội dung bóc tách văn bản). Vui lòng xóa item cũ này và upload lại file để hệ thống tự động bóc tách 100% nội dung PDF/Word.'),
             figmaUrl: doc.figmaUrl,
             audioBase64: doc.audioBase64,

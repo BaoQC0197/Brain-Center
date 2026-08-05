@@ -20,6 +20,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
   let name: string, type: RawDocType, textContent: string | undefined
   let imageBase64: string | undefined, imageMime: string | undefined
   let figmaUrl: string | undefined, audioBase64: string | undefined, audioMime: string | undefined
+  let fileUrl: string | undefined
+  let docFile: File | null = null
 
   if (contentType.includes('multipart/form-data')) {
     const form = await request.formData()
@@ -29,7 +31,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
     figmaUrl = (form.get('figmaUrl') as string) || undefined
 
     const file = form.get('image') as File | null
-    const docFile = form.get('file') as File | null
+    docFile = form.get('file') as File | null
 
     if (file) {
       const rawBuf = Buffer.from(await file.arrayBuffer())
@@ -52,8 +54,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
         try {
           const pdfParse = require('pdf-parse')
           const pdfData = await pdfParse(buf)
-          extracted = (pdfData.text || '').trim()
-          extracted = extracted.replace(/\0/g, '').replace(/\r\n/g, '\n')
+          extracted = (pdfData.text || '').trim().replace(/\0/g, '').replace(/\r\n/g, '\n')
         } catch (pdfErr) {
           console.error('[raw-docs POST] Failed to parse PDF:', pdfErr)
         }
@@ -72,6 +73,33 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
 
       if (extracted) {
         textContent = textContent ? `${textContent}\n\n${extracted}` : extracted
+      }
+
+      // Try uploading to Supabase Storage Bucket 'raw-documents'
+      try {
+        const { isSupabaseConfigured, supabase } = await import('@/lib/supabase')
+        if (isSupabaseConfigured && supabase) {
+          const storagePath = `${projectId}/${uuidv4()}-${docFile.name}`
+          const { data: uploadData, error: uploadErr } = await supabase.storage
+            .from('raw-documents')
+            .upload(storagePath, buf, {
+              contentType: mimeType || 'application/octet-stream',
+              upsert: true,
+            })
+
+          if (!uploadErr && uploadData) {
+            const { data: pubUrlData } = supabase.storage
+              .from('raw-documents')
+              .getPublicUrl(storagePath)
+            if (pubUrlData?.publicUrl) {
+              fileUrl = pubUrlData.publicUrl
+            }
+          } else if (uploadErr) {
+            console.warn('[raw-docs POST] Supabase Storage upload error:', uploadErr.message)
+          }
+        }
+      } catch (stErr) {
+        console.warn('[raw-docs POST] Storage exception:', stErr)
       }
     }
   } else {
@@ -94,6 +122,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
     type,
     name: name.trim(),
     textContent,
+    fileUrl,
+    fileName: docFile?.name,
     imageBase64,
     imageMime,
     audioBase64,
