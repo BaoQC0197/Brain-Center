@@ -92,7 +92,7 @@ export default function ArchitectureDocPage() {
           </div>
         </div>
 
-        {/* Right Action Buttons: Keep 'Xuất HTML Đầy đủ' intact */}
+        {/* Right Action Buttons */}
         <div className="flex items-center gap-2.5">
           <a
             href="/api/docs/architecture"
@@ -103,24 +103,6 @@ export default function ArchitectureDocPage() {
             Xuất HTML Đầy đủ ➔
           </a>
         </div>
-      </div>
-
-      {/* Header Banner - Clean Light Theme */}
-      <div className="bg-white border-2 border-indigo-300 rounded-2xl p-6 md:p-7 shadow-xs space-y-2.5 text-slate-900">
-        <div className="flex items-center gap-3">
-          <span className="text-xs bg-indigo-600 text-white px-3 py-1 rounded-md font-mono font-extrabold shadow-xs">
-            SYSTEM ARCHITECTURE SPEC
-          </span>
-          <span className="text-xs bg-indigo-50 text-indigo-900 border border-indigo-200 px-2.5 py-0.5 rounded font-mono font-extrabold">
-            ISTQB / IEEE / ISO Compliant
-          </span>
-        </div>
-        <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
-          QA-Brain Center: Tài liệu Kiến trúc Hệ thống & Vận hành Pipeline
-        </h1>
-        <p className="text-xs md:text-sm text-slate-600 font-medium max-w-4xl leading-relaxed">
-          Tài liệu chuẩn hoá mô tả Tổng quan Hệ thống, Giá trị Doanh nghiệp, Ma trận Tiêu chuẩn Quốc tế, Sơ đồ Sequence Diagrams và Cấu trúc Prompt 6 tầng. Bạn có thể bấm nút <b>"✏️ Edit"</b> bên dưới để chỉnh sửa nội dung trực tiếp.
-        </p>
       </div>
 
       {/* Interactive Document Viewer with Live Editability */}
