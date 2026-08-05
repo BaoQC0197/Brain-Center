@@ -387,6 +387,7 @@ export default function QAAgentHubPage() {
       if (resultDoc) {
         setResult(resultDoc)
         setRawMarkdownOutput(accumulatedText)
+        setGeneratedDocs(prev => [resultDoc!, ...prev.filter(d => d.id !== resultDoc!.id)])
       } else {
         throw new Error('Không nhận được phản hồi từ Agent')
       }

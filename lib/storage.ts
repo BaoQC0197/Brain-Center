@@ -147,23 +147,50 @@ export const storage = {
   // ── Generated Documents ───────────────────────────────────────────────────
 
   async getDocuments(projectId: string): Promise<GeneratedDocument[]> {
+    let docs: GeneratedDocument[] = []
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase
         .from('generated_documents')
         .select('*')
         .eq('projectId', projectId)
         .order('createdAt', { ascending: false })
-      if (!error && data) return data as GeneratedDocument[]
+      if (!error && data) {
+        docs = data as GeneratedDocument[]
+      } else if (error) {
+        console.error('Supabase getDocuments error:', error)
+      }
+    } else {
+      const file = getDocsFile(projectId)
+      if (fs.existsSync(file)) {
+        try { docs = JSON.parse(fs.readFileSync(file, 'utf-8')) } catch {}
+      }
     }
-    const file = getDocsFile(projectId)
-    if (!fs.existsSync(file)) return []
-    return JSON.parse(fs.readFileSync(file, 'utf-8'))
+
+    return docs.map(d => {
+      let content = d.content
+      if (content && typeof content === 'object' && 'rawText' in content && typeof content.rawText === 'string') {
+        content = content.rawText
+      }
+      const type = (d.type === ('test-case' as any) ? 'test-cases' : d.type) as any
+      return { ...d, type, content }
+    })
   },
 
   async saveDocument(doc: GeneratedDocument): Promise<void> {
+    const normalizedType = (doc.type === ('test-case' as any) ? 'test-cases' : doc.type) as any
+    const normalizedDoc = {
+      ...doc,
+      type: normalizedType,
+      content: typeof doc.content === 'string' ? { rawText: doc.content } : doc.content,
+      scenarios: doc.scenarios || [],
+      inputData: doc.inputData || [],
+    }
+
     if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('generated_documents').upsert(doc)
-      if (error) console.error('Supabase saveDocument error:', error)
+      const { error } = await supabase.from('generated_documents').upsert(normalizedDoc)
+      if (error) {
+        console.error('Supabase saveDocument error:', error)
+      }
       return
     }
     ensureProjectDir(doc.projectId)
@@ -172,8 +199,8 @@ export const storage = {
       ? JSON.parse(fs.readFileSync(file, 'utf-8'))
       : []
     const idx = docs.findIndex(d => d.id === doc.id)
-    if (idx >= 0) docs[idx] = doc
-    else docs.unshift(doc)
+    if (idx >= 0) docs[idx] = normalizedDoc
+    else docs.unshift(normalizedDoc)
     fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
