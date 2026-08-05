@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "migrate:supabase": "node scripts/migrate-local-to-supabase.mjs"
+    "migrate:supabase": "node scripts/migrate-local-to-supabase.mjs",
+    "migrate:storage": "node scripts/migrate-raw-docs-to-storage.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
