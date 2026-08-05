@@ -418,6 +418,9 @@ export function exportTestCasesToCsv(cases: TestCase[]): string {
 
 export function exportTestCasesToHtml(doc: GeneratedDocument, projectName: string): string {
   let rawContent = doc.content
+  if (rawContent && typeof rawContent === 'object' && 'rawText' in rawContent && typeof rawContent.rawText === 'string') {
+    rawContent = rawContent.rawText
+  }
   if (typeof rawContent === 'string') {
     try {
       rawContent = JSON.parse(rawContent)
@@ -448,55 +451,51 @@ export function exportTestCasesToHtml(doc: GeneratedDocument, projectName: strin
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Test Cases Suite — ${featureName} — ${projectName}</title>
+  <title>${featureName} — ${projectName}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; padding: 32px 24px; line-height: 1.6; }
-    .container { max-width: 1040px; margin: 0 auto; }
-    .header { background: white; border-radius: 16px; padding: 24px 32px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-    .header h1 { font-size: 1.6rem; font-weight: 800; color: #0f172a; }
-    .header .meta { color: #64748b; font-size: 0.875rem; margin-top: 8px; font-family: monospace; display: flex; gap: 16px; flex-wrap: wrap; }
-    .stats-bar { display: flex; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
-    .stat-pill { padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; font-family: monospace; border: 1px solid; }
-    .stat-pass { background: #dcfce7; color: #166534; border-color: #86efac; }
-    .stat-fail { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-    .stat-blocked { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
-    .stat-untried { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; padding: 40px 24px; line-height: 1.5; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { background: white; border-radius: 20px; p: 28px; padding: 28px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.04); margin-bottom: 24px; }
+    .header h1 { font-size: 1.75rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .meta { display: flex; gap: 16px; font-size: 0.875rem; color: #64748b; font-family: monospace; flex-wrap: wrap; margin-bottom: 16px; }
+    .stats-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; pt: 12px; border-top: 1px solid #f1f5f9; }
+    .stat-pill { padding: 4px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; }
+    .stat-pass { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .stat-fail { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .stat-blocked { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .stat-untried { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
-    .tc-card { background: white; border-radius: 12px; margin-bottom: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .tc-header { padding: 14px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; display: flex; align-items: center; gap: 10px; }
-    .tc-id { font-family: monospace; font-weight: 800; color: #334155; font-size: 0.85rem; background: #e2e8f0; padding: 2px 8px; border-radius: 6px; }
-    .tc-title { font-weight: 700; color: #0f172a; font-size: 0.95rem; flex: 1; }
-    .badge { padding: 3px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; font-family: monospace; border: 1px solid; }
-    .p1 { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-    .p2 { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
-    .p3 { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
-    .positive { background: #dcfce7; color: #166534; border-color: #86efac; }
-    .negative { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-    .edge { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
-    
-    .status-tag { padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; font-family: monospace; border: 1px solid; }
-    .status-pass { background: #dcfce7; color: #166534; border-color: #86efac; }
-    .status-fail { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-    .status-blocked { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
-    .status-untried { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    .tc-card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .tc-header { background: #f8fafc; padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; items-center; gap: 12px; flex-wrap: wrap; }
+    .tc-id { font-family: monospace; font-weight: 800; color: #4338ca; background: #e0e7ff; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; }
+    .tc-title { font-weight: 800; color: #0f172a; flex: 1; min-width: 200px; }
+    .badge { font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; }
+    .badge.p1 { background: #fee2e2; color: #991b1b; }
+    .badge.p2 { background: #fef3c7; color: #92400e; }
+    .badge.p3 { background: #f1f5f9; color: #475569; }
+    .badge.positive { background: #dcfce7; color: #166534; }
+    .badge.negative { background: #ffedd5; color: #9a3412; }
+    .badge.edge { background: #f3e8ff; color: #6b21a8; }
+    .status-tag { font-size: 0.8rem; font-weight: 800; padding: 2px 10px; border-radius: 12px; }
 
-    .tc-body { padding: 18px 20px; font-size: 0.875rem; space-y: 12px; }
-    .preconditions { color: #64748b; margin-bottom: 12px; font-size: 0.85rem; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid #f1f5f9; }
-    ol { padding-left: 20px; margin-bottom: 14px; }
-    li { margin-bottom: 6px; color: #334155; }
-    .expected { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; margin-bottom: 10px; }
-    .actual-box { background: #fffbebfb; border: 1px solid #fde68a; color: #92400e; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
-    .print-btn { position: fixed; bottom: 24px; right: 24px; background: #4f46e5; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-    @media print { body { background: white; padding: 0; } .tc-card { break-inside: avoid; } .print-btn { display: none; } }
+    .tc-body { padding: 20px; font-size: 0.9rem; }
+    .preconditions { background: #f8fafc; padding: 10px 14px; border-radius: 8px; color: #475569; margin-bottom: 14px; border-left: 4px solid #818cf8; }
+    ol { padding-left: 20px; margin-bottom: 14px; color: #334155; }
+    li { margin-bottom: 6px; }
+    .expected { background: #f0fdf4; color: #166534; padding: 10px 14px; border-radius: 8px; font-weight: 600; border-left: 4px solid #22c55e; }
+    .actual-box { background: #fff1f2; color: #9f1239; padding: 10px 14px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f43f5e; font-size: 0.85rem; }
+
+    .print-btn { position: fixed; bottom: 24px; right: 24px; background: #4f46e5; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 800; box-shadow: 0 10px 25px -5px rgba(79,70,229,0.4); cursor: pointer; }
+    @media print { .print-btn { display: none; } body { padding: 0; background: white; } }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Test Cases Suite — ${featureName}</h1>
+      <h1>${featureName}</h1>
       <div class="meta">
-        <span>Project: <strong>${projectName}</strong></span>
+        <span>Dự án: <strong>${projectName}</strong></span>
         <span>Version: <strong>v${doc.version || 1}</strong></span>
         <span>Kịch bản: <strong>${scenarios.length} Scenarios</strong></span>
         <span>Test Cases: <strong>${cases.length} Cases</strong></span>
@@ -581,7 +580,11 @@ export function exportTestCasesToHtml(doc: GeneratedDocument, projectName: strin
 // ─── TEST PLAN EXPORT TO HTML ─────────────────────────────────────────────────
 
 export function exportTestPlanToHtml(doc: GeneratedDocument, projectName: string): string {
-  const markdownText = formatTestPlanToMarkdown(doc.content)
+  let rawContent = doc.content
+  if (rawContent && typeof rawContent === 'object' && 'rawText' in rawContent && typeof rawContent.rawText === 'string') {
+    rawContent = rawContent.rawText
+  }
+  const markdownText = formatTestPlanToMarkdown(rawContent)
   return exportMarkdownToHtml(
     doc.inputSummary || 'Master Test Plan',
     markdownText,
@@ -593,13 +596,18 @@ export function exportTestPlanToHtml(doc: GeneratedDocument, projectName: string
 }
 
 export function exportToHtml(doc: GeneratedDocument, projectName: string, featureName?: string): string {
-  const docTypeStr = doc.type as string
-  if (docTypeStr === 'test-case' || docTypeStr === 'test-cases' || docTypeStr === 'test-scenario') {
-    return exportTestCasesToHtml(doc, projectName)
+  let content = doc.content
+  if (content && typeof content === 'object' && 'rawText' in content && typeof content.rawText === 'string') {
+    content = content.rawText
   }
 
-  if (doc.content && typeof doc.content === 'object' && ('testCases' in doc.content || 'scenarios' in doc.content)) {
-    return exportTestCasesToHtml(doc, projectName)
+  const docTypeStr = doc.type as string
+  if (docTypeStr === 'test-case' || docTypeStr === 'test-cases' || docTypeStr === 'test-scenario') {
+    return exportTestCasesToHtml({ ...doc, content }, projectName)
+  }
+
+  if (content && typeof content === 'object' && ('testCases' in content || 'scenarios' in content)) {
+    return exportTestCasesToHtml({ ...doc, content }, projectName)
   }
 
   if (doc.type === 'test-plan') {
