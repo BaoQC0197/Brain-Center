@@ -318,7 +318,14 @@ export const storage = {
 
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.from('raw_documents').upsert(docToSave)
-      if (error) console.error('Supabase saveRawDocument error:', error)
+      if (error) {
+        console.error('Supabase saveRawDocument error:', error)
+        if (error.message && error.message.includes('fileName')) {
+          const { fileName: _, ...cleanDoc } = docToSave as any
+          const { error: retryErr } = await supabase.from('raw_documents').upsert(cleanDoc)
+          if (retryErr) console.error('Supabase saveRawDocument retry error:', retryErr)
+        }
+      }
       return
     }
     ensureProjectDir(doc.projectId)
