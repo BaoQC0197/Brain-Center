@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createQAAgentStream, parseJson } from '@/lib/claude'
 import { storage } from '@/lib/storage'
-import { GeneratedDocument, RawDocument, QAAgentType, InputType } from '@/lib/types'
+import { GeneratedDocument, RawDocument, QAAgentType, InputType, QA_AGENTS } from '@/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
 async function resizeImage(base64: string): Promise<string> {
@@ -171,19 +171,28 @@ export async function POST(request: Request) {
 
         await storage.saveDocument(doc)
 
-        // Automatically anchor Step 1 into Phase 1 Baseline Raw Documents & Storage
-        if (agentType === 'review-requirement' || agentType === 'acceptance-criteria') {
-          const rawDoc: RawDocument = {
-            id: doc.id,
-            projectId: doc.projectId,
-            type: agentType === 'review-requirement' ? 'brd' : 'srs',
-            name: `[QA Agent Step 1] ${docSummaryMap[agentType!]} (v${newVersion})`,
-            textContent: typeof parsedContent === 'string' ? parsedContent : JSON.stringify(parsedContent, null, 2),
-            fileUrl: doc.fileUrl,
-            createdAt: new Date().toISOString(),
-          }
-          await storage.saveRawDocument(rawDoc)
+        // Automatically anchor EVERY step (Step 1, 2, 3, 4) into Baseline Raw Documents & Storage Bucket
+        const agentToRawTypeMap: Record<QAAgentType, any> = {
+          'review-requirement': 'brd',
+          'acceptance-criteria': 'srs',
+          'test-strategy': 'test-plan',
+          'test-plan': 'test-plan',
+          'test-scenario': 'test-cases',
+          'test-case': 'test-cases',
+          'regression-checklist': 'test-report',
+          'test-report': 'test-report',
         }
+
+        const rawDoc: RawDocument = {
+          id: doc.id,
+          projectId: doc.projectId,
+          type: agentToRawTypeMap[agentType!] || 'srs',
+          name: `[QA Agent Step ${QA_AGENTS[agentType!].stepOrder}] ${docSummaryMap[agentType!]} (v${newVersion})`,
+          textContent: typeof parsedContent === 'string' ? parsedContent : JSON.stringify(parsedContent, null, 2),
+          fileUrl: doc.fileUrl,
+          createdAt: new Date().toISOString(),
+        }
+        await storage.saveRawDocument(rawDoc)
 
         controller.enqueue(send({ type: 'done', doc }))
         controller.close()
