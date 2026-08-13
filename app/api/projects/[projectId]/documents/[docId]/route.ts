@@ -19,29 +19,8 @@ export async function GET(
   const project = await storage.getProject(projectId)
   if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 })
 
-  // 1. Try finding in generated documents
-  const docs = await storage.getDocuments(projectId)
-  let doc = docs.find(d => d.id === docId)
-
-  // 2. If not found in generated docs, search in raw documents (Phase 1 Baseline docs)
-  if (!doc) {
-    const rawDocs = await storage.getRawDocuments(projectId)
-    const rawDoc = rawDocs.find(rd => rd.id === docId)
-    if (rawDoc) {
-      doc = {
-        id: rawDoc.id,
-        projectId: rawDoc.projectId,
-        type: rawDoc.type as any,
-        inputType: 'text',
-        inputSummary: rawDoc.name,
-        version: 1,
-        createdAt: rawDoc.createdAt,
-        content: rawDoc.figmaUrl
-          ? `🔗 **URL Figma Design**: [${rawDoc.figmaUrl}](${rawDoc.figmaUrl})\n\n---\n\n${rawDoc.textContent || ''}`
-          : (rawDoc.textContent || 'Tài liệu dạng file đính kèm.'),
-      }
-    }
-  }
+  // Direct lookup across generated, built, raw documents & local files by exact ID
+  const doc = await storage.getDocumentById(projectId, docId)
 
   if (!doc) return NextResponse.json({ error: 'Tài liệu không tồn tại hoặc đã bị xóa' }, { status: 404 })
 

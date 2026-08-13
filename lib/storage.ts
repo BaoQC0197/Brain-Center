@@ -198,6 +198,79 @@ export const storage = {
     })
   },
 
+  async getDocumentById(projectId: string, docId: string): Promise<GeneratedDocument | undefined> {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data: gData } = await supabase.from('generated_documents').select('*').eq('id', docId).single()
+        if (gData) {
+          let content = gData.content
+          if (content && typeof content === 'object' && 'rawText' in content && typeof content.rawText === 'string') {
+            content = content.rawText
+          }
+          return { ...gData, type: (gData.type === 'test-case' ? 'test-cases' : gData.type) as any, content }
+        }
+
+        const { data: bData } = await supabase.from('built_documents').select('*').eq('id', docId).single()
+        if (bData) {
+          return {
+            id: bData.id,
+            projectId: bData.projectId,
+            type: (bData.docType || bData.type || 'srs') as any,
+            inputType: 'text',
+            inputSummary: bData.title,
+            content: bData.contentMarkdown,
+            version: 1,
+            createdAt: bData.createdAt,
+            fileUrl: bData.fileUrl,
+          }
+        }
+
+        const { data: rData } = await supabase.from('raw_documents').select('*').eq('id', docId).single()
+        if (rData) {
+          return {
+            id: rData.id,
+            projectId: rData.projectId,
+            type: rData.type as any,
+            inputType: 'text',
+            inputSummary: rData.name,
+            version: 1,
+            createdAt: rData.createdAt,
+            content: rData.figmaUrl
+              ? `🔗 **URL Figma Design**: [${rData.figmaUrl}](${rData.figmaUrl})\n\n---\n\n${rData.textContent || ''}`
+              : (rData.textContent || 'Tài liệu dạng file đính kèm.'),
+            fileUrl: rData.fileUrl,
+          }
+        }
+      } catch (sbErr) {
+        console.warn('getDocumentById Supabase query error:', sbErr)
+      }
+    }
+
+    const docs = await this.getDocuments(projectId)
+    const found = docs.find(d => d.id === docId)
+    if (found) return found
+
+    const rawDocs = await this.getRawDocuments(projectId)
+    const rawFound = rawDocs.find(r => r.id === docId)
+    if (rawFound) {
+      return {
+        id: rawFound.id,
+        projectId: rawFound.projectId,
+        type: rawFound.type as any,
+        inputType: 'text',
+        inputSummary: rawFound.name,
+        version: 1,
+        createdAt: rawFound.createdAt,
+        content: rawFound.figmaUrl
+          ? `🔗 **URL Figma Design**: [${rawFound.figmaUrl}](${rawFound.figmaUrl})\n\n---\n\n${rawFound.textContent || ''}`
+          : (rawFound.textContent || 'Tài liệu dạng file đính kèm.'),
+        fileUrl: rawFound.fileUrl,
+      }
+    }
+
+    return undefined
+  },
+
   async saveDocument(doc: GeneratedDocument): Promise<void> {
     const normalizedType = (doc.type === ('test-case' as any) ? 'test-cases' : doc.type) as any
     let fileUrl = doc.fileUrl
