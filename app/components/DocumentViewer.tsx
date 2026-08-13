@@ -615,6 +615,50 @@ export default function DocumentViewer({
           border-color: #ef4444;
           color: #991b1b;
         }
+        .doc-rendered-html .gherkin-tag {
+          display: inline-block;
+          background-color: #e0e7ff;
+          color: #3730a3;
+          border: 1px solid #c7d2fe;
+          font-family: ui-monospace, monospace;
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 12px;
+          margin-right: 4px;
+          margin-bottom: 4px;
+        }
+        .doc-rendered-html .gherkin-scenario-header {
+          font-size: 1.05rem;
+          font-weight: 800;
+          color: #0f172a;
+          background: #f8fafc;
+          border-left: 4px solid #4f46e5;
+          padding: 10px 14px;
+          border-radius: 6px;
+          margin-top: 1.25rem;
+          margin-bottom: 0.75rem;
+        }
+        .doc-rendered-html .gherkin-step {
+          padding: 4px 0 4px 16px;
+          color: #334155;
+          font-size: 0.9rem;
+          line-height: 1.6;
+        }
+        .doc-rendered-html .gherkin-kw {
+          font-weight: 800;
+          font-family: ui-monospace, monospace;
+          padding: 1px 6px;
+          border-radius: 4px;
+          font-size: 0.82rem;
+          margin-right: 6px;
+          display: inline-block;
+        }
+        .doc-rendered-html .gherkin-scenario { background: #e0e7ff; color: #3730a3; }
+        .doc-rendered-html .gherkin-given { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .doc-rendered-html .gherkin-when { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .doc-rendered-html .gherkin-then { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .doc-rendered-html .gherkin-and { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
       `}</style>
     </div>
   )

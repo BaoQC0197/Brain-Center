@@ -222,7 +222,24 @@ export function formatTestPlanToMarkdown(content: any): string {
 
 export function preprocessMarkdown(md: string): string {
   if (!md) return ''
-  return md.replace(/^>\s*\[!(NOTE|WARNING|IMPORTANT|TIP|CAUTION)\]\s*(.*)$/gmi, (_, type, content) => {
+  let text = md
+
+  // 1. Unwrap gherkin, text, bdd, or unlabelled code blocks containing Gherkin BDD or Markdown tables
+  text = text.replace(/```(?:gherkin|text|bdd|cucumber)?\n([\s\S]*?)\n```/gi, (match, inner) => {
+    if (inner.includes('graph ') || inner.includes('sequenceDiagram') || inner.includes('flowchart ') || inner.includes('mindmap')) {
+      return `\`\`\`mermaid\n${inner}\n\`\`\``
+    }
+    if (inner.includes('Scenario:') || inner.includes('Given ') || inner.includes('@TC_') || inner.includes('|') || inner.includes('When ') || inner.includes('Then ')) {
+      return `\n${inner}\n`
+    }
+    return match
+  })
+
+  // 2. Remove ASCII divider comment lines like "# ----------------------------------------------------"
+  text = text.replace(/^#\s*[-=]{5,}\s*$/gm, '')
+
+  // 3. Process GitHub-style Alert Callouts > [!NOTE]
+  text = text.replace(/^>\s*\[!(NOTE|WARNING|IMPORTANT|TIP|CAUTION)\]\s*(.*)$/gmi, (_, type, content) => {
     const iconMap: Record<string, string> = {
       NOTE: 'ℹ️',
       WARNING: '⚠️',
@@ -233,6 +250,29 @@ export function preprocessMarkdown(md: string): string {
     const icon = iconMap[type.toUpperCase()] || '💡'
     return `<div class="alert-box alert-${type.toLowerCase()}"><strong>${icon} ${type.toUpperCase()}:</strong> ${content}</div>`
   })
+
+  // 4. Fix pipe tables missing separator header line
+  text = text.replace(/(\|[^\n]+\|\n)(\|[^\n-]+\|)/g, (match, header, firstRow) => {
+    if (header.includes('---') || firstRow.includes('---')) return match
+    const colCount = (header.match(/\|/g) || []).length - 1
+    if (colCount > 0) {
+      const sep = '|' + Array(colCount).fill(' :--- ').join('|') + '|\n'
+      return header + sep + firstRow
+    }
+    return match
+  })
+
+  // 5. Highlight Gherkin Tags (@TC_..., @SmokeTest, @UI_Scanning, etc.)
+  text = text.replace(/(^|\s)(@[A-Za-z0-9_-]+)/g, '$1<span class="gherkin-tag">$2</span>')
+
+  // 6. Format Gherkin Keywords
+  text = text.replace(/^(\s*)(Scenario:)(.*)$/gm, '$1<h4 class="gherkin-scenario-header"><span class="gherkin-kw gherkin-scenario">Scenario:</span>$3</h4>')
+  text = text.replace(/^(\s*)(Given\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-given">Given</span>$3</div>')
+  text = text.replace(/^(\s*)(When\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-when">When</span>$3</div>')
+  text = text.replace(/^(\s*)(Then\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-then">Then</span>$3</div>')
+  text = text.replace(/^(\s*)(And\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-and">And</span>$3</div>')
+
+  return text
 }
 
 export function processMermaidCodeBlocks(html: string): string {
@@ -293,6 +333,28 @@ export function exportMarkdownToHtml(
     tr:nth-child(even) td { background: #f8fafc; }
     code { background: #f1f5f9; color: #4338ca; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.85em; border: 1px solid #e2e8f0; }
     pre { background: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid #e2e8f0; }
+
+    /* Gherkin BDD & Tags Styling */
+    .gherkin-tag { display: inline-block; background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; font-family: monospace; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-right: 4px; margin-bottom: 4px; }
+    .gherkin-scenario-header { font-size: 1.05rem; font-weight: 800; color: #0f172a; background: #f8fafc; border-left: 4px solid #4f46e5; padding: 10px 14px; border-radius: 6px; margin-top: 1.25rem; margin-bottom: 0.75rem; }
+    .gherkin-step { padding: 4px 0 4px 16px; color: #334155; font-size: 0.9rem; line-height: 1.6; }
+    .gherkin-kw { font-weight: 800; font-family: monospace; padding: 1px 6px; border-radius: 4px; font-size: 0.82rem; margin-right: 6px; display: inline-block; }
+    .gherkin-scenario { background: #e0e7ff; color: #3730a3; }
+    .gherkin-given { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .gherkin-when { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .gherkin-then { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .gherkin-and { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+    /* Mermaid diagrams container */
+    .mermaid { display: flex; justify-content: center; background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin: 20px 0; overflow-x: auto; }
+    
+    /* GitHub-style Alerts */
+    .alert-box { padding: 14px 18px; border-radius: 10px; margin: 16px 0; font-size: 0.9rem; border-left: 5px solid; }
+    .alert-note { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+    .alert-warning { background: #fffbebfb; border-color: #f59e0b; color: #92400e; }
+    .alert-important { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+    .alert-tip { background: #f0fdf4; border-color: #22c55e; color: #166534; }
+    .alert-caution { background: #faf5ff; border-color: #a855f7; color: #6b21a8; }
 
     /* Mermaid diagrams container */
     .mermaid { display: flex; justify-content: center; background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin: 20px 0; overflow-x: auto; }
