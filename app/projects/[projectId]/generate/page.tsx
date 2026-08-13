@@ -192,6 +192,11 @@ export default function QAAgentHubPage() {
       setSelectedAgent(initialAgent)
       const currentDirectives = currentMap[initialAgent] || []
       setSelectedDirectives(new Set(currentDirectives.slice(0, 3).map(d => d.id)))
+
+      if (Array.isArray(docs) && docs.length > 0) {
+        const existingDoc = docs.find((d: GeneratedDocument) => (d.type as string) === (initialAgent as string) || (initialAgent === 'test-case' && ((d.type as string) === 'test-case' || (d.type as string) === 'test-cases')))
+        if (existingDoc) setResult(existingDoc)
+      }
     }).finally(() => {
       setPageLoading(false)
     })
@@ -199,7 +204,8 @@ export default function QAAgentHubPage() {
 
   function handleSelectAgent(type: QAAgentType) {
     setSelectedAgent(type)
-    setResult(null)
+    const existingDoc = generatedDocs.find(d => (d.type as string) === (type as string) || (type === 'test-case' && ((d.type as string) === 'test-case' || (d.type as string) === 'test-cases')))
+    setResult(existingDoc || null)
     setRawMarkdownOutput('')
     setClarifyPhase('idle')
     setClarifyReport(null)

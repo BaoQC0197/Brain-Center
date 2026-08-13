@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createQAAgentStream, parseJson } from '@/lib/claude'
 import { storage } from '@/lib/storage'
-import { GeneratedDocument, QAAgentType, InputType } from '@/lib/types'
+import { GeneratedDocument, RawDocument, QAAgentType, InputType } from '@/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
 async function resizeImage(base64: string): Promise<string> {
@@ -170,6 +170,20 @@ export async function POST(request: Request) {
         }
 
         await storage.saveDocument(doc)
+
+        // Automatically anchor Step 1 into Phase 1 Baseline Raw Documents & Storage
+        if (agentType === 'review-requirement' || agentType === 'acceptance-criteria') {
+          const rawDoc: RawDocument = {
+            id: doc.id,
+            projectId: doc.projectId,
+            type: agentType === 'review-requirement' ? 'brd' : 'srs',
+            name: `[QA Agent Step 1] ${docSummaryMap[agentType!]} (v${newVersion})`,
+            textContent: typeof parsedContent === 'string' ? parsedContent : JSON.stringify(parsedContent, null, 2),
+            fileUrl: doc.fileUrl,
+            createdAt: new Date().toISOString(),
+          }
+          await storage.saveRawDocument(rawDoc)
+        }
 
         controller.enqueue(send({ type: 'done', doc }))
         controller.close()
