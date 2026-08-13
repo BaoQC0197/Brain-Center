@@ -171,29 +171,6 @@ export async function POST(request: Request) {
 
         await storage.saveDocument(doc)
 
-        // Automatically anchor EVERY step (Step 1, 2, 3, 4) into Baseline Raw Documents & Storage Bucket
-        const agentToRawTypeMap: Record<QAAgentType, any> = {
-          'review-requirement': 'brd',
-          'acceptance-criteria': 'srs',
-          'test-strategy': 'test-plan',
-          'test-plan': 'test-plan',
-          'test-scenario': 'test-cases',
-          'test-case': 'test-cases',
-          'regression-checklist': 'test-report',
-          'test-report': 'test-report',
-        }
-
-        const rawDoc: RawDocument = {
-          id: doc.id,
-          projectId: doc.projectId,
-          type: agentToRawTypeMap[agentType!] || 'srs',
-          name: `[QA Agent Step ${QA_AGENTS[agentType!].stepOrder}] ${docSummaryMap[agentType!]} (v${newVersion})`,
-          textContent: typeof parsedContent === 'string' ? parsedContent : JSON.stringify(parsedContent, null, 2),
-          fileUrl: doc.fileUrl,
-          createdAt: new Date().toISOString(),
-        }
-        await storage.saveRawDocument(rawDoc)
-
         controller.enqueue(send({ type: 'done', doc }))
         controller.close()
       } catch (err) {

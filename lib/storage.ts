@@ -149,10 +149,9 @@ export const storage = {
   async getDocuments(projectId: string): Promise<GeneratedDocument[]> {
     let docs: GeneratedDocument[] = []
     if (isSupabaseConfigured && supabase) {
-      const [genRes, builtRes, rawRes] = await Promise.all([
+      const [genRes, builtRes] = await Promise.all([
         supabase.from('generated_documents').select('*').eq('projectId', projectId).order('createdAt', { ascending: false }),
         supabase.from('built_documents').select('*').eq('projectId', projectId).order('createdAt', { ascending: false }),
-        supabase.from('raw_documents').select('*').eq('projectId', projectId).order('createdAt', { ascending: false }),
       ])
 
       const genDocs = (genRes.data || []) as GeneratedDocument[]
@@ -167,22 +166,10 @@ export const storage = {
         createdAt: b.createdAt,
         fileUrl: b.fileUrl,
       }))
-      const rawDocs: GeneratedDocument[] = (rawRes.data || []).map((r: any) => ({
-        id: r.id,
-        projectId: r.projectId,
-        type: r.type,
-        inputType: 'text',
-        inputSummary: r.name,
-        content: r.textContent || '',
-        version: 1,
-        createdAt: r.createdAt,
-        fileUrl: r.fileUrl,
-      }))
 
       const combinedMap = new Map<string, GeneratedDocument>()
       genDocs.forEach(d => combinedMap.set(d.id, d))
       builtDocs.forEach(d => { if (!combinedMap.has(d.id)) combinedMap.set(d.id, d) })
-      rawDocs.forEach(d => { if (!combinedMap.has(d.id)) combinedMap.set(d.id, d) })
 
       docs = Array.from(combinedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     } else {
@@ -274,17 +261,21 @@ export const storage = {
   // ── Raw Documents ─────────────────────────────────────────────────────────
 
   async getRawDocuments(projectId: string): Promise<RawDocument[]> {
+    let list: RawDocument[] = []
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase
         .from('raw_documents')
         .select('*')
         .eq('projectId', projectId)
         .order('createdAt', { ascending: false })
-      if (!error && data) return data as RawDocument[]
+      if (!error && data) list = data as RawDocument[]
+    } else {
+      const file = getRawDocsFile(projectId)
+      if (fs.existsSync(file)) {
+        try { list = JSON.parse(fs.readFileSync(file, 'utf-8')) } catch {}
+      }
     }
-    const file = getRawDocsFile(projectId)
-    if (!fs.existsSync(file)) return []
-    return JSON.parse(fs.readFileSync(file, 'utf-8'))
+    return list.filter(d => !d.name.startsWith('[QA Agent Step'))
   },
 
   async saveRawDocument(doc: RawDocument): Promise<void> {

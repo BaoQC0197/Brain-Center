@@ -48,10 +48,16 @@ export default function GeneratedDocsManager({
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const [selectedVersionMap, setSelectedVersionMap] = useState<Record<string, string>>({})
 
+  const RAW_ONLY_TYPES = useMemo(() => new Set(['figma', 'wireframe', 'meeting-minutes', 'upload-doc', 'email-notes']), [])
+
+  const validDocs = useMemo(() => {
+    return docs.filter(d => !RAW_ONLY_TYPES.has(d.type))
+  }, [docs, RAW_ONLY_TYPES])
+
   const groupedStreams = useMemo(() => {
     const groups: Record<string, GeneratedDocument[]> = {}
 
-    docs.forEach(d => {
+    validDocs.forEach(d => {
       const key = d.type
       if (!groups[key]) groups[key] = []
       groups[key].push(d)
@@ -75,11 +81,11 @@ export default function GeneratedDocsManager({
     })
 
     return streams
-  }, [docs])
+  }, [validDocs])
 
   const counts = useMemo(() => {
-    const res = { all: docs.length, req_ac: 0, strategy_plan: 0, test_cases: 0, reports: 0, totalTestCasesCount: 0 }
-    docs.forEach(d => {
+    const res = { all: validDocs.length, req_ac: 0, strategy_plan: 0, test_cases: 0, reports: 0, totalTestCasesCount: 0 }
+    validDocs.forEach(d => {
       const cat = DOC_TYPE_META[d.type]?.category || 'reports'
       res[cat] = (res[cat] || 0) + 1
       if (d.type === 'test-cases' && Array.isArray(d.content)) {
@@ -87,7 +93,7 @@ export default function GeneratedDocsManager({
       }
     })
     return res
-  }, [docs])
+  }, [validDocs])
 
   const filteredStreams = useMemo(() => {
     let result = groupedStreams.filter(stream => {
