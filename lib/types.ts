@@ -232,6 +232,7 @@ export interface GeneratedDocument {
   id: string
   projectId: string
   type: GeneratedDocType
+  title?: string
   inputType: InputType
   inputSummary: string
   version: number

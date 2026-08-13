@@ -301,12 +301,15 @@ export const storage = {
       }
     }
 
+    const docTitle = doc.title || doc.inputSummary || normalizedType
+
     const normalizedDoc = {
       id: doc.id,
       projectId: doc.projectId,
       type: normalizedType,
+      title: docTitle,
       inputType: doc.inputType || 'text',
-      inputSummary: doc.inputSummary || '',
+      inputSummary: doc.inputSummary || docTitle,
       version: doc.version || 1,
       parentDocId: doc.parentDocId || null,
       fileUrl: fileUrl || null,
@@ -324,6 +327,7 @@ export const storage = {
           id: normalizedDoc.id,
           projectId: normalizedDoc.projectId,
           type: normalizedDoc.type,
+          title: normalizedDoc.title,
           inputType: normalizedDoc.inputType,
           inputSummary: normalizedDoc.inputSummary,
           version: normalizedDoc.version,

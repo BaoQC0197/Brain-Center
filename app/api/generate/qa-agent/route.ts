@@ -155,12 +155,14 @@ export async function POST(request: Request) {
         const maxVersion = existingDocs.length > 0 ? Math.max(...existingDocs.map(d => d.version || 1)) : 0
         const newVersion = maxVersion + 1
 
+        const docSummary = docSummaryMap[agentType!] || agentType!
         const doc: GeneratedDocument = {
           id: uuidv4(),
           projectId: projectId!,
           type: agentType as any,
+          title: docSummary,
           inputType: inputType!,
-          inputSummary: docSummaryMap[agentType!] || agentType!,
+          inputSummary: docSummary,
           version: newVersion,
           parentDocId: existingDocs.length > 0 ? existingDocs[0].id : undefined,
           createdAt: new Date().toISOString(),
