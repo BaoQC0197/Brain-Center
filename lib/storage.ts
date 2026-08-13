@@ -171,6 +171,15 @@ export const storage = {
       genDocs.forEach(d => combinedMap.set(d.id, d))
       builtDocs.forEach(d => { if (!combinedMap.has(d.id)) combinedMap.set(d.id, d) })
 
+      // Fallback check local file
+      const file = getDocsFile(projectId)
+      if (fs.existsSync(file)) {
+        try {
+          const localDocs: GeneratedDocument[] = JSON.parse(fs.readFileSync(file, 'utf-8'))
+          localDocs.forEach(d => { if (!combinedMap.has(d.id)) combinedMap.set(d.id, d) })
+        } catch {}
+      }
+
       docs = Array.from(combinedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     } else {
       const file = getDocsFile(projectId)
@@ -220,30 +229,54 @@ export const storage = {
     }
 
     const normalizedDoc = {
-      ...doc,
+      id: doc.id,
+      projectId: doc.projectId,
       type: normalizedType,
-      fileUrl,
-      content: typeof doc.content === 'string' ? { rawText: doc.content } : doc.content,
+      inputType: doc.inputType || 'text',
+      inputSummary: doc.inputSummary || '',
+      version: doc.version || 1,
+      parentDocId: doc.parentDocId || null,
+      fileUrl: fileUrl || null,
+      content: typeof doc.content === 'string' ? { rawText: doc.content } : (doc.content || {}),
       scenarios: doc.scenarios || [],
       inputData: doc.inputData || [],
+      createdAt: doc.createdAt || new Date().toISOString(),
     }
 
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.from('generated_documents').upsert(normalizedDoc)
       if (error) {
-        console.error('Supabase saveDocument error:', error)
+        console.error('Supabase saveDocument primary error:', error)
+        const minimalDoc = {
+          id: normalizedDoc.id,
+          projectId: normalizedDoc.projectId,
+          type: normalizedDoc.type,
+          inputType: normalizedDoc.inputType,
+          inputSummary: normalizedDoc.inputSummary,
+          version: normalizedDoc.version,
+          content: normalizedDoc.content,
+          createdAt: normalizedDoc.createdAt,
+        }
+        const { error: retryErr } = await supabase.from('generated_documents').upsert(minimalDoc)
+        if (retryErr) {
+          console.error('Supabase saveDocument retry error:', retryErr)
+        }
       }
-      return
     }
-    ensureProjectDir(doc.projectId)
-    const file = getDocsFile(doc.projectId)
-    const docs: GeneratedDocument[] = fs.existsSync(file)
-      ? JSON.parse(fs.readFileSync(file, 'utf-8'))
-      : []
-    const idx = docs.findIndex(d => d.id === doc.id)
-    if (idx >= 0) docs[idx] = normalizedDoc
-    else docs.unshift(normalizedDoc)
-    fs.writeFileSync(file, JSON.stringify(docs, null, 2))
+
+    try {
+      ensureProjectDir(doc.projectId)
+      const file = getDocsFile(doc.projectId)
+      const docs: GeneratedDocument[] = fs.existsSync(file)
+        ? JSON.parse(fs.readFileSync(file, 'utf-8'))
+        : []
+      const idx = docs.findIndex(d => d.id === doc.id)
+      if (idx >= 0) docs[idx] = normalizedDoc as any
+      else docs.unshift(normalizedDoc as any)
+      fs.writeFileSync(file, JSON.stringify(docs, null, 2))
+    } catch (localErr) {
+      console.warn('Local saveDocument fallback warning:', localErr)
+    }
   },
 
   async deleteDocument(projectId: string, docId: string): Promise<void> {
