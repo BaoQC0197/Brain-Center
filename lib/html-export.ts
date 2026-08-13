@@ -224,15 +224,12 @@ export function preprocessMarkdown(md: string): string {
   if (!md) return ''
   let text = md
 
-  // 1. Unwrap gherkin, text, bdd, or unlabelled code blocks containing Gherkin BDD or Markdown tables
+  // 1. Completely strip gherkin, text, bdd, or unlabelled code blocks containing Gherkin BDD or Markdown tables
   text = text.replace(/```(?:gherkin|text|bdd|cucumber)?\n([\s\S]*?)\n```/gi, (match, inner) => {
     if (inner.includes('graph ') || inner.includes('sequenceDiagram') || inner.includes('flowchart ') || inner.includes('mindmap')) {
       return `\`\`\`mermaid\n${inner}\n\`\`\``
     }
-    if (inner.includes('Scenario:') || inner.includes('Given ') || inner.includes('@TC_') || inner.includes('|') || inner.includes('When ') || inner.includes('Then ')) {
-      return `\n${inner}\n`
-    }
-    return match
+    return `\n${inner}\n`
   })
 
   // 2. Remove ASCII divider comment lines like "# ----------------------------------------------------"
@@ -262,15 +259,12 @@ export function preprocessMarkdown(md: string): string {
     return match
   })
 
-  // 5. Highlight Gherkin Tags (@TC_..., @SmokeTest, @UI_Scanning, etc.)
-  text = text.replace(/(^|\s)(@[A-Za-z0-9_-]+)/g, '$1<span class="gherkin-tag">$2</span>')
-
-  // 6. Format Gherkin Keywords
-  text = text.replace(/^(\s*)(Scenario:)(.*)$/gm, '$1<h4 class="gherkin-scenario-header"><span class="gherkin-kw gherkin-scenario">Scenario:</span>$3</h4>')
-  text = text.replace(/^(\s*)(Given\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-given">Given</span>$3</div>')
-  text = text.replace(/^(\s*)(When\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-when">When</span>$3</div>')
-  text = text.replace(/^(\s*)(Then\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-then">Then</span>$3</div>')
-  text = text.replace(/^(\s*)(And\b)(.*)$/gm, '$1<div class="gherkin-step"><span class="gherkin-kw gherkin-and">And</span>$3</div>')
+  // 5. Clean up Gherkin keywords into standard Markdown headings & list items
+  text = text.replace(/^(\s*)(Scenario(?: Outline)?:)(.*)$/gm, '\n### 🎬 $2$3\n')
+  text = text.replace(/^(\s*)(Given\b)(.*)$/gm, '* **Given**$3')
+  text = text.replace(/^(\s*)(When\b)(.*)$/gm, '* **When**$3')
+  text = text.replace(/^(\s*)(Then\b)(.*)$/gm, '* **Then**$3')
+  text = text.replace(/^(\s*)(And\b)(.*)$/gm, '* **And**$3')
 
   return text
 }

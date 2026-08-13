@@ -149,16 +149,42 @@ export const storage = {
   async getDocuments(projectId: string): Promise<GeneratedDocument[]> {
     let docs: GeneratedDocument[] = []
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from('generated_documents')
-        .select('*')
-        .eq('projectId', projectId)
-        .order('createdAt', { ascending: false })
-      if (!error && data) {
-        docs = data as GeneratedDocument[]
-      } else if (error) {
-        console.error('Supabase getDocuments error:', error)
-      }
+      const [genRes, builtRes, rawRes] = await Promise.all([
+        supabase.from('generated_documents').select('*').eq('projectId', projectId).order('createdAt', { ascending: false }),
+        supabase.from('built_documents').select('*').eq('projectId', projectId).order('createdAt', { ascending: false }),
+        supabase.from('raw_documents').select('*').eq('projectId', projectId).order('createdAt', { ascending: false }),
+      ])
+
+      const genDocs = (genRes.data || []) as GeneratedDocument[]
+      const builtDocs: GeneratedDocument[] = (builtRes.data || []).map((b: any) => ({
+        id: b.id,
+        projectId: b.projectId,
+        type: b.docType || b.type || 'srs',
+        inputType: 'text',
+        inputSummary: b.title,
+        content: b.contentMarkdown,
+        version: 1,
+        createdAt: b.createdAt,
+        fileUrl: b.fileUrl,
+      }))
+      const rawDocs: GeneratedDocument[] = (rawRes.data || []).map((r: any) => ({
+        id: r.id,
+        projectId: r.projectId,
+        type: r.type,
+        inputType: 'text',
+        inputSummary: r.name,
+        content: r.textContent || '',
+        version: 1,
+        createdAt: r.createdAt,
+        fileUrl: r.fileUrl,
+      }))
+
+      const combinedMap = new Map<string, GeneratedDocument>()
+      genDocs.forEach(d => combinedMap.set(d.id, d))
+      builtDocs.forEach(d => { if (!combinedMap.has(d.id)) combinedMap.set(d.id, d) })
+      rawDocs.forEach(d => { if (!combinedMap.has(d.id)) combinedMap.set(d.id, d) })
+
+      docs = Array.from(combinedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     } else {
       const file = getDocsFile(projectId)
       if (fs.existsSync(file)) {
