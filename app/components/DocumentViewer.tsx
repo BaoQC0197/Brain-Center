@@ -39,45 +39,71 @@ export default function DocumentViewer({
   const normalizedContent = useMemo(() => {
     if (!content) return ''
 
-    let raw: any = content
-    if (typeof content === 'string' && content.trim().startsWith('{')) {
-      try {
-        raw = JSON.parse(content)
-      } catch {}
+    function unwrap(val: any): any {
+      if (val === null || val === undefined) return ''
+      let curr = val
+
+      if (typeof curr === 'string') {
+        const trimmed = curr.trim()
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+          try {
+            const parsed = JSON.parse(trimmed)
+            if (parsed !== null && typeof parsed === 'object') {
+              curr = parsed
+            }
+          } catch {}
+        }
+      }
+
+      if (curr && typeof curr === 'object' && !Array.isArray(curr)) {
+        if ('rawText' in curr && curr.rawText !== undefined && curr.rawText !== curr) {
+          return unwrap(curr.rawText)
+        }
+        if ('contentMarkdown' in curr && curr.contentMarkdown !== undefined && curr.contentMarkdown !== curr) {
+          return unwrap(curr.contentMarkdown)
+        }
+        if ('textContent' in curr && curr.textContent !== undefined && curr.textContent !== curr) {
+          return unwrap(curr.textContent)
+        }
+      }
+
+      return curr
     }
 
-    if (raw && typeof raw === 'object' && raw !== null) {
-      if ('rawText' in raw && typeof raw.rawText === 'string') {
-        return raw.rawText
-      }
-      if ('contentMarkdown' in raw && typeof raw.contentMarkdown === 'string') {
-        return raw.contentMarkdown
-      }
-      if ('textContent' in raw && typeof raw.textContent === 'string') {
-        return raw.textContent
-      }
-      if (docType === 'test-plan') {
+    const raw = unwrap(content)
+    if (!raw) return ''
+
+    const typeStr = (docType || '').toLowerCase()
+
+    if (typeof raw === 'object') {
+      if (typeStr === 'test-plan' || 'testStrategy' in raw || 'featuresToTest' in raw || 'entryExitCriteria' in raw || 'risks' in raw) {
         return formatTestPlanToMarkdown(raw)
       }
-      if (docType === 'test-case' || docType === 'test-cases' || docType === 'test-scenario') {
+      if (
+        typeStr === 'test-case' ||
+        typeStr === 'test-cases' ||
+        typeStr === 'test-scenario' ||
+        'scenarios' in raw ||
+        'testCases' in raw ||
+        'cases' in raw ||
+        Array.isArray(raw)
+      ) {
         return formatTestCasesToMarkdown(raw)
       }
-      if ('scenarios' in raw || 'testCases' in raw || 'cases' in raw) {
-        return formatTestCasesToMarkdown(raw)
-      }
-      if ('testStrategy' in raw || 'featuresToTest' in raw || 'entryExitCriteria' in raw || 'risks' in raw) {
+      return JSON.stringify(raw, null, 2)
+    }
+
+    if (typeof raw === 'string') {
+      if (typeStr === 'test-plan') {
         return formatTestPlanToMarkdown(raw)
       }
+      if (typeStr === 'test-case' || typeStr === 'test-cases' || typeStr === 'test-scenario') {
+        return formatTestCasesToMarkdown(raw)
+      }
+      return raw
     }
 
-    if (docType === 'test-plan') {
-      return formatTestPlanToMarkdown(content)
-    }
-    if (docType === 'test-case' || docType === 'test-cases' || docType === 'test-scenario') {
-      return formatTestCasesToMarkdown(content)
-    }
-
-    return typeof content === 'string' ? content : JSON.stringify(content, null, 2)
+    return String(raw)
   }, [content, docType])
 
   const [editingContent, setEditingContent] = useState(normalizedContent)
@@ -146,7 +172,7 @@ export default function DocumentViewer({
     if (!source || typeof source !== 'string') return '<p class="text-slate-500 italic">Không có nội dung đặc tả</p>'
     try {
       const processed = preprocessMarkdown(source)
-      const rawHtml = marked.parse(processed) as string
+      const rawHtml = marked.parse(processed, { gfm: true, breaks: true }) as string
       return processMermaidCodeBlocks(rawHtml)
     } catch {
       return `<pre class="text-xs text-red-600 font-mono">${source}</pre>`

@@ -154,6 +154,17 @@ export function getGeminiKeys(): string[] {
   return allKeys
 }
 
+export function normalizeModelName(model: string): string {
+  const m = (model || '').trim().toLowerCase()
+  if (!m || m.includes('1.5-pro') || m.includes('2.5-pro') || m === 'gemini-pro' || m === 'models/gemini-pro') {
+    return 'gemini-2.0-flash'
+  }
+  if (m.startsWith('models/')) {
+    return normalizeModelName(m.replace('models/', ''))
+  }
+  return m
+}
+
 // Streaming version — returns Gemini stream with Anthropic-compatible format
 export function createClaudeStream(
   systemPrompt: string,
@@ -170,8 +181,8 @@ export function createClaudeStream(
     )
   }
 
-  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
-  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-latest'])).filter(m => m !== 'gemini-2.5-pro')
+  const primaryModel = normalizeModelName(process.env.GEMINI_MODEL || 'gemini-2.0-flash')
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'])).map(normalizeModelName)
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [
@@ -195,6 +206,7 @@ export function createClaudeStream(
       const client = new GoogleGenerativeAI(keyToUse)
 
       for (const modelToUse of fallbackModels) {
+        const safeModelName = normalizeModelName(modelToUse)
         let attempts = 0
         const maxAttempts = 2
 
@@ -202,7 +214,7 @@ export function createClaudeStream(
           try {
             attempts++
             const model = client.getGenerativeModel({
-              model: modelToUse,
+              model: safeModelName,
               systemInstruction: systemPrompt,
               generationConfig: {
                 maxOutputTokens: 16384,
@@ -214,8 +226,12 @@ export function createClaudeStream(
           } catch (err: any) {
             lastError = err
             const errStr = err?.message || String(err)
-            if ((errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand') || errStr.includes('404')) && attempts < maxAttempts) {
-              console.warn(`[Gemini API 503] Key ...${keyToUse.slice(-6)} Model ${modelToUse} high demand (attempt ${attempts}/${maxAttempts}). Retrying...`)
+            if (errStr.includes('404') || errStr.includes('not found')) {
+              console.warn(`[Gemini API 404] Model ${safeModelName} returned 404. Skipping model immediately...`)
+              break
+            }
+            if ((errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) && attempts < maxAttempts) {
+              console.warn(`[Gemini API 503] Key ...${keyToUse.slice(-6)} Model ${safeModelName} high demand (attempt ${attempts}/${maxAttempts}). Retrying...`)
               await new Promise(res => setTimeout(res, 1000))
               continue
             }
@@ -223,7 +239,7 @@ export function createClaudeStream(
               console.warn(`[Gemini API Rate Limit/Block] Key ...${keyToUse.slice(-6)} blocked or limited. Rotating to next API key in pool...`)
               break // Try next key in keyLoop
             }
-            console.warn(`[Gemini API] Key ...${keyToUse.slice(-6)} Model ${modelToUse} failed: ${errStr}. Trying fallback model...`)
+            console.warn(`[Gemini API] Key ...${keyToUse.slice(-6)} Model ${safeModelName} failed: ${errStr}. Trying fallback model...`)
             break
           }
         }
@@ -323,8 +339,8 @@ async function callClaude(
 
   // Resilient Non-Streaming Fallback with Multi-Key & Model Failover
   const apiKeys = getGeminiKeys()
-  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
-  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-latest'])).filter(m => m !== 'gemini-2.5-pro')
+  const primaryModel = normalizeModelName(process.env.GEMINI_MODEL || 'gemini-2.0-flash')
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'])).map(normalizeModelName)
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [{ inlineData: { data: imageBase64, mimeType: imageMime || 'image/png' } }, userPrompt]
@@ -334,9 +350,10 @@ async function callClaude(
   for (const keyToUse of apiKeys) {
     const client = new GoogleGenerativeAI(keyToUse)
     for (const modelToUse of fallbackModels) {
+      const safeModelName = normalizeModelName(modelToUse)
       try {
         const model = client.getGenerativeModel({
-          model: modelToUse,
+          model: safeModelName,
           systemInstruction: systemPrompt,
           generationConfig: {
             maxOutputTokens: 16384,
@@ -348,7 +365,7 @@ async function callClaude(
         if (text) return text
       } catch (err: any) {
         lastError = err
-        console.warn(`[callClaude non-stream] Key ...${keyToUse.slice(-6)} Model ${modelToUse} failed:`, err?.message || err)
+        console.warn(`[callClaude non-stream] Key ...${keyToUse.slice(-6)} Model ${safeModelName} failed:`, err?.message || err)
       }
     }
   }

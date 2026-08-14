@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
+import { normalizeModelName } from '@/lib/claude'
+
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || ''
 const genAI = new GoogleGenerativeAI(apiKey)
 
@@ -21,7 +23,8 @@ export async function POST(request: Request) {
       ? audioBase64.split('base64,')[1]
       : audioBase64
 
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+    const rawModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+    const modelName = normalizeModelName(rawModel)
     const model = genAI.getGenerativeModel({ model: modelName })
 
     const prompt = `Bạn là trợ lý BA / QA chuyên nghiệp. Hãy lắng nghe toàn bộ file ghi âm cuộc họp này và thực hiện 2 việc:

@@ -907,7 +907,7 @@ export default function QAAgentHubPage() {
           </div>
 
           {/* Test Cases view if test-case */}
-          {result.type === 'test-cases' && Array.isArray(result.content) && (
+          {((result.type as string) === 'test-case' || result.type === 'test-cases') && Array.isArray(result.content) && (
             <div className="space-y-3">
               {(result.content as TestCase[]).map(tc => (
                 <div key={tc.id} className="bg-white rounded-xl border-2 border-emerald-200 overflow-hidden shadow-xs">
@@ -932,7 +932,7 @@ export default function QAAgentHubPage() {
           )}
 
           {/* Formatted Markdown / Document View for non-array results */}
-          {(result.type !== 'test-cases' || !Array.isArray(result.content)) && (
+          {(((result.type as string) !== 'test-case' && result.type !== 'test-cases') || !Array.isArray(result.content)) && (
             <DocumentViewer
               content={rawMarkdownOutput || (typeof result.content === 'string' ? result.content : JSON.stringify(result.content, null, 2))}
               docType={result.type}

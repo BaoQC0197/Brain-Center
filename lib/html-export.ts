@@ -224,12 +224,44 @@ export function preprocessMarkdown(md: string): string {
   if (!md) return ''
   let text = md
 
-  // 1. Completely strip gherkin, text, bdd, or unlabelled code blocks containing Gherkin BDD or Markdown tables
-  text = text.replace(/```(?:gherkin|text|bdd|cucumber)?\n([\s\S]*?)\n```/gi, (match, inner) => {
-    if (inner.includes('graph ') || inner.includes('sequenceDiagram') || inner.includes('flowchart ') || inner.includes('mindmap')) {
-      return `\`\`\`mermaid\n${inner}\n\`\`\``
+  // 0. Ensure literal "\n" strings (escaped newlines) are converted to real newlines if string was stringified
+  if (text.includes('\\n') && !text.includes('\n')) {
+    text = text.replace(/\\n/g, '\n')
+  }
+
+  // 1. Identify Mermaid diagram code blocks (or unlabelled code blocks containing Mermaid diagrams) and format them as ```mermaid
+  text = text.replace(/```(?:mermaid|gherkin|text|bdd|cucumber)?\s*\n([\s\S]*?)\n```/gi, (match, inner) => {
+    const trimmed = inner.trim()
+    if (
+      trimmed.startsWith('graph ') ||
+      trimmed.startsWith('sequenceDiagram') ||
+      trimmed.startsWith('flowchart ') ||
+      trimmed.startsWith('mindmap') ||
+      trimmed.startsWith('stateDiagram') ||
+      trimmed.startsWith('stateDiagram-v2') ||
+      trimmed.startsWith('pie') ||
+      trimmed.startsWith('gantt') ||
+      trimmed.startsWith('classDiagram') ||
+      trimmed.startsWith('erDiagram') ||
+      trimmed.startsWith('journey') ||
+      trimmed.startsWith('gitGraph') ||
+      trimmed.includes('stateDiagram') ||
+      trimmed.includes('pie title')
+    ) {
+      return `\n\`\`\`mermaid\n${trimmed}\n\`\`\`\n`
     }
-    return `\n${inner}\n`
+    return match
+  })
+
+  // Also convert inline Mermaid blocks missing backticks if generated as standalone lines (e.g. stateDiagram-v2 [*] -> ...)
+  text = text.replace(/^(stateDiagram(?:-v2)?\b[\s\S]*?)(?=\n\s*\n|\n#|$)/gm, (match) => {
+    if (match.includes('```')) return match
+    return `\n\`\`\`mermaid\n${match.trim()}\n\`\`\`\n`
+  })
+
+  text = text.replace(/^(pie\s+title[\s\S]*?)(?=\n\s*\n|\n#|$)/gm, (match) => {
+    if (match.includes('```')) return match
+    return `\n\`\`\`mermaid\n${match.trim()}\n\`\`\`\n`
   })
 
   // 2. Remove ASCII divider comment lines like "# ----------------------------------------------------"
@@ -294,7 +326,7 @@ export function exportMarkdownToHtml(
   let renderedHtml = ''
   try {
     const processed = preprocessMarkdown(markdownText)
-    const rawHtml = marked.parse(processed) as string
+    const rawHtml = marked.parse(processed, { gfm: true, breaks: true }) as string
     renderedHtml = processMermaidCodeBlocks(rawHtml)
   } catch {
     renderedHtml = `<pre>${markdownText}</pre>`
@@ -653,6 +685,14 @@ export function exportTestPlanToHtml(doc: GeneratedDocument, projectName: string
 
 export function exportToHtml(doc: GeneratedDocument, projectName: string, featureName?: string): string {
   let content = doc.content
+
+  if (typeof content === 'string' && content.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(content)
+      if (parsed && typeof parsed === 'object') content = parsed
+    } catch {}
+  }
+
   if (content && typeof content === 'object' && 'rawText' in content && typeof content.rawText === 'string') {
     content = content.rawText
   }
@@ -667,14 +707,14 @@ export function exportToHtml(doc: GeneratedDocument, projectName: string, featur
   }
 
   if (doc.type === 'test-plan') {
-    return exportTestPlanToHtml(doc, projectName)
+    return exportTestPlanToHtml({ ...doc, content }, projectName)
   }
 
-  const markdownText = typeof doc.content === 'string'
-    ? doc.content
-    : typeof doc.content === 'object'
-    ? JSON.stringify(doc.content, null, 2)
-    : String(doc.content ?? '')
+  const markdownText = typeof content === 'string'
+    ? content
+    : typeof content === 'object'
+    ? JSON.stringify(content, null, 2)
+    : String(content ?? '')
 
   const title = doc.inputSummary || featureName || DOC_TYPE_LABEL[doc.type] || doc.type.toUpperCase()
 
@@ -687,3 +727,4 @@ export function exportToHtml(doc: GeneratedDocument, projectName: string, featur
     doc.createdAt || new Date().toISOString()
   )
 }
+
