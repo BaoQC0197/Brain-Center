@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       ? audioBase64.split('base64,')[1]
       : audioBase64
 
-    const rawModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+    const rawModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
     const modelName = normalizeModelName(rawModel)
     const model = genAI.getGenerativeModel({ model: modelName })
 
