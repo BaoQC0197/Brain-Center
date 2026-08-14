@@ -1134,14 +1134,19 @@ export default function ProjectPage() {
           projectId={projectId}
           projectName={project.name}
           onDeleteDoc={deleteDoc}
-          onViewDoc={doc => setViewingDoc({
-            title: doc.inputSummary,
-            docType: doc.type,
-            content: typeof doc.content === 'string' ? doc.content : JSON.stringify(doc.content, null, 2),
-            version: doc.version,
-            createdAt: doc.createdAt,
-            docId: doc.id,
-          })}
+          onViewDoc={doc => {
+            const rawContent = typeof doc.content === 'string'
+              ? doc.content
+              : (doc.content?.rawText || doc.content?.contentMarkdown || doc.content?.textContent || JSON.stringify(doc.content, null, 2))
+            setViewingDoc({
+              title: doc.inputSummary,
+              docType: doc.type,
+              content: rawContent,
+              version: doc.version,
+              createdAt: doc.createdAt,
+              docId: doc.id,
+            })
+          }}
         />
       )}
 

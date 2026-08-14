@@ -38,26 +38,46 @@ export default function DocumentViewer({
 
   const normalizedContent = useMemo(() => {
     if (!content) return ''
+
+    let raw: any = content
+    if (typeof content === 'string' && content.trim().startsWith('{')) {
+      try {
+        raw = JSON.parse(content)
+      } catch {}
+    }
+
+    if (raw && typeof raw === 'object' && raw !== null) {
+      if ('rawText' in raw && typeof raw.rawText === 'string') {
+        return raw.rawText
+      }
+      if ('contentMarkdown' in raw && typeof raw.contentMarkdown === 'string') {
+        return raw.contentMarkdown
+      }
+      if ('textContent' in raw && typeof raw.textContent === 'string') {
+        return raw.textContent
+      }
+      if (docType === 'test-plan') {
+        return formatTestPlanToMarkdown(raw)
+      }
+      if (docType === 'test-case' || docType === 'test-cases' || docType === 'test-scenario') {
+        return formatTestCasesToMarkdown(raw)
+      }
+      if ('scenarios' in raw || 'testCases' in raw || 'cases' in raw) {
+        return formatTestCasesToMarkdown(raw)
+      }
+      if ('testStrategy' in raw || 'featuresToTest' in raw || 'entryExitCriteria' in raw || 'risks' in raw) {
+        return formatTestPlanToMarkdown(raw)
+      }
+    }
+
     if (docType === 'test-plan') {
       return formatTestPlanToMarkdown(content)
     }
     if (docType === 'test-case' || docType === 'test-cases' || docType === 'test-scenario') {
       return formatTestCasesToMarkdown(content)
     }
-    if (typeof content === 'string' && content.trim().startsWith('{')) {
-      try {
-        const parsed = JSON.parse(content)
-        if (parsed && typeof parsed === 'object') {
-          if ('scenarios' in parsed || 'testCases' in parsed || 'cases' in parsed) {
-            return formatTestCasesToMarkdown(parsed)
-          }
-          if ('testStrategy' in parsed || 'featuresToTest' in parsed || 'entryExitCriteria' in parsed || 'risks' in parsed) {
-            return formatTestPlanToMarkdown(parsed)
-          }
-        }
-      } catch {}
-    }
-    return content
+
+    return typeof content === 'string' ? content : JSON.stringify(content, null, 2)
   }, [content, docType])
 
   const [editingContent, setEditingContent] = useState(normalizedContent)
@@ -202,7 +222,7 @@ export default function DocumentViewer({
       })
     } else {
       const lines = editingContent.split('\n')
-      lines.forEach(l => {
+      lines.forEach((l: string) => {
         csvContent += `"${l.replace(/"/g, '""')}"\n`
       })
     }
