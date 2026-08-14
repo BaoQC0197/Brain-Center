@@ -174,8 +174,13 @@ export default function DocumentViewer({
       const processed = preprocessMarkdown(source)
       const rawHtml = marked.parse(processed, { gfm: true, breaks: true }) as string
       return processMermaidCodeBlocks(rawHtml)
-    } catch {
-      return `<pre class="text-xs text-red-600 font-mono">${source}</pre>`
+    } catch (err) {
+      console.error('[DocumentViewer] marked parse error:', err)
+      try {
+        return marked.parse(source, { gfm: true, breaks: true }) as string
+      } catch {
+        return `<pre class="text-xs text-red-600 font-mono">${source}</pre>`
+      }
     }
   }, [content, editingContent, activeTab, normalizedContent])
 

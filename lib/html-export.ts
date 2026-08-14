@@ -253,16 +253,18 @@ export function preprocessMarkdown(md: string): string {
     return match
   })
 
-  // Also convert inline Mermaid blocks missing backticks if generated as standalone lines (e.g. stateDiagram-v2 [*] -> ...)
-  text = text.replace(/^(stateDiagram(?:-v2)?\b[\s\S]*?)(?=\n\s*\n|\n#|$)/gm, (match) => {
-    if (match.includes('```')) return match
-    return `\n\`\`\`mermaid\n${match.trim()}\n\`\`\`\n`
-  })
+  // 2. Safely wrap standalone un-fenced stateDiagram or pie title lines without multiline regex backtracking
+  if (!text.includes('```mermaid')) {
+    text = text.replace(/^(stateDiagram(?:-v2)?(?:\s+.*)?(?:\n[^\n#]+)*)/gm, (match) => {
+      if (match.includes('```')) return match
+      return `\n\`\`\`mermaid\n${match.trim()}\n\`\`\`\n`
+    })
 
-  text = text.replace(/^(pie\s+title[\s\S]*?)(?=\n\s*\n|\n#|$)/gm, (match) => {
-    if (match.includes('```')) return match
-    return `\n\`\`\`mermaid\n${match.trim()}\n\`\`\`\n`
-  })
+    text = text.replace(/^(pie\s+title(?:\s+.*)?(?:\n[^\n#]+)*)/gm, (match) => {
+      if (match.includes('```')) return match
+      return `\n\`\`\`mermaid\n${match.trim()}\n\`\`\`\n`
+    })
+  }
 
   // 2. Remove ASCII divider comment lines like "# ----------------------------------------------------"
   text = text.replace(/^#\s*[-=]{5,}\s*$/gm, '')
