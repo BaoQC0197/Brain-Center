@@ -167,6 +167,8 @@ export function createClaudeStream(
       throw new Error(lastErrStr || 'Không thể kết nối đến máy chủ AI')
     }
 
+    let yieldedCount = 0
+
     try {
       for await (const chunk of resultStream.stream) {
         let text = ''
@@ -179,6 +181,7 @@ export function createClaudeStream(
           }
         }
         if (text) {
+          yieldedCount++
           yield {
             type: 'content_block_delta',
             delta: {
@@ -198,8 +201,16 @@ export function createClaudeStream(
       }
     } catch (err: any) {
       const errStr = err?.message || String(err)
-      if (errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) {
-        throw new Error('⚠️ Máy chủ Google Gemini hiện đang quá tải tạm thời (503 Service Unavailable). Vui lòng thử lại sau vài giây.')
+      console.warn('[Gemini Stream Exception]', errStr)
+      if (yieldedCount > 0) {
+        console.warn(`[Gemini Stream] Stream dropped after ${yieldedCount} chunks. Completing gracefully with partial stream.`)
+        return
+      }
+      if (errStr.includes('Failed to parse stream') || errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) {
+        throw new Error('Máy chủ Google Gemini bị gián đoạn kết nối stream (Failed to parse stream / 503). Vui lòng nhấn nút "Chạy Agent" lại.')
+      }
+      if (errStr.includes('429') || errStr.includes('Quota exceeded') || errStr.includes('API_KEY_SERVICE_BLOCKED')) {
+        throw new Error('Tất cả Gemini API Key trong hệ thống đều bị giới hạn (429 Rate Limit) hoặc bị khóa. Vui lòng thử lại sau ít phút.')
       }
       throw new Error(errStr)
     }
