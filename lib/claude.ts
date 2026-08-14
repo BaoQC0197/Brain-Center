@@ -155,12 +155,12 @@ export function getGeminiKeys(): string[] {
 }
 
 export function normalizeModelName(model: string): string {
-  const m = (model || '').trim().toLowerCase()
-  if (!m || m.includes('1.5') || m.includes('2.0') || m === 'gemini-pro' || m === 'models/gemini-pro') {
-    return 'gemini-2.5-flash'
-  }
+  let m = (model || '').trim().toLowerCase()
   if (m.startsWith('models/')) {
-    return normalizeModelName(m.replace('models/', ''))
+    m = m.replace('models/', '')
+  }
+  if (!m || m.includes('1.5') || m.includes('2.0') || m.includes('2.5') || m.includes('pro')) {
+    return 'gemini-flash-latest'
   }
   return m
 }
@@ -181,8 +181,8 @@ export function createClaudeStream(
     )
   }
 
-  const primaryModel = normalizeModelName(process.env.GEMINI_MODEL || 'gemini-2.5-flash')
-  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.5-flash', 'gemini-flash-latest'])).map(normalizeModelName)
+  const primaryModel = normalizeModelName(process.env.GEMINI_MODEL || 'gemini-flash-latest')
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-flash-latest', 'gemini-1.5-flash-latest'])).map(normalizeModelName)
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [
@@ -249,7 +249,7 @@ export function createClaudeStream(
     if (!resultStream) {
       const lastErrStr = lastError?.message || String(lastError)
       if (lastErrStr.includes('404') || lastErrStr.includes('not found')) {
-        throw new Error('⚠️ Model AI được chọn không khả dụng trên API key hiện tại. Hệ thống đã tự động chuyển sang gemini-2.5-flash. Vui lòng bấm nút "Chạy lại Agent".')
+        throw new Error('⚠️ Model AI được chọn không khả dụng trên API key hiện tại. Hệ thống đã tự động chuyển sang gemini-flash-latest. Vui lòng bấm nút "Chạy lại Agent".')
       }
       if (lastErrStr.includes('503') || lastErrStr.includes('Service Unavailable') || lastErrStr.includes('high demand')) {
         throw new Error('⚠️ Máy chủ Google Gemini hiện đang quá tải tạm thời (503 Service Unavailable). Hệ thống đã tự động thử chuyển sang các model dự phòng nhưng chưa thành công, vui lòng bấm nút "Chạy lại Agent" sau 5-10 giây.')
@@ -342,8 +342,8 @@ async function callClaude(
 
   // Resilient Non-Streaming Fallback with Multi-Key & Model Failover
   const apiKeys = getGeminiKeys()
-  const primaryModel = normalizeModelName(process.env.GEMINI_MODEL || 'gemini-2.5-flash')
-  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.5-flash', 'gemini-flash-latest'])).map(normalizeModelName)
+  const primaryModel = normalizeModelName(process.env.GEMINI_MODEL || 'gemini-flash-latest')
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-flash-latest', 'gemini-1.5-flash-latest'])).map(normalizeModelName)
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [{ inlineData: { data: imageBase64, mimeType: imageMime || 'image/png' } }, userPrompt]
