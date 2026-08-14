@@ -56,6 +56,19 @@ export async function POST(request: Request) {
 
   const systemInstruction = await storage.getInstruction(projectId!)
 
+  // Fetch Phase 1 Raw Baseline Documents (including Figma Links)
+  const projectRawDocs = await storage.getRawDocuments(projectId!)
+  const figmaLinks: string[] = []
+  if (project.figmaUrl) figmaLinks.push(project.figmaUrl)
+  projectRawDocs.forEach(d => {
+    if (d.figmaUrl) figmaLinks.push(d.figmaUrl)
+    else if (d.type === 'figma' && d.textContent) figmaLinks.push(d.textContent)
+  })
+
+  if (figmaLinks.length > 0) {
+    additionalParams.figmaLinks = Array.from(new Set(figmaLinks)).join(' | ')
+  }
+
   // Fetch previous generated documents in this project for Prerequisite Context Injection
   const projectGenDocs = await storage.getDocuments(projectId!)
 

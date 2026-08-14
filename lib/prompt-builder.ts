@@ -45,11 +45,15 @@ export async function buildAssembledPrompt(input: PromptBuilderInput): Promise<A
   // 2. Layer 2: Task Prompt ("Làm nhiệm vụ gì?")
   const taskPromptConfig = await configStorage.getTaskPrompt(taskKey)
 
+  const figmaPromptText = additionalParams?.figmaLinks
+    ? `\n\n📌 **BẮT BUỘC VỀ TÀI LIỆU THAM CHIẾU**: Trong phần thông tin đầu trang "Tài liệu tham chiếu" (Reference Documents) của báo cáo/tài liệu, BẮT BUỘC phải trích dẫn chi tiết danh sách Link Figma Design: [Figma Link](${additionalParams.figmaLinks}) và tên các tài liệu Phase 1 được tham chiếu.`
+    : ''
+
   // 3. Layer 3 & 4: Project Context & Knowledge Base Search ("Project hiện tại" & "Requirement/BRD Baseline")
   let userPrompt = `## 1. PROJECT CONTEXT (PROJECT HIỆN TẠI):
 - Tên dự án: ${projectContext.name}
 - Mô tả dự án: ${projectContext.description || 'Chưa có mô tả'}
-- Tech Stack: ${projectContext.techStack || 'Chưa rõ'}
+- Tech Stack: ${projectContext.techStack || 'Chưa rõ'}${figmaPromptText}
 
 ## 2. KNOWLEDGE BASE SEARCH & REQUIREMENTS BASELINE:
 ${knowledgeBaseText.trim() || '(Không có tài liệu Yêu cầu Baseline đính kèm)'}

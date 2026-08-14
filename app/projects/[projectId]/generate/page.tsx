@@ -234,11 +234,16 @@ export default function QAAgentHubPage() {
 
   async function buildCombinedInput(): Promise<{ text: string; imageBase64?: string; imageMime?: string }> {
     const selectedDocs = rawDocs.filter(d => selectedRawIds.has(d.id))
-    const textDocs = selectedDocs.filter(d => d.type !== 'wireframe' && d.type !== 'figma')
+    const textDocs = selectedDocs.filter(d => d.type !== 'wireframe')
     const imageDocs = selectedDocs.filter(d => d.type === 'wireframe')
 
     const savedText = textDocs.map(d => {
       const meta = RAW_DOC_META[d.type] || { label: d.type }
+      if (d.type === 'figma' || d.figmaUrl) {
+        const fUrl = d.figmaUrl || d.textContent || ''
+        const extraNote = d.textContent && d.textContent !== fUrl ? `\n${d.textContent}` : ''
+        return `=== 🎨 Figma Design Link Spec: ${d.name} ===\n🔗 Figma Link: ${fUrl}${extraNote}`
+      }
       return `=== ${meta.label}: ${d.name} ===\n${d.textContent || ''}`
     }).join('\n\n')
 
