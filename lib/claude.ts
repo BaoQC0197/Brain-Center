@@ -41,11 +41,29 @@ export function parseJson(text: string): any {
 
   let depth = 0
   let end = -1
+  let inString = false
+  let isEscaped = false
+
   for (let i = start; i < text.length; i++) {
-    if (text[i] === '{' || text[i] === '[') depth++
-    else if (text[i] === '}' || text[i] === ']') {
-      depth--
-      if (depth === 0) { end = i; break }
+    const char = text[i]
+    if (isEscaped) {
+      isEscaped = false
+      continue
+    }
+    if (char === '\\') {
+      isEscaped = true
+      continue
+    }
+    if (char === '"') {
+      inString = !inString
+      continue
+    }
+    if (!inString) {
+      if (char === '{' || char === '[') depth++
+      else if (char === '}' || char === ']') {
+        depth--
+        if (depth === 0) { end = i; break }
+      }
     }
   }
 
@@ -53,17 +71,73 @@ export function parseJson(text: string): any {
   try {
     return JSON.parse(jsonStr)
   } catch {
-    // Try smart repair for trailing unclosed JSON strings/objects caused by token cutoff
-    try {
-      let repaired = jsonStr.trim().replace(/,\s*$/, '')
-      const openBraces = (repaired.match(/\{/g) || []).length - (repaired.match(/\}/g) || []).length
-      const openBrackets = (repaired.match(/\[/g) || []).length - (repaired.match(/\]/g) || []).length
-      for (let i = 0; i < openBraces; i++) repaired += '}'
-      for (let i = 0; i < openBrackets; i++) repaired += ']'
+    // Smart Repair Helper Function (Stack-based structural syntax repair)
+    const tryRepair = (input: string) => {
+      let repaired = input.trim()
+      let openStr = false
+      let esc = false
+      let stack: string[] = []
+
+      for (let i = 0; i < repaired.length; i++) {
+        const c = repaired[i]
+        if (esc) { esc = false; continue }
+        if (c === '\\') { esc = true; continue }
+        if (c === '"') { openStr = !openStr; continue }
+        if (!openStr) {
+          if (c === '{') stack.push('}')
+          else if (c === '[') stack.push(']')
+          else if (c === '}' || c === ']') {
+            if (stack.length > 0 && stack[stack.length - 1] === c) {
+              stack.pop()
+            }
+          }
+        }
+      }
+
+      if (openStr) repaired += '"'
+
+      // Re-scan stack after closing string
+      stack = []
+      openStr = false
+      esc = false
+      for (let i = 0; i < repaired.length; i++) {
+        const c = repaired[i]
+        if (esc) { esc = false; continue }
+        if (c === '\\') { esc = true; continue }
+        if (c === '"') { openStr = !openStr; continue }
+        if (!openStr) {
+          if (c === '{') stack.push('}')
+          else if (c === '[') stack.push(']')
+          else if (c === '}' || c === ']') {
+            if (stack.length > 0 && stack[stack.length - 1] === c) {
+              stack.pop()
+            }
+          }
+        }
+      }
+
+      while (stack.length > 0) {
+        repaired += stack.pop()
+      }
+
       return JSON.parse(repaired)
-    } catch {
-      throw new Error('AI trả về JSON không đầy đủ (response bị cắt ngắn). Thử lại.')
     }
+
+    // Try Level 1 repair (unclosed strings & unclosed braces)
+    try {
+      return tryRepair(jsonStr)
+    } catch {}
+
+    // Try Level 2 repair (strip trailing unclosed fragment keys/objects)
+    try {
+      let cleaned = jsonStr.trim()
+        .replace(/,\s*\{[^{}]*$/, '')
+        .replace(/,\s*"[^"]*":\s*"?[^"]*$/, '')
+        .replace(/,\s*$/, '')
+      return tryRepair(cleaned)
+    } catch {}
+
+    throw new Error('AI phản hồi dữ liệu quá dài nên bị gián đoạn giữa chừng (response bị cắt ngắn). Bạn vui lòng bấm nút "Chạy lại Agent".')
   }
 }
 
