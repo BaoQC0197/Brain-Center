@@ -21,7 +21,8 @@ export async function POST(request: Request) {
       ? audioBase64.split('base64,')[1]
       : audioBase64
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+    const model = genAI.getGenerativeModel({ model: modelName })
 
     const prompt = `Bạn là trợ lý BA / QA chuyên nghiệp. Hãy lắng nghe toàn bộ file ghi âm cuộc họp này và thực hiện 2 việc:
 1. **TRANSCRIPT CHI TIẾT (VĂN BẢN BÓC TÁCH TỪ GHI ÂM)**: Chuyển đổi toàn bộ nội dung lời nói trong file audio thành văn bản Tiếng Việt chuẩn xác, phân dòng rõ ràng theo diễn biến cuộc họp.

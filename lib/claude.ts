@@ -170,8 +170,8 @@ export function createClaudeStream(
     )
   }
 
-  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
-  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro']))
+  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-latest'])).filter(m => m !== 'gemini-2.5-pro')
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [
@@ -323,8 +323,8 @@ async function callClaude(
 
   // Resilient Non-Streaming Fallback with Multi-Key & Model Failover
   const apiKeys = getGeminiKeys()
-  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
-  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-pro']))
+  const primaryModel = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
+  const fallbackModels = Array.from(new Set([primaryModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-flash-latest'])).filter(m => m !== 'gemini-2.5-pro')
 
   const contents: Array<string | { inlineData: { data: string; mimeType: string } }> = imageBase64
     ? [{ inlineData: { data: imageBase64, mimeType: imageMime || 'image/png' } }, userPrompt]
