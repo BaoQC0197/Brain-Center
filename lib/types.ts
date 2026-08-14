@@ -280,6 +280,7 @@ export interface BuiltDocument {
   standard: DocBuilderStandard
   contentMarkdown: string
   answers: Record<string, string>
+  fileUrl?: string
   createdAt: string
 }
 

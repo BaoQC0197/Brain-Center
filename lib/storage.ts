@@ -495,8 +495,38 @@ export const storage = {
   },
 
   async saveBuiltDocument(doc: BuiltDocument): Promise<void> {
+    let fileUrl = doc.fileUrl
+
     if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase.from('built_documents').upsert(doc)
+      try {
+        const { exportMarkdownToHtml } = await import('./html-export')
+        const htmlContent = exportMarkdownToHtml(doc.title, doc.contentMarkdown, '', doc.docType || 'srs', 1, doc.createdAt)
+        const buf = Buffer.from(htmlContent, 'utf-8')
+        const storagePath = `${doc.projectId}/built-${doc.id}.html`
+        const { data: uploadData, error: uploadErr } = await supabase.storage
+          .from('raw-documents')
+          .upload(storagePath, buf, {
+            contentType: 'text/html; charset=utf-8',
+            upsert: true,
+          })
+
+        if (!uploadErr && uploadData) {
+          const { data: pubUrlData } = supabase.storage
+            .from('raw-documents')
+            .getPublicUrl(storagePath)
+          if (pubUrlData?.publicUrl) {
+            fileUrl = pubUrlData.publicUrl
+          }
+        }
+      } catch (stErr) {
+        console.warn('saveBuiltDocument storage upload error:', stErr)
+      }
+    }
+
+    const docToSave = { ...doc, fileUrl }
+
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.from('built_documents').upsert(docToSave)
       if (error) console.error('Supabase saveBuiltDocument error:', error)
       return
     }
@@ -506,8 +536,8 @@ export const storage = {
       ? JSON.parse(fs.readFileSync(file, 'utf-8'))
       : []
     const idx = docs.findIndex(d => d.id === doc.id)
-    if (idx >= 0) docs[idx] = doc
-    else docs.unshift(doc)
+    if (idx >= 0) docs[idx] = docToSave
+    else docs.unshift(docToSave)
     fs.writeFileSync(file, JSON.stringify(docs, null, 2))
   },
 
