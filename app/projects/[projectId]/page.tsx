@@ -704,10 +704,12 @@ function ImportStepDocModal({
   const meta = QA_AGENTS[agentType]
   const [name, setName] = useState(`File ngoài: ${meta.label}`)
   const [textContent, setTextContent] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   function handleFileUpload(file: File) {
+    setSelectedFile(file)
     if (!name || name === `File ngoài: ${meta.label}`) {
       setName(file.name.replace(/\.[^/.]+$/, ''))
     }
@@ -721,20 +723,33 @@ function ImportStepDocModal({
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return setError('Vui lòng nhập tên tài liệu')
-    if (!textContent.trim()) return setError('Vui lòng upload file hoặc dán nội dung văn bản')
 
     setSaving(true)
     setError('')
     try {
-      const res = await fetch(`/api/projects/${projectId}/documents`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: agentType,
-          inputSummary: name,
-          content: textContent.trim(),
-        }),
-      })
+      let res: Response
+      if (selectedFile) {
+        const formData = new FormData()
+        formData.append('type', agentType)
+        formData.append('inputSummary', name)
+        formData.append('content', textContent || '')
+        formData.append('file', selectedFile)
+        res = await fetch(`/api/projects/${projectId}/documents`, {
+          method: 'POST',
+          body: formData,
+        })
+      } else {
+        if (!textContent.trim()) return setError('Vui lòng upload file hoặc dán nội dung văn bản')
+        res = await fetch(`/api/projects/${projectId}/documents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: agentType,
+            inputSummary: name,
+            content: textContent.trim(),
+          }),
+        })
+      }
       const doc = await res.json()
       if (!res.ok) throw new Error(doc.error || 'Có lỗi xảy ra khi lưu document')
       onSaved(doc)
@@ -753,7 +768,7 @@ function ImportStepDocModal({
               Nhập File / Nội dung ngoài cho {meta.label} (Step {meta.stepOrder})
             </h2>
             <p className="text-xs font-bold text-slate-500 mt-0.5">
-              Tải file (.txt, .md, .json, .csv, .pdf, .docx) hoặc dán tài liệu đã có để mở khoá quy trình
+              Tải file (.html, .htm, .txt, .md, .json, .csv, .pdf, .docx) hoặc dán tài liệu đã có để mở khoá quy trình
             </p>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-lg font-extrabold p-1 cursor-pointer">✕</button>
@@ -774,19 +789,19 @@ function ImportStepDocModal({
             <label className="block text-sm md:text-base font-extrabold text-slate-900">Tải file từ máy tính</label>
             <input
               type="file"
-              accept=".txt,.md,.json,.csv,.pdf,.docx"
+              accept=".html,.htm,.txt,.md,.json,.csv,.pdf,.docx"
               onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
               className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold"
             />
           </div>
 
           <div>
-            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Hoặc dán trực tiếp nội dung văn bản <span className="text-rose-600 font-bold">*</span></label>
+            <label className="block text-sm md:text-base font-extrabold text-slate-900 mb-1.5">Hoặc dán trực tiếp nội dung văn bản / HTML <span className="text-rose-600 font-bold">*</span></label>
             <textarea
               value={textContent}
               onChange={e => setTextContent(e.target.value)}
               rows={10}
-              placeholder="Dán nội dung tài liệu tại đây..."
+              placeholder="Dán nội dung tài liệu hoặc mã HTML tại đây..."
               className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-4 text-xs md:text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-y leading-relaxed font-semibold"
             />
           </div>
@@ -797,7 +812,7 @@ function ImportStepDocModal({
             <button type="button" onClick={onClose} className="flex-1 border-2 border-slate-300 rounded-xl py-3 text-sm md:text-base font-extrabold text-slate-700 hover:bg-slate-100 transition-all">Huỷ</button>
             <button
               type="submit"
-              disabled={saving || !name.trim() || !textContent.trim()}
+              disabled={saving || !name.trim() || (!selectedFile && !textContent.trim())}
               className="flex-1 bg-emerald-600 text-white rounded-xl py-3 text-sm md:text-base font-extrabold hover:bg-emerald-500 transition-all disabled:opacity-40 shadow-md"
             >
               {saving ? 'Đang lưu...' : 'Nhập & Mở khoá Step này'}
@@ -1181,6 +1196,17 @@ export default function ProjectPage() {
           onSaved={newDoc => {
             setDocs(prev => [newDoc, ...prev])
             setImportingAgent(null)
+            const rawContent = typeof newDoc.content === 'string'
+              ? newDoc.content
+              : (newDoc.content?.rawText || newDoc.content?.contentMarkdown || newDoc.content?.textContent || JSON.stringify(newDoc.content, null, 2))
+            setViewingDoc({
+              title: newDoc.inputSummary,
+              docType: newDoc.type,
+              content: rawContent,
+              version: newDoc.version,
+              createdAt: newDoc.createdAt,
+              docId: newDoc.id,
+            })
           }}
         />
       )}
