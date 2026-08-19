@@ -688,11 +688,17 @@ export function exportTestPlanToHtml(doc: GeneratedDocument, projectName: string
 export function exportToHtml(doc: GeneratedDocument, projectName: string, featureName?: string): string {
   let content = doc.content
 
-  if (typeof content === 'string' && content.trim().startsWith('{')) {
-    try {
-      const parsed = JSON.parse(content)
-      if (parsed && typeof parsed === 'object') content = parsed
-    } catch {}
+  if (typeof content === 'string') {
+    const trimmed = content.trim().toLowerCase()
+    if (trimmed.startsWith('<!doctype html') || trimmed.startsWith('<html')) {
+      return content
+    }
+    if (trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(content)
+        if (parsed && typeof parsed === 'object') content = parsed
+      } catch {}
+    }
   }
 
   if (content && typeof content === 'object' && 'rawText' in content && typeof content.rawText === 'string') {

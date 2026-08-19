@@ -456,12 +456,22 @@ export default function DocumentViewer({
         )}
 
         {activeTab === 'formatted' ? (
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
-            <article
-              className="doc-rendered-html text-slate-900 text-sm leading-relaxed space-y-4"
-              dangerouslySetInnerHTML={{ __html: parsedHtml }}
-            />
-          </div>
+          typeof normalizedContent === 'string' && (normalizedContent.trim().toLowerCase().startsWith('<!doctype html') || normalizedContent.trim().toLowerCase().startsWith('<html')) ? (
+            <div className="border-2 border-slate-300 rounded-xl overflow-hidden shadow-inner bg-slate-900">
+              <iframe
+                srcDoc={normalizedContent}
+                className="w-full h-[78vh] border-0"
+                title={title || 'HTML Document'}
+              />
+            </div>
+          ) : (
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
+              <article
+                className="doc-rendered-html text-slate-900 text-sm leading-relaxed space-y-4"
+                dangerouslySetInnerHTML={{ __html: parsedHtml }}
+              />
+            </div>
+          )
         ) : (
 
           <div className="space-y-3">
