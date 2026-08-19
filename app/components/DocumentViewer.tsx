@@ -190,6 +190,18 @@ export default function DocumentViewer({
     setTimeout(() => setCopied(false), 2000)
   }
 
+  function handleDownloadHtml() {
+    const isHtml = typeof editingContent === 'string' && (editingContent.trim().toLowerCase().startsWith('<!doctype html') || editingContent.trim().toLowerCase().startsWith('<html'))
+    const htmlStr = isHtml ? editingContent : `<!DOCTYPE html>\n<html><head><meta charset="utf-8"><title>${title || docType}</title></head><body>${parsedHtml}</body></html>`
+    const blob = new Blob([htmlStr], { type: 'text/html;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${(title || docType).toLowerCase().replace(/[^a-z0-9]/g, '_')}_v${version}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function handleDownload() {
     const blob = new Blob([editingContent], { type: 'text/markdown;charset=utf-8' })
     const url = URL.createObjectURL(blob)
@@ -365,6 +377,13 @@ export default function DocumentViewer({
                 className="absolute right-0 mt-2 w-48 bg-white border-2 border-slate-300 rounded-xl shadow-xl z-50 p-1 space-y-0.5 text-xs font-bold"
                 onClick={() => setShowExportMenu(false)}
               >
+                <button
+                  type="button"
+                  onClick={handleDownloadHtml}
+                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 cursor-pointer"
+                >
+                  HTML File (.html)
+                </button>
                 <button
                   type="button"
                   onClick={handleDownloadWord}
