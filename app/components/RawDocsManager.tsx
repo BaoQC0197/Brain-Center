@@ -82,10 +82,10 @@ export default function RawDocsManager({
     return (
       <div className="bg-white border-2 border-indigo-200 rounded-2xl p-10 text-center space-y-5 shadow-sm text-slate-900">
         <div>
-          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-md font-mono font-bold uppercase tracking-wider">
-            Phase 1 Baseline Ingestion
+          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-300 px-3 py-1 rounded-md font-semibold uppercase tracking-wider">
+            PHASE 1 BASELINE INGESTION
           </span>
-          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 mt-4">Chưa có Tài liệu Yêu cầu / Đầu vào nào</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mt-4">Chưa có Tài liệu Yêu cầu / Đầu vào nào</h2>
           <p className="text-sm font-medium text-slate-600 mt-2 max-w-lg mx-auto leading-relaxed">
             Vui lòng upload tài liệu có sẵn (BRD, SRS, User Story, Figma) hoặc dùng Doc Builder Agent để khởi tạo đặc tả yêu cầu chuẩn cho QA.
           </p>
@@ -93,15 +93,15 @@ export default function RawDocsManager({
         <div className="flex items-center justify-center gap-3 flex-wrap pt-2">
           <button
             onClick={onAddRawDoc}
-            className="bg-white border-2 border-slate-300 hover:bg-slate-50 text-slate-800 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-xs"
+            className="bg-white border-2 border-slate-300 hover:bg-slate-50 text-slate-800 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs"
           >
             + Upload / Thêm doc có sẵn
           </button>
           <Link
             href={`/projects/${projectId}/doc-builder`}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm"
           >
-            Soạn doc mới với Doc Builder Agent ➔
+            Soạn doc mới với Doc Builder Agent
           </Link>
         </div>
       </div>
@@ -114,8 +114,8 @@ export default function RawDocsManager({
       <div className="bg-indigo-100/90 px-6 py-5 border-b-2 border-indigo-200 flex items-center justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs md:text-sm bg-indigo-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-xs">
-              PHASE 1 ➔ REQUIREMENT BASELINE
+            <span className="text-xs md:text-sm bg-indigo-600 text-white px-3 py-1 rounded-md font-semibold shadow-xs">
+              PHASE 1 - REQUIREMENT BASELINE
             </span>
             <h2 className="font-extrabold text-slate-900 text-xl md:text-2xl tracking-tight">Quản lý Tài liệu Yêu cầu Đầu vào</h2>
             <span className="text-xs md:text-sm bg-white text-indigo-950 border-2 border-indigo-300 px-3 py-1 rounded-full font-mono font-extrabold shadow-xs">
@@ -170,7 +170,7 @@ export default function RawDocsManager({
               }`}
             >
               <span>Đặc tả (BRD, SRS, API)</span>
-              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.specs}</span>
+              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-semibold">{counts.specs}</span>
             </button>
 
             <button
@@ -181,8 +181,8 @@ export default function RawDocsManager({
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
               }`}
             >
-              <span>Stories & Notes</span>
-              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.stories}</span>
+              <span>Stories và Notes</span>
+              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-semibold">{counts.stories}</span>
             </button>
 
             <button
@@ -193,8 +193,8 @@ export default function RawDocsManager({
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
               }`}
             >
-              <span>UI / UX & Figma</span>
-              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.ui}</span>
+              <span>UI / UX và Figma</span>
+              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-semibold">{counts.ui}</span>
             </button>
 
             <button
@@ -206,7 +206,7 @@ export default function RawDocsManager({
               }`}
             >
               <span>File Upload</span>
-              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.upload}</span>
+              <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-semibold">{counts.upload}</span>
             </button>
           </div>
 
@@ -225,13 +225,13 @@ export default function RawDocsManager({
             <div className="flex items-center border-2 border-slate-300 rounded-xl overflow-hidden bg-slate-100 p-0.5 font-bold">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-indigo-600 text-white font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
+                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-700 hover:text-slate-900'}`}
               >
                 Card
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-indigo-600 text-white font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
+                className={`px-3 py-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-700 hover:text-slate-900'}`}
               >
                 List
               </button>
@@ -243,7 +243,7 @@ export default function RawDocsManager({
       {/* Main Content Area */}
       <div className="p-5">
         {filteredDocs.length === 0 ? (
-          <div className="py-10 text-center text-slate-600 space-y-1 font-mono text-sm">
+          <div className="py-10 text-center text-slate-600 space-y-1 text-sm">
             <p className="font-bold text-slate-800">Không tìm thấy tài liệu nào trong danh mục này</p>
             <p className="text-slate-500">Thử thay đổi từ khoá tìm kiếm hoặc chuyển sang danh mục khác.</p>
           </div>
@@ -259,15 +259,15 @@ export default function RawDocsManager({
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h4 className="font-extrabold text-slate-900 text-sm md:text-base truncate group-hover:text-indigo-700 transition-colors" title={doc.name}>
+                        <h4 className="font-semibold text-slate-900 text-sm md:text-base truncate group-hover:text-indigo-700 transition-colors" title={doc.name}>
                           {doc.name}
                         </h4>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-200 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
+                          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-200 px-2.5 py-0.5 rounded-full font-semibold">
                             {meta.label}
                           </span>
                           {doc.figmaUrl && (
-                            <span className="text-xs bg-pink-100 text-pink-800 border border-pink-300 px-2 py-0.5 rounded-full font-mono font-extrabold">
+                            <span className="text-xs bg-pink-100 text-pink-800 border border-pink-300 px-2 py-0.5 rounded-full font-semibold">
                               Figma
                             </span>
                           )}
@@ -276,13 +276,13 @@ export default function RawDocsManager({
 
                       <button
                         onClick={() => onDeleteRawDoc(doc.id, doc.name)}
-                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-all p-1 text-sm font-extrabold cursor-pointer"
+                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-all p-1 text-sm font-semibold cursor-pointer"
                       >
                         ✕
                       </button>
                     </div>
 
-                    <p className="text-xs text-slate-600 font-mono font-medium">
+                    <p className="text-xs text-slate-600 font-medium">
                       Cập nhật: {new Date(doc.createdAt).toLocaleDateString('vi-VN')}
                     </p>
                   </div>
@@ -304,16 +304,8 @@ export default function RawDocsManager({
                           rel="noopener noreferrer"
                           className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all shadow-xs flex items-center gap-1"
                         >
-                          <span>🎨 Figma ↗</span>
+                          <span>Figma ↗</span>
                         </a>
-                      )}
-                      {doc.textContent && (
-                        <button
-                          onClick={() => downloadWord(doc)}
-                          className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer"
-                        >
-                          Word
-                        </button>
                       )}
                     </div>
                   </div>
@@ -357,17 +349,8 @@ export default function RawDocsManager({
                         rel="noopener noreferrer"
                         className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all shadow-xs flex items-center gap-1"
                       >
-                        <span>🎨 Figma ↗</span>
+                        <span>Figma ↗</span>
                       </a>
-                    )}
-
-                    {doc.textContent && (
-                      <button
-                        onClick={() => downloadWord(doc)}
-                        className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-2 border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
-                      >
-                        Word
-                      </button>
                     )}
                     <button
                       onClick={() => onDeleteRawDoc(doc.id, doc.name)}

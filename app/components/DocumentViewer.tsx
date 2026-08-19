@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { marked } from 'marked'
 import { formatTestPlanToMarkdown, formatTestCasesToMarkdown, preprocessMarkdown, processMermaidCodeBlocks } from '@/lib/html-export'
 
@@ -111,19 +111,97 @@ export default function DocumentViewer({
   const [saving, setSaving] = useState(false)
   const [savedSuccess, setSavedSuccess] = useState(false)
 
+  // ─── SEARCH & REPLACE STATES FOR MARKDOWN EDITOR ───────────────────────────
+  const [searchTerm, setSearchTerm] = useState('')
+  const [replaceTerm, setReplaceTerm] = useState('')
+  const [showReplace, setShowReplace] = useState(false)
+  const [matchIndices, setMatchIndices] = useState<{ start: number; end: number }[]>([])
+  const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(-1)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
   useEffect(() => {
     setEditingContent(normalizedContent)
   }, [normalizedContent])
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setMatchIndices([])
+      setCurrentMatchIndex(-1)
+      return
+    }
+    const lowerContent = editingContent.toLowerCase()
+    const lowerSearch = searchTerm.toLowerCase()
+    const matches: { start: number; end: number }[] = []
+    let pos = 0
+    while ((pos = lowerContent.indexOf(lowerSearch, pos)) !== -1) {
+      matches.push({ start: pos, end: pos + lowerSearch.length })
+      pos += lowerSearch.length
+    }
+    setMatchIndices(matches)
+    if (matches.length > 0) {
+      setCurrentMatchIndex(0)
+      jumpToMatch(0, matches)
+    } else {
+      setCurrentMatchIndex(-1)
+    }
+  }, [searchTerm, editingContent])
+
+  function jumpToMatch(index: number, matches = matchIndices) {
+    if (!matches[index] || !textareaRef.current) return
+    const { start, end } = matches[index]
+    const textarea = textareaRef.current
+    textarea.focus()
+    textarea.setSelectionRange(start, end)
+    
+    // Auto scroll into view
+    const lineHeight = 20
+    const linesBefore = textarea.value.substring(0, start).split('\n').length
+    textarea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight)
+  }
+
+  function handleNextMatch() {
+    if (matchIndices.length === 0) return
+    const nextIdx = (currentMatchIndex + 1) % matchIndices.length
+    setCurrentMatchIndex(nextIdx)
+    jumpToMatch(nextIdx)
+  }
+
+  function handlePrevMatch() {
+    if (matchIndices.length === 0) return
+    const prevIdx = (currentMatchIndex - 1 + matchIndices.length) % matchIndices.length
+    setCurrentMatchIndex(prevIdx)
+    jumpToMatch(prevIdx)
+  }
+
+  function handleReplaceSingle() {
+    if (currentMatchIndex < 0 || !matchIndices[currentMatchIndex]) return
+    const { start, end } = matchIndices[currentMatchIndex]
+    const updated = editingContent.substring(0, start) + replaceTerm + editingContent.substring(end)
+    setEditingContent(updated)
+  }
+
+  function handleReplaceAll() {
+    if (!searchTerm.trim() || matchIndices.length === 0) return
+    const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+    const updated = editingContent.replace(regex, replaceTerm)
+    setEditingContent(updated)
+  }
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape' && onClose) {
         onClose()
       }
+      // Ctrl+F or Cmd+F in Raw mode to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f' && activeTab === 'raw') {
+        e.preventDefault()
+        const searchInput = document.getElementById('md-search-input')
+        if (searchInput) searchInput.focus()
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
+  }, [onClose, activeTab])
 
   const canEdit = isEditable || Boolean(onSaveContent) || Boolean(projectId && docId)
 
@@ -319,16 +397,16 @@ export default function DocumentViewer({
   const [showExportMenu, setShowExportMenu] = useState(false)
 
   return (
-    <div className="bg-white border-2 border-indigo-400 rounded-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col h-full">
+    <div className="bg-white w-full h-full flex flex-col overflow-hidden text-slate-900">
       {/* Action Bar Header */}
-      <div className="bg-slate-100 border-b-2 border-slate-300 p-4 flex items-center justify-between flex-wrap gap-3">
+      <div className="bg-slate-100 border-b-2 border-slate-300 px-4 py-3 flex items-center justify-between flex-wrap gap-3 shrink-0">
         <div className="flex items-center gap-3">
           {/* Tab Switcher */}
           <div className="bg-white p-1 rounded-xl border-2 border-slate-300 flex items-center gap-1">
             <button
               type="button"
               onClick={() => setActiveTab('formatted')}
-              className={`px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
                 activeTab === 'formatted'
                   ? 'bg-indigo-600 text-white shadow-xs'
                   : 'text-slate-700 hover:text-slate-900'
@@ -339,7 +417,7 @@ export default function DocumentViewer({
             <button
               type="button"
               onClick={() => setActiveTab('raw')}
-              className={`px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
                 activeTab === 'raw'
                   ? 'bg-indigo-600 text-white shadow-xs'
                   : 'text-slate-700 hover:text-slate-900'
@@ -386,13 +464,6 @@ export default function DocumentViewer({
                 </button>
                 <button
                   type="button"
-                  onClick={handleDownloadWord}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 cursor-pointer"
-                >
-                  Word (.doc)
-                </button>
-                <button
-                  type="button"
                   onClick={handleDownloadExcel}
                   className="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg text-slate-800 flex items-center gap-2 cursor-pointer"
                 >
@@ -424,7 +495,6 @@ export default function DocumentViewer({
               className="bg-indigo-600 text-white hover:bg-indigo-500 px-3.5 py-1.5 rounded-xl font-extrabold transition-all shadow-xs"
             >
               <span>Mở HTML đầy đủ</span>
-
             </a>
           )}
 
@@ -432,7 +502,7 @@ export default function DocumentViewer({
             <button
               type="button"
               onClick={onClose}
-              className="bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 px-3.5 py-1.5 rounded-xl font-semibold transition-all ml-1"
+              className="bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 px-4 py-1.5 rounded-xl font-bold transition-all ml-1"
               title="Đóng popup (Esc)"
             >
               Đóng
@@ -441,19 +511,19 @@ export default function DocumentViewer({
         </div>
       </div>
 
-      {/* Main Display Area */}
-      <div className="p-6 bg-white flex-1 overflow-y-auto space-y-4">
+      {/* Main Display Area (Edge to Edge Full Viewport) */}
+      <div className="flex-1 w-full h-full flex flex-col overflow-hidden bg-slate-900">
         {audioBase64 && (
-          <div className="bg-teal-50 border border-teal-200 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+          <div className="bg-teal-50 border-b border-teal-200 p-3 flex items-center justify-between flex-wrap gap-3 shadow-xs shrink-0">
             <div className="flex items-center gap-2 text-teal-900 font-mono font-semibold text-xs md:text-sm">
               <span>Ghi âm cuộc họp gốc (Audio Record):</span>
             </div>
-            <audio controls src={audioBase64} className="h-10 rounded-lg max-w-full" />
+            <audio controls src={audioBase64} className="h-9 rounded-lg max-w-full" />
           </div>
         )}
 
         {(figmaUrl || docType === 'figma' || docType === 'wireframe') && (
-          <div className="bg-pink-50 border border-pink-200 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+          <div className="bg-pink-50 border-b border-pink-200 p-3 flex items-center justify-between flex-wrap gap-3 shadow-xs shrink-0">
             <div className="flex items-center gap-2 text-xs md:text-sm font-semibold text-pink-950">
               <span>Thiết kế Figma (UI/UX Design File):</span>
             </div>
@@ -462,7 +532,7 @@ export default function DocumentViewer({
                 href={figmaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                className="bg-pink-600 hover:bg-pink-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
               >
                 <span>Mở File Thiết kế Figma</span>
               </a>
@@ -474,48 +544,153 @@ export default function DocumentViewer({
 
         {activeTab === 'formatted' ? (
           typeof normalizedContent === 'string' && (normalizedContent.trim().toLowerCase().startsWith('<!doctype html') || normalizedContent.trim().toLowerCase().startsWith('<html')) ? (
-            <div className="border-2 border-slate-300 rounded-xl overflow-hidden shadow-inner bg-slate-900">
-              <iframe
-                srcDoc={normalizedContent}
-                className="w-full h-[78vh] border-0"
-                title={title || 'HTML Document'}
-              />
-            </div>
+            <iframe
+              srcDoc={normalizedContent}
+              className="w-full h-full flex-1 border-0"
+              title={title || 'HTML Document'}
+            />
           ) : (
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
+            <div className="bg-slate-50 flex-1 h-full overflow-y-auto p-6 sm:p-10">
               <article
-                className="doc-rendered-html text-slate-900 text-sm leading-relaxed space-y-4"
+                className="doc-rendered-html max-w-5xl mx-auto text-slate-900 text-sm leading-relaxed space-y-4"
                 dangerouslySetInnerHTML={{ __html: parsedHtml }}
               />
             </div>
           )
         ) : (
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs font-medium text-amber-900">
-              <span className="flex items-center gap-1.5">
-                <span>Bạn đang ở chế độ <b>Chỉnh sửa trực tiếp</b>. Chỉnh sửa xong bấm nút <b>"Lưu thay đổi"</b>.</span>
+          <div className="flex-1 flex flex-col space-y-3 h-full p-4 bg-slate-50 overflow-hidden">
+            {/* Header info & Save Button */}
+            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs font-medium text-amber-900 flex-wrap gap-2 shrink-0">
+              <span className="flex items-center gap-1.5 font-semibold">
+                <span>Chế độ <b>Chỉnh sửa Markdown</b>. Có thể tìm từ khóa (Ctrl+F), chỉnh sửa và bấm <b>"Lưu thay đổi"</b>.</span>
               </span>
               {canEdit && (
                 <button
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg font-semibold transition-all shadow-xs disabled:opacity-50 text-xs"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg font-bold transition-all shadow-xs disabled:opacity-50 text-xs cursor-pointer"
                 >
-                  {saving ? 'Đang lưu...' : savedSuccess ? 'Đã lưu!' : 'Lưu thay đổi'}
+                  {saving ? 'Đang lưu...' : savedSuccess ? 'Đã lưu thành công!' : 'Lưu thay đổi'}
                 </button>
               )}
             </div>
+
+            {/* Keyword Search & Replace Toolbar */}
+            <div className="bg-slate-100 border-2 border-slate-300 rounded-xl p-2.5 flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div className="flex items-center gap-2 flex-wrap flex-1">
+                <div className="relative min-w-[240px] flex-1 max-w-md">
+                  <input
+                    id="md-search-input"
+                    type="text"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        if (e.shiftKey) handlePrevMatch()
+                        else handleNextMatch()
+                      }
+                    }}
+                    placeholder="Tìm từ khóa trong Markdown (Enter: Xuống, Shift+Enter: Lên)..."
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-2 top-1.5 text-slate-400 hover:text-slate-600 font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePrevMatch}
+                    disabled={matchIndices.length === 0}
+                    className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 px-2.5 py-1.5 rounded-lg font-bold transition-all disabled:opacity-40"
+                    title="Kết quả trước (Shift+Enter)"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextMatch}
+                    disabled={matchIndices.length === 0}
+                    className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 px-2.5 py-1.5 rounded-lg font-bold transition-all disabled:opacity-40"
+                    title="Kết quả tiếp theo (Enter)"
+                  >
+                    ▼
+                  </button>
+                </div>
+
+                <span className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold ${
+                  searchTerm.trim()
+                    ? matchIndices.length > 0
+                      ? 'bg-indigo-100 text-indigo-900 border border-indigo-200'
+                      : 'bg-rose-100 text-rose-900 border border-rose-200'
+                    : 'text-slate-500'
+                }`}>
+                  {searchTerm.trim()
+                    ? matchIndices.length > 0
+                      ? `${currentMatchIndex + 1} / ${matchIndices.length} kết quả`
+                      : 'Không tìm thấy'
+                    : 'Nhập từ khóa để tìm'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowReplace(!showReplace)}
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all border ${
+                    showReplace ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  Thay thế
+                </button>
+              </div>
+            </div>
+
+            {/* Expandable Replace Bar */}
+            {showReplace && (
+              <div className="bg-slate-50 border-2 border-indigo-200 rounded-xl p-2.5 flex items-center gap-2 flex-wrap text-xs animate-in fade-in duration-150">
+                <input
+                  type="text"
+                  value={replaceTerm}
+                  onChange={e => setReplaceTerm(e.target.value)}
+                  placeholder="Nội dung thay thế..."
+                  className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold min-w-[220px] flex-1 max-w-sm"
+                />
+                <button
+                  type="button"
+                  onClick={handleReplaceSingle}
+                  disabled={matchIndices.length === 0 || currentMatchIndex < 0}
+                  className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg font-bold transition-all disabled:opacity-40 cursor-pointer"
+                >
+                  Thay thế ô này
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReplaceAll}
+                  disabled={matchIndices.length === 0}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg font-bold transition-all disabled:opacity-40 cursor-pointer"
+                >
+                  Thay thế tất cả ({matchIndices.length})
+                </button>
+              </div>
+            )}
+
+            {/* Markdown Textarea */}
             <textarea
+              ref={textareaRef}
               value={editingContent}
               onChange={e => {
                 setEditingContent(e.target.value)
               }}
               readOnly={!canEdit}
-              rows={22}
-
-              className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl p-4 font-mono text-xs text-slate-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y"
+              className="flex-1 w-full min-h-[66vh] bg-slate-50 border-2 border-slate-300 rounded-xl p-4 font-mono text-xs text-slate-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y"
               placeholder="Nội dung Markdown..."
             />
           </div>

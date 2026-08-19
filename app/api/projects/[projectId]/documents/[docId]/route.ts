@@ -37,15 +37,33 @@ export async function PUT(
   { params }: { params: Promise<{ projectId: string; docId: string }> }
 ) {
   const { projectId, docId } = await params
-  const docs = await storage.getDocuments(projectId)
-  const idx = docs.findIndex(d => d.id === docId)
-  if (idx < 0) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
   const body = await request.json()
-  if (body.content !== undefined) docs[idx].content = body.content
-  if (body.inputSummary !== undefined) docs[idx].inputSummary = body.inputSummary
 
-  await storage.saveDocument(docs[idx])
-  return NextResponse.json(docs[idx])
+  let doc = await storage.getDocumentById(projectId, docId)
+  if (!doc) {
+    const rawDocs = await storage.getRawDocuments(projectId)
+    const rawDoc = rawDocs.find(r => r.id === docId)
+    if (rawDoc) {
+      if (body.content !== undefined) {
+        rawDoc.textContent = typeof body.content === 'string' ? body.content : JSON.stringify(body.content)
+      }
+      await storage.saveRawDocument(rawDoc)
+      return NextResponse.json(rawDoc)
+    }
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  if (body.content !== undefined) {
+    doc.content = body.content
+  }
+  if (body.inputSummary !== undefined) {
+    doc.inputSummary = body.inputSummary
+  }
+  if (body.title !== undefined) {
+    doc.title = body.title
+  }
+
+  await storage.saveDocument(doc)
+  return NextResponse.json(doc)
 }
 

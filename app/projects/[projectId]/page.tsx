@@ -20,7 +20,7 @@ import { ProjectDetailSkeleton } from '@/app/components/Skeletons'
 const UPLOAD_DOC_TYPES: { type: RawDocType; label: string }[] = [
   { type: 'brd', label: 'BRD - Đặc tả Yêu cầu Kinh doanh' },
   { type: 'srs', label: 'SRS - Đặc tả Yêu cầu Phần mềm' },
-  { type: 'user-story', label: 'User Story - Danh sách User Stories & AC' },
+  { type: 'user-story', label: 'User Story - Danh sách User Stories và AC' },
   { type: 'feature-request', label: 'Feature Spec - Yêu cầu tính năng' },
   { type: 'api-spec', label: 'API Spec - Swagger / OpenAPI' },
   { type: 'email-notes', label: 'Ghi chú / Email Yêu cầu' },
@@ -806,7 +806,7 @@ function ImportStepDocModal({
               disabled={saving || !name.trim() || (!selectedFile && !textContent.trim())}
               className="flex-1 bg-emerald-600 text-white rounded-xl py-3 text-sm md:text-base font-extrabold hover:bg-emerald-500 transition-all disabled:opacity-40 shadow-md"
             >
-              {saving ? 'Đang lưu...' : 'Nhập & Mở khoá Step này'}
+              {saving ? 'Đang lưu...' : 'Nhập và Mở khoá Step này'}
             </button>
           </div>
         </form>
@@ -901,10 +901,10 @@ export default function ProjectPage() {
           </div>
           <div>
             <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'phase1' ? 'text-white' : 'text-slate-900'}`}>
-              Lưu trữ & Quản lý tài liệu đầu vào (Baseline)
+              Lưu trữ và Quản lý tài liệu đầu vào (Baseline)
             </h2>
             <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'phase1' ? 'text-amber-50' : 'text-slate-500'}`}>
-              BRD, SRS, User Story, Figma & Audio
+              BRD, SRS, User Story, Figma và Audio
             </p>
           </div>
         </button>
@@ -933,7 +933,7 @@ export default function ProjectPage() {
               Quy trình QA Testing Lifecycle
             </h2>
             <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'phase2' ? 'text-amber-50' : 'text-slate-500'}`}>
-              Review Requirement, Strategy, Cases & Report
+              Review Requirement, Strategy, Cases và Report
             </p>
           </div>
         </button>
@@ -959,10 +959,10 @@ export default function ProjectPage() {
           </div>
           <div>
             <h2 className={`text-lg md:text-xl font-extrabold tracking-tight ${activeTab === 'artifacts' ? 'text-white' : 'text-slate-900'}`}>
-              Lưu trữ & Quản lý tài liệu Testing
+              Lưu trữ và Quản lý tài liệu Testing
             </h2>
             <p className={`text-xs md:text-sm mt-1.5 font-medium leading-relaxed ${activeTab === 'artifacts' ? 'text-amber-50' : 'text-slate-500'}`}>
-              Xuất file Markdown, Word (.doc) & Quản lý bản vết
+              Xuất file Markdown, HTML và Quản lý bản vết
             </p>
           </div>
         </button>
@@ -1032,10 +1032,10 @@ export default function ProjectPage() {
                     <span className="text-xs md:text-sm bg-indigo-600 text-white px-3 py-1 rounded-md font-extrabold font-mono shadow-sm">
                       PHASE 2 ➔ QA LIFECYCLE PIPELINE
                     </span>
-                    <h2 className="font-extrabold text-slate-900 text-xl md:text-2xl tracking-tight">Quy trình Kiểm thử Tiêu chuẩn (ISTQB & IEEE 829)</h2>
+                    <h2 className="font-extrabold text-slate-900 text-xl md:text-2xl tracking-tight">Quy trình Kiểm thử Tiêu chuẩn (ISTQB)</h2>
                   </div>
                   <p className="text-xs md:text-sm text-slate-700 mt-1.5 font-bold leading-relaxed">
-                    Vận hành 4 bước kiểm thử tự động (Step 1 ➔ Step 4) để khởi tạo Chiến lược, Kịch bản & Báo cáo Release
+                    Vận hành 4 bước kiểm thử tự động để khởi tạo Chiến lược, Kịch bản và Báo cáo Release
                   </p>
                 </div>
 
@@ -1205,11 +1205,11 @@ export default function ProjectPage() {
       {viewingDoc && (
         <div
           onClick={() => setViewingDoc(null)}
-          className="fixed inset-0 bg-slate-900/65 flex items-center justify-center z-50 p-4 sm:p-6 backdrop-blur-xs cursor-pointer"
+          className="fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-0 m-0 w-screen h-screen overflow-hidden backdrop-blur-xs cursor-pointer"
         >
           <div
             onClick={e => e.stopPropagation()}
-            className="bg-white border-2 border-indigo-400 rounded-3xl shadow-2xl w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden text-slate-900 cursor-default"
+            className="bg-white w-full h-full flex flex-col overflow-hidden text-slate-900 cursor-default shadow-2xl"
           >
             <DocumentViewer
               content={viewingDoc.content}

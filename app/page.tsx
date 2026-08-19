@@ -538,8 +538,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Side: Version Badge */}
-        <div className="flex items-center gap-2.5 ml-auto shrink-0 font-mono text-xs">
-          <span className="bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1.5 rounded-xl font-extrabold shadow-2xs">
+        <div className="flex items-center gap-2.5 ml-auto shrink-0 text-xs">
+          <span className="bg-indigo-50 text-indigo-900 border border-indigo-300 px-3 py-1.5 rounded-xl font-semibold shadow-2xs">
             v1.0 Internal EZG
           </span>
         </div>
@@ -569,7 +569,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
               >
                 <span>+</span> Thêm dự án
               </button>
@@ -582,14 +582,14 @@ export default function DashboardPage() {
           ) : filteredProjects.length === 0 ? (
             <div className="bg-white border-2 border-slate-300 rounded-2xl p-12 text-center space-y-4 shadow-md">
               <div>
-                <h3 className="font-extrabold text-slate-900 text-lg md:text-xl">Chưa có dự án kiểm thử nào</h3>
+                <h3 className="font-semibold text-slate-900 text-lg md:text-xl">Chưa có dự án kiểm thử nào</h3>
                 <p className="text-xs md:text-sm text-slate-600 mt-1 max-w-md mx-auto font-semibold">
                   Hãy tạo dự án đầu tiên để bắt đầu lưu trữ tài liệu Phase 1 và sử dụng các Trợ lý QA tự động hoá công việc kiểm thử.
                 </p>
               </div>
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all shadow-md"
               >
                 + Tạo dự án đầu tiên
               </button>
@@ -613,16 +613,16 @@ export default function DashboardPage() {
                     <div className="space-y-2 flex-1 flex flex-col">
                       <div className="flex items-start justify-between gap-2.5">
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center font-black text-indigo-700 shrink-0 text-sm shadow-xs font-mono">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center font-bold text-indigo-700 shrink-0 text-sm shadow-xs">
                             {initialLetter}
                           </div>
                           <div className="min-w-0">
                             <Link href={`/projects/${p.id}`}>
-                              <h3 className="font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors text-base truncate" title={p.name}>
+                              <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors text-base truncate" title={p.name}>
                                 {p.name}
                               </h3>
                             </Link>
-                            <p className="text-[11px] text-slate-500 font-mono font-semibold">
+                            <p className="text-[11px] text-slate-500 font-medium">
                               {new Date(p.createdAt).toLocaleDateString('vi-VN')}
                             </p>
                           </div>
@@ -660,7 +660,7 @@ export default function DashboardPage() {
                             {p.techStack.split(',').map(t => (
                               <span
                                 key={t}
-                                className="bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[11px] px-2 py-0.2 rounded-full font-bold"
+                                className="bg-slate-100 text-slate-800 border border-slate-300 text-[11px] px-2 py-0.2 rounded-full font-medium"
                               >
                                 {t.trim()}
                               </span>
@@ -677,7 +677,7 @@ export default function DashboardPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={e => e.stopPropagation()}
-                                className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Staging WebApp: ${p.stagingUrl}`}
                               >
                                 <span>STG Web</span>
@@ -689,7 +689,7 @@ export default function DashboardPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={e => e.stopPropagation()}
-                                className="bg-orange-50 hover:bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                className="bg-orange-50 hover:bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Staging Admin Portal: ${p.stagingAdminUrl}`}
                               >
                                 <span>STG Admin</span>
@@ -701,7 +701,7 @@ export default function DashboardPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={e => e.stopPropagation()}
-                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Production WebApp: ${p.prodUrl}`}
                               >
                                 <span>PROD Web</span>
@@ -713,7 +713,7 @@ export default function DashboardPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={e => e.stopPropagation()}
-                                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-300 px-2 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Production Admin Portal: ${p.prodAdminUrl}`}
                               >
                                 <span>PROD Admin</span>
@@ -725,7 +725,7 @@ export default function DashboardPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={e => e.stopPropagation()}
-                                className="bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                className="bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-300 px-2 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở Design Figma File: ${p.figmaUrl}`}
                               >
                                 <span>Figma Link</span>
@@ -737,7 +737,7 @@ export default function DashboardPage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={e => e.stopPropagation()}
-                                className="bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded text-[11px] font-mono font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                                className="bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded text-[11px] font-semibold flex items-center gap-1 transition-all shadow-2xs"
                                 title={`Mở File Bug List: ${p.bugListUrl}`}
                               >
                                 <span>Bug List</span>
@@ -751,9 +751,9 @@ export default function DashboardPage() {
                               e.stopPropagation()
                               setEditingProject(p)
                             }}
-                            className="text-[11px] text-slate-400 hover:text-indigo-600 font-mono font-bold flex items-center gap-1 transition-colors"
+                            className="text-[11px] text-slate-400 hover:text-indigo-600 font-semibold flex items-center gap-1 transition-colors"
                           >
-                            <span>+ Cấu hình Domain WebApp/Admin, Figma & Bug List</span>
+                            <span>+ Cấu hình Domain WebApp/Admin, Figma và Bug List</span>
                           </button>
                         )}
                       </div>

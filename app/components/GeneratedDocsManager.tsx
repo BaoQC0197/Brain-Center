@@ -174,14 +174,14 @@ export default function GeneratedDocsManager({
               Phase 2 ➔ QA Artifacts
             </span>
             <h3 className="text-lg md:text-xl font-extrabold text-slate-900 tracking-tight">
-              Quản lý Tài liệu QA & Lịch sử Phiên bản
+              Quản lý Tài liệu QA và Lịch sử Phiên bản
             </h3>
             <span className="text-xs bg-purple-100 text-purple-900 border border-purple-300 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
               {groupedStreams.length} Luồng ({docs.length} Versions)
             </span>
           </div>
           <p className="text-xs text-slate-600 mt-1 font-bold">
-            Đã tự động gom nhóm theo Loại tài liệu & Quản lý lịch sử phiên bản
+            Đã tự động gom nhóm theo Loại tài liệu và Quản lý lịch sử phiên bản
           </p>
         </div>
 
@@ -216,7 +216,7 @@ export default function GeneratedDocsManager({
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
                 }`}
             >
-              <span>Yêu cầu & AC</span>
+              <span>Yêu cầu và AC</span>
               <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.req_ac}</span>
             </button>
 
@@ -227,7 +227,7 @@ export default function GeneratedDocsManager({
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
                 }`}
             >
-              <span>Chiến lược & Kế hoạch</span>
+              <span>Chiến lược và Kế hoạch</span>
               <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.strategy_plan}</span>
             </button>
 
@@ -238,7 +238,7 @@ export default function GeneratedDocsManager({
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
                 }`}
             >
-              <span>Kịch bản & Test Cases</span>
+              <span>Kịch bản và Test Cases</span>
               <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.test_cases}</span>
             </button>
 
@@ -249,7 +249,7 @@ export default function GeneratedDocsManager({
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-2 border-slate-200'
                 }`}
             >
-              <span>Báo cáo & Đánh giá</span>
+              <span>Báo cáo và Đánh giá</span>
               <span className="bg-slate-200 text-slate-800 text-xs px-2 py-0.5 rounded-full font-mono font-bold">{counts.reports}</span>
             </button>
           </div>
@@ -313,15 +313,15 @@ export default function GeneratedDocsManager({
           <div className="bg-white border-2 border-indigo-200 rounded-2xl overflow-hidden shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs md:text-sm">
-                <thead className="bg-slate-100/80 border-b-2 border-slate-200 text-slate-700 uppercase font-mono font-extrabold">
+                <thead className="bg-slate-100/80 border-b-2 border-slate-200 text-slate-700 uppercase font-semibold">
                   <tr>
-                    <th className="p-3 pl-4">Tài liệu & Đặc tả QA</th>
+                    <th className="p-3 pl-4">Tài liệu và Đặc tả QA</th>
                     <th className="p-3">Phiên bản</th>
                     <th className="p-3">Cập nhật</th>
                     <th className="p-3 text-right pr-4">Thao tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 font-bold text-slate-800">
+                <tbody className="divide-y divide-slate-200 font-semibold text-slate-800">
                   {filteredStreams.map(stream => {
                     const meta = DOC_TYPE_META[stream.type] || { label: stream.type, badgeColor: 'bg-slate-100 text-slate-800' }
                     const activeDocId = selectedVersionMap[stream.groupKey] || stream.latestDoc.id
@@ -333,14 +333,14 @@ export default function GeneratedDocsManager({
                       <tr key={stream.groupKey} className="hover:bg-slate-50/80 transition-colors">
                         <td className="p-3 pl-4">
                           <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className={`text-[11px] px-2.5 py-0.5 rounded font-mono font-extrabold border ${meta.badgeColor}`}>
+                            <span className={`text-[11px] px-2.5 py-0.5 rounded font-semibold border ${meta.badgeColor}`}>
                               {meta.label}
                             </span>
-                            <span className="font-extrabold text-slate-900 truncate max-w-xs md:max-w-md">
+                            <span className="font-semibold text-slate-900 truncate max-w-xs md:max-w-md">
                               {activeDoc.inputSummary || stream.title}
                             </span>
                             {isTestCaseDoc && (
-                              <span className="text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded font-mono font-bold">
+                              <span className="text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded font-semibold">
                                 {activeDoc.content.length} Cases
                               </span>
                             )}
@@ -352,7 +352,7 @@ export default function GeneratedDocsManager({
                             <select
                               value={activeDoc.id}
                               onChange={e => setSelectedVersionMap(prev => ({ ...prev, [stream.groupKey]: e.target.value }))}
-                              className="bg-slate-100 border border-slate-300 text-indigo-900 text-xs rounded-lg px-2 py-1 font-mono font-bold focus:outline-none cursor-pointer"
+                              className="bg-slate-100 border border-slate-300 text-indigo-900 text-xs rounded-lg px-2 py-1 font-semibold focus:outline-none cursor-pointer"
                             >
                               {stream.versions.map((vDoc, idx) => (
                                 <option key={vDoc.id} value={vDoc.id}>
@@ -361,13 +361,13 @@ export default function GeneratedDocsManager({
                               ))}
                             </select>
                           ) : (
-                            <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-bold">
+                            <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold">
                               v{activeDoc.version || 1}
                             </span>
                           )}
                         </td>
 
-                        <td className="p-3 text-slate-500 font-mono text-xs font-semibold">
+                        <td className="p-3 text-slate-500 text-xs font-medium">
                           {new Date(activeDoc.createdAt).toLocaleDateString('vi-VN')}
                         </td>
 
@@ -379,15 +379,6 @@ export default function GeneratedDocsManager({
                               className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-2xs"
                             >
                               Xem (v{activeDoc.version || 1})
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => downloadWord(activeDoc)}
-                              className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
-                              title="Tải Word (.doc)"
-                            >
-                              Word
                             </button>
 
                             {isTestCaseDoc && (
@@ -446,14 +437,14 @@ export default function GeneratedDocsManager({
                           {activeDoc.inputSummary || stream.title}
                         </h4>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span className={`text-xs px-2.5 py-0.5 rounded font-mono font-extrabold border ${meta.badgeColor}`}>
+                          <span className={`text-xs px-2.5 py-0.5 rounded font-semibold border ${meta.badgeColor}`}>
                             {meta.label}
                           </span>
-                          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-300 px-2.5 py-0.5 rounded font-mono font-extrabold">
+                          <span className="text-xs bg-indigo-100 text-indigo-900 border border-indigo-300 px-2.5 py-0.5 rounded font-semibold">
                             {stream.versions.length} {stream.versions.length > 1 ? 'Versions' : 'Version'}
                           </span>
                           {isTestCaseDoc && (
-                            <span className="text-xs bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded font-mono font-extrabold">
+                            <span className="text-xs bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded font-semibold">
                               {activeDoc.content.length} Test Cases
                             </span>
                           )}
@@ -469,7 +460,7 @@ export default function GeneratedDocsManager({
                       </button>
                     </div>
 
-                    <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg flex items-center justify-between text-xs font-mono">
+                    <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg flex items-center justify-between text-xs font-medium">
                       <span className="text-slate-700 font-medium">
                         Lịch sử:
                       </span>
@@ -500,13 +491,6 @@ export default function GeneratedDocsManager({
                     </button>
 
                     <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => downloadWord(activeDoc)}
-                        className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg font-medium transition-all"
-                      >
-                        Word
-                      </button>
-
                       {isTestCaseDoc && (
                         <button
                           onClick={() => downloadCsv(activeDoc)}
