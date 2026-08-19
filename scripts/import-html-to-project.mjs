@@ -1,12 +1,12 @@
 import fs from 'fs'
 import path from 'path'
-import { storage } from '../lib/storage.js'
 import { v4 as uuidv4 } from 'uuid'
+import { storage } from '../lib/storage.ts'
 
 async function importHtml() {
   const args = process.argv.slice(2)
   if (args.length < 2) {
-    console.log('Usage: node scripts/import-html-to-project.mjs <projectId> <filePath> [docType] [inputSummary]')
+    console.log('Usage: npx tsx scripts/import-html-to-project.mjs <projectId> <filePath> [docType] [inputSummary]')
     process.exit(1)
   }
 
