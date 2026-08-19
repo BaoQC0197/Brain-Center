@@ -820,37 +820,37 @@ export default function QAAgentHubPage() {
               ))}
             </div>
           ) : (
-            <div className="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 text-xs md:text-sm text-emerald-800 font-bold">
-              ✅ Tài liệu đã đủ rõ ràng — Không có câu hỏi nào cần làm rõ thêm. Bấm "Xác nhận & Chạy Agent" để tiếp tục.
+            <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 text-xs md:text-sm text-emerald-900 font-medium">
+              Tài liệu đã đủ rõ ràng — Không có câu hỏi nào cần làm rõ thêm. Bấm "Xác nhận và Chạy Agent" để tiếp tục.
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-xl text-xs md:text-sm font-bold">{error}</div>
+            <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-xl text-xs md:text-sm font-semibold">{error}</div>
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center justify-between gap-3 flex-wrap border-t-2 border-amber-200 pt-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap border-t border-amber-200 pt-4">
             <button
               type="button"
               onClick={() => handleExecuteAgent(undefined, true)}
               disabled={loading}
-              className="text-xs md:text-sm font-bold text-slate-600 hover:text-slate-900 underline transition-colors disabled:opacity-50"
+              className="text-xs md:text-sm font-semibold text-slate-600 hover:text-slate-900 underline transition-colors disabled:opacity-50"
             >
-              Bỏ qua Làm rõ, chạy thẳng Agent ➔
+              Bỏ qua Làm rõ, chạy thẳng Agent
             </button>
             <button
               type="button"
               onClick={() => handleExecuteAgent(undefined, true)}
               disabled={loading}
-              className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm md:text-base font-extrabold transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm md:text-base font-semibold transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               {loading ? (
                 streamChars > 0
-                  ? <>Agent đang suy luận & tạo doc... {streamChars.toLocaleString('vi-VN')} ký tự</>
+                  ? <>Agent đang suy luận và tạo doc... {streamChars.toLocaleString('vi-VN')} ký tự</>
                   : <>Đang kết nối AI Agent...</>
               ) : (
-                <>✅ Xác nhận & Chạy Agent {currentAgent.label} ➔</>
+                <>Xác nhận và Chạy Agent {currentAgent.label}</>
               )}
             </button>
           </div>

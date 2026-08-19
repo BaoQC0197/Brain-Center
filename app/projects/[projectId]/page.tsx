@@ -115,49 +115,41 @@ function EditProjectModal({
           </div>
 
           {/* Quick Domain & Tool Links Config Section */}
-          <div className="grid sm:grid-cols-2 gap-3 bg-slate-50 border-2 border-slate-200 p-4 rounded-2xl">
+          <div className="grid sm:grid-cols-2 gap-3 bg-slate-50 border border-slate-200 p-4 rounded-xl">
             <div>
-              <label className="block text-xs font-extrabold text-slate-900 mb-1 flex items-center gap-1">
-                <span>🟡 Staging URL</span>
-              </label>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Staging URL</label>
               <input
                 value={stagingUrl}
                 onChange={e => setStagingUrl(e.target.value)}
                 placeholder="https://staging.app.com"
-                className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-extrabold text-slate-900 mb-1 flex items-center gap-1">
-                <span>🟢 Production URL</span>
-              </label>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Production URL</label>
               <input
                 value={prodUrl}
                 onChange={e => setProdUrl(e.target.value)}
                 placeholder="https://app.com"
-                className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-extrabold text-slate-900 mb-1 flex items-center gap-1">
-                <span>🎨 Figma Link URL</span>
-              </label>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Figma Link URL</label>
               <input
                 value={figmaUrl}
                 onChange={e => setFigmaUrl(e.target.value)}
                 placeholder="https://www.figma.com/file/..."
-                className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-extrabold text-slate-900 mb-1 flex items-center gap-1">
-                <span>🔴 Bug List Online URL</span>
-              </label>
+              <label className="block text-xs font-semibold text-slate-900 mb-1">Bug List Online URL</label>
               <input
                 value={bugListUrl}
                 onChange={e => setBugListUrl(e.target.value)}
                 placeholder="https://docs.google.com/spreadsheets/..."
-                className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
             </div>
           </div>
@@ -472,9 +464,9 @@ function AddRawDocModal({
               setActiveTab('audio')
               setDocType('meeting-minutes')
             }}
-            className={`py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'audio' ? 'bg-teal-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-teal-900'}`}
+            className={`py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${activeTab === 'audio' ? 'bg-teal-600 text-white shadow-md font-semibold' : 'text-slate-700 hover:text-teal-900'}`}
           >
-            <span>🎙️ Ghi âm Cuộc họp</span>
+            <span>Ghi âm Cuộc họp</span>
           </button>
 
           <button
@@ -483,7 +475,7 @@ function AddRawDocModal({
               setActiveTab('figma')
               setDocType('figma')
             }}
-            className={`py-2 rounded-xl transition-all cursor-pointer ${activeTab === 'figma' ? 'bg-indigo-600 text-white shadow-md font-extrabold' : 'text-slate-700 hover:text-slate-900'}`}
+            className={`py-2 rounded-xl transition-all cursor-pointer ${activeTab === 'figma' ? 'bg-indigo-600 text-white shadow-md font-semibold' : 'text-slate-700 hover:text-slate-900'}`}
           >
             Link Figma
           </button>
@@ -492,24 +484,24 @@ function AddRawDocModal({
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">Loại tài liệu</label>
+              <label className="block text-xs md:text-sm font-semibold text-slate-900 mb-1">Loại tài liệu</label>
               {activeTab === 'audio' ? (
                 <input
                   disabled
                   value="Meeting Minutes - Biên bản họp / Transcribe"
-                  className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-600 font-extrabold cursor-not-allowed"
+                  className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-600 font-semibold cursor-not-allowed"
                 />
               ) : activeTab === 'figma' ? (
                 <input
                   disabled
                   value="Thiết kế Figma (UI/UX)"
-                  className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-600 font-extrabold cursor-not-allowed"
+                  className="w-full bg-slate-100 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-600 font-semibold cursor-not-allowed"
                 />
               ) : (
                 <select
                   value={docType}
                   onChange={e => setDocType(e.target.value)}
-                  className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                 >
                   {UPLOAD_DOC_TYPES.map(t => (
                     <option key={t.type} value={t.type}>{t.label}</option>
@@ -518,12 +510,12 @@ function AddRawDocModal({
               )}
             </div>
             <div>
-              <label className="block text-xs md:text-sm font-extrabold text-slate-900 mb-1">Tên tài liệu <span className="text-rose-600 font-bold">*</span></label>
+              <label className="block text-xs md:text-sm font-semibold text-slate-900 mb-1">Tên tài liệu <span className="text-rose-600 font-bold">*</span></label>
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Ví dụ: Tài liệu đặc tả luồng Thanh toán"
-                className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
               />
             </div>
           </div>
@@ -547,11 +539,11 @@ function AddRawDocModal({
                 onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
               />
               <label htmlFor="file-input" className="cursor-pointer space-y-1.5 block">
-                <p className="text-sm md:text-base font-extrabold text-slate-900">Kéo thả file vào đây hoặc <span className="text-indigo-600 underline">chọn file từ máy</span></p>
-                <p className="text-xs font-bold text-slate-500">Hỗ trợ Văn bản (.txt, .md, .doc, .pdf) và File Ghi âm (.mp3, .m4a, .wav, .webm)</p>
+                <p className="text-sm md:text-base font-semibold text-slate-900">Kéo thả file vào đây hoặc <span className="text-indigo-600 underline">chọn file từ máy</span></p>
+                <p className="text-xs font-medium text-slate-500">Hỗ trợ Văn bản (.txt, .md, .doc, .pdf) và File Ghi âm (.mp3, .m4a, .wav, .webm)</p>
               </label>
               {textContent && (
-                <div className="mt-3 p-2.5 bg-emerald-100 rounded-xl text-xs text-emerald-900 font-mono font-bold truncate border-2 border-emerald-300 shadow-xs">
+                <div className="mt-3 p-2.5 bg-emerald-100 rounded-xl text-xs text-emerald-900 font-mono font-semibold truncate border border-emerald-300 shadow-xs">
                   Đã nhận văn bản ({textContent.length.toLocaleString('vi-VN')} ký tự)
                 </div>
               )}
@@ -559,12 +551,12 @@ function AddRawDocModal({
           )}
 
           {activeTab === 'audio' && (
-            <div className="bg-teal-50/80 border-2 border-teal-300 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center justify-between flex-wrap gap-2 border-b-2 border-teal-200 pb-3">
+            <div className="bg-teal-50/80 border border-teal-200 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2 border-b border-teal-200 pb-3">
                 <div>
-                  <h3 className="font-extrabold text-teal-950 text-sm md:text-base">🎙️ Thu âm Trực tiếp hoặc Upload File Ghi âm Cuộc họp</h3>
-                  <p className="text-[11px] text-teal-800 font-bold mt-0.5">
-                    Trợ lý sẽ tự động lắng nghe và chuyển toàn bộ cuộc họp thành văn bản Tiếng Việt chi tiết (Transcript & Key Decisions) để làm ngữ cảnh kiểm thử.
+                  <h3 className="font-semibold text-teal-950 text-sm md:text-base">Thu âm Trực tiếp hoặc Upload File Ghi âm Cuộc họp</h3>
+                  <p className="text-[11px] text-teal-800 font-medium mt-0.5">
+                    Trợ lý sẽ tự động lắng nghe và chuyển toàn bộ cuộc họp thành văn bản Tiếng Việt chi tiết (Transcript và Key Decisions) để làm ngữ cảnh kiểm thử.
                   </p>
                 </div>
 
@@ -573,7 +565,7 @@ function AddRawDocModal({
                     <button
                       type="button"
                       onClick={startRecording}
-                      className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
                     >
                       <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" />
                       <span>Bắt đầu Ghi âm Mic</span>
@@ -582,38 +574,37 @@ function AddRawDocModal({
                     <button
                       type="button"
                       onClick={stopRecording}
-                      className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
                     >
                       <span className="w-2.5 h-2.5 bg-rose-500 rounded-xs animate-ping" />
-                      <span>⏹️ Dừng Ghi âm ({formatTimer(recordingTime)})</span>
+                      <span>Dừng Ghi âm ({formatTimer(recordingTime)})</span>
                     </button>
                   )}
                 </div>
               </div>
 
               {/* Alternative Audio File Upload in Audio Tab */}
-              <div className="flex items-center justify-between bg-white p-2.5 border-2 border-teal-200 rounded-xl flex-wrap gap-2 text-xs font-bold">
-                <span className="text-teal-900 font-extrabold">Hoặc chọn file ghi âm từ máy (.mp3, .m4a, .wav, .webm):</span>
+              <div className="flex items-center justify-between bg-white p-2.5 border border-teal-200 rounded-xl flex-wrap gap-2 text-xs font-medium">
+                <span className="text-teal-900 font-semibold">Hoặc chọn file ghi âm từ máy (.mp3, .m4a, .wav, .webm):</span>
                 <input
                   type="file"
                   accept="audio/*,.mp3,.m4a,.wav,.webm,.ogg"
                   onChange={e => e.target.files?.[0] && handleAudioFileUpload(e.target.files[0])}
-                  className="text-xs text-slate-700 file:bg-teal-600 file:text-white file:border-0 file:px-2.5 file:py-1 file:rounded-lg file:font-extrabold cursor-pointer"
+                  className="text-xs text-slate-700 file:bg-teal-600 file:text-white file:border-0 file:px-2.5 file:py-1 file:rounded-lg file:font-semibold cursor-pointer"
                 />
               </div>
 
               {/* Audio Preview Player */}
               {audioBase64 && (
-                <div className="bg-white p-2.5 border-2 border-teal-300 rounded-xl flex items-center justify-between flex-wrap gap-2 shadow-xs">
-                  <span className="text-xs font-mono font-extrabold text-teal-900">Audio Preview:</span>
+                <div className="bg-white p-2.5 border border-teal-300 rounded-xl flex items-center justify-between flex-wrap gap-2 shadow-xs">
+                  <span className="text-xs font-mono font-semibold text-teal-900">Audio Preview:</span>
                   <audio controls src={audioBase64} className="h-8 rounded-lg max-w-full" />
                 </div>
               )}
 
               {/* Transcription Loading Indicator */}
               {transcribing && (
-                <div className="bg-amber-100 border-2 border-amber-300 text-amber-900 p-3 rounded-xl text-xs font-extrabold flex items-center gap-2 animate-pulse">
-                  <span className="text-lg animate-spin">⚡</span>
+                <div className="bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-xl text-xs font-semibold flex items-center gap-2">
                   <span>Trợ lý đang tự động lắng nghe và chuyển đổi âm thanh cuộc họp sang văn bản...</span>
                 </div>
               )}

@@ -100,61 +100,61 @@ function EditProjectModal({
           </div>
 
           {/* Quick Domain & Tool Links Config Section */}
-          <div className="space-y-3 bg-slate-50 border-2 border-slate-200 p-4 rounded-2xl">
-            <h4 className="font-extrabold text-xs text-slate-700 uppercase tracking-wider font-mono">🌐 DOMAINS, FIGMA & BUG TRACKING LINKS</h4>
+          <div className="space-y-3 bg-slate-50 border border-slate-200 p-4 rounded-xl">
+            <h4 className="font-semibold text-xs text-slate-700 uppercase tracking-wider font-mono">LIÊN KẾT MÔI TRƯỜNG VÀ CÔNG CỤ</h4>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🟡 STG Web</label>
+                <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Staging Web</label>
                 <input
                   value={stagingUrl}
                   onChange={e => setStagingUrl(e.target.value)}
                   placeholder="https://staging.app.com"
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🟧 STG Admin</label>
+                <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Staging Admin</label>
                 <input
                   value={stagingAdminUrl}
                   onChange={e => setStagingAdminUrl(e.target.value)}
                   placeholder="https://staging-admin.app.com"
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🟢 PROD Web</label>
+                <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Production Web</label>
                 <input
                   value={prodUrl}
                   onChange={e => setProdUrl(e.target.value)}
                   placeholder="https://app.com"
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🔷 PROD Admin</label>
+                <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Production Admin</label>
                 <input
                   value={prodAdminUrl}
                   onChange={e => setProdAdminUrl(e.target.value)}
                   placeholder="https://admin.app.com"
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🎨 Figma Link</label>
+                <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Figma Link</label>
                 <input
                   value={figmaUrl}
                   onChange={e => setFigmaUrl(e.target.value)}
                   placeholder="https://www.figma.com/file/..."
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-pink-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🔴 Bug List</label>
+                <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Bug List Online</label>
                 <input
                   value={bugListUrl}
                   onChange={e => setBugListUrl(e.target.value)}
                   placeholder="https://docs.google.com/spreadsheets/..."
-                  className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
             </div>
@@ -1272,61 +1272,61 @@ export default function DashboardPage() {
               </div>
 
               {/* Quick Domain & Tool Links Config Section */}
-              <div className="space-y-3 bg-slate-50 border-2 border-slate-200 p-4 rounded-2xl">
-                <h4 className="font-extrabold text-xs text-slate-700 uppercase tracking-wider font-mono">🌐 DOMAINS & BUG TRACKING LINKS</h4>
+              <div className="space-y-3 bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                <h4 className="font-semibold text-xs text-slate-700 uppercase tracking-wider font-mono">LIÊN KẾT MÔI TRƯỜNG VÀ CÔNG CỤ</h4>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🟡 STG Web</label>
+                    <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Staging Web</label>
                     <input
                       value={form.stagingUrl}
                       onChange={e => setForm(f => ({ ...f, stagingUrl: e.target.value }))}
                       placeholder="https://staging.app.com"
-                      className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🟧 STG Admin</label>
+                    <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Staging Admin</label>
                     <input
                       value={form.stagingAdminUrl}
                       onChange={e => setForm(f => ({ ...f, stagingAdminUrl: e.target.value }))}
                       placeholder="https://staging-admin.app.com"
-                      className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🟢 PROD Web</label>
+                    <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Production Web</label>
                     <input
                       value={form.prodUrl}
                       onChange={e => setForm(f => ({ ...f, prodUrl: e.target.value }))}
                       placeholder="https://app.com"
-                      className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🔷 PROD Admin</label>
+                    <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Production Admin</label>
                     <input
                       value={form.prodAdminUrl}
                       onChange={e => setForm(f => ({ ...f, prodAdminUrl: e.target.value }))}
                       placeholder="https://admin.app.com"
-                      className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🎨 Figma Link</label>
+                    <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Figma Link</label>
                     <input
                       value={form.figmaUrl}
                       onChange={e => setForm(f => ({ ...f, figmaUrl: e.target.value }))}
                       placeholder="https://www.figma.com/file/..."
-                      className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-pink-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-900 mb-1 truncate">🔴 Bug List</label>
+                    <label className="block text-xs font-semibold text-slate-900 mb-1 truncate">Bug List Online</label>
                     <input
                       value={form.bugListUrl}
                       onChange={e => setForm(f => ({ ...f, bugListUrl: e.target.value }))}
                       placeholder="https://docs.google.com/spreadsheets/..."
-                      className="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-rose-500"
+                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-rose-500"
                     />
                   </div>
                 </div>

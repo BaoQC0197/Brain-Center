@@ -277,24 +277,24 @@ export default function GeneratedDocsManager({
             </select>
 
             {/* View Mode Toggle Switcher */}
-            <div className="bg-slate-100 border-2 border-slate-300 p-0.5 rounded-xl flex items-center gap-0.5">
+            <div className="bg-slate-100 border border-slate-300 p-0.5 rounded-xl flex items-center gap-0.5">
               <button
                 type="button"
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   viewMode === 'table' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
-                📋 Bảng
+                Bảng
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   viewMode === 'grid' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
-                🎴 Cards
+                Thẻ Cards
               </button>
             </div>
           </div>
@@ -376,38 +376,38 @@ export default function GeneratedDocsManager({
                             <button
                               type="button"
                               onClick={() => onViewDoc(activeDoc)}
-                              className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all shadow-2xs"
+                              className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-2xs"
                             >
-                              👁️ Xem (v{activeDoc.version || 1})
+                              Xem (v{activeDoc.version || 1})
                             </button>
 
                             <button
                               type="button"
                               onClick={() => downloadWord(activeDoc)}
-                              className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all"
+                              className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
                               title="Tải Word (.doc)"
                             >
-                              📄 Word
+                              Word
                             </button>
 
                             {isTestCaseDoc && (
                               <button
                                 type="button"
                                 onClick={() => downloadCsv(activeDoc)}
-                                className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all"
+                                className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
                                 title="Tải Excel (.csv)"
                               >
-                                📊 CSV
+                                CSV
                               </button>
                             )}
 
                             <button
                               type="button"
                               onClick={() => onDeleteDoc(activeDoc.id)}
-                              className="text-slate-400 hover:text-red-600 transition-colors p-1 text-xs font-extrabold ml-1"
+                              className="text-slate-400 hover:text-red-600 transition-colors p-1 text-xs font-semibold ml-1"
                               title="Xoá phiên bản này"
                             >
-                              🗑️
+                              Xoá
                             </button>
                           </div>
                         </td>
@@ -462,22 +462,22 @@ export default function GeneratedDocsManager({
 
                       <button
                         onClick={() => onDeleteDoc(activeDoc.id)}
-                        className="text-slate-400 hover:text-red-600 transition-all p-1 text-xs font-extrabold"
+                        className="text-slate-400 hover:text-red-600 transition-all p-1 text-xs font-semibold"
                         title={`Xoá phiên bản v${activeDoc.version || 1}`}
                       >
-                        🗑️
+                        Xoá
                       </button>
                     </div>
 
                     <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-lg flex items-center justify-between text-xs font-mono">
-                      <span className="text-slate-700 font-bold">
+                      <span className="text-slate-700 font-medium">
                         Lịch sử:
                       </span>
                       {hasMultipleVersions ? (
                         <select
                           value={activeDoc.id}
                           onChange={e => setSelectedVersionMap(prev => ({ ...prev, [stream.groupKey]: e.target.value }))}
-                          className="bg-white border border-slate-300 text-indigo-900 text-xs rounded px-2 py-0.5 font-bold focus:outline-none cursor-pointer"
+                          className="bg-white border border-slate-300 text-indigo-900 text-xs rounded px-2 py-0.5 font-medium focus:outline-none cursor-pointer"
                         >
                           {stream.versions.map((vDoc, idx) => (
                             <option key={vDoc.id} value={vDoc.id}>
@@ -486,7 +486,7 @@ export default function GeneratedDocsManager({
                           ))}
                         </select>
                       ) : (
-                        <span className="text-emerald-800 font-bold">v{activeDoc.version || 1} (Single)</span>
+                        <span className="text-emerald-800 font-medium">v{activeDoc.version || 1} (Single)</span>
                       )}
                     </div>
                   </div>
@@ -494,25 +494,25 @@ export default function GeneratedDocsManager({
                   <div className="pt-2 border-t border-indigo-100 flex items-center justify-between gap-2 text-xs">
                     <button
                       onClick={() => onViewDoc(activeDoc)}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg font-extrabold transition-all shadow-2xs"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg font-semibold transition-all shadow-2xs"
                     >
-                      👁️ Xem (v{activeDoc.version || 1})
+                      Xem (v{activeDoc.version || 1})
                     </button>
 
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => downloadWord(activeDoc)}
-                        className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg font-bold transition-all"
+                        className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg font-medium transition-all"
                       >
-                        📄 Word
+                        Word
                       </button>
 
                       {isTestCaseDoc && (
                         <button
                           onClick={() => downloadCsv(activeDoc)}
-                          className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg font-bold transition-all"
+                          className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 px-2.5 py-1.5 rounded-lg font-medium transition-all"
                         >
-                          📊 CSV
+                          CSV
                         </button>
                       )}
                     </div>

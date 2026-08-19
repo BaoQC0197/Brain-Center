@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import AppAuthGuard from "@/app/components/AppAuthGuard";
 
-const roboto = Roboto({
+const inter = Inter({
   subsets: ["latin", "vietnamese"],
-  weight: ["300", "400", "500", "700", "900"],
-  variable: "--font-roboto",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
@@ -19,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="vi"
-      className={`${roboto.variable} h-full`}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full`}
       suppressHydrationWarning
     >
       <body

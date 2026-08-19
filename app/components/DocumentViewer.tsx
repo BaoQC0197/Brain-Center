@@ -432,10 +432,10 @@ export default function DocumentViewer({
             <button
               type="button"
               onClick={onClose}
-              className="bg-slate-200 hover:bg-slate-300 text-slate-800 border-2 border-slate-300 px-3.5 py-1.5 rounded-xl font-extrabold transition-all ml-1"
+              className="bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 px-3.5 py-1.5 rounded-xl font-semibold transition-all ml-1"
               title="Đóng popup (Esc)"
             >
-              ✕ Đóng
+              Đóng
             </button>
           )}
         </div>
@@ -444,9 +444,8 @@ export default function DocumentViewer({
       {/* Main Display Area */}
       <div className="p-6 bg-white flex-1 overflow-y-auto space-y-4">
         {audioBase64 && (
-          <div className="bg-teal-50 border-2 border-teal-300 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
-            <div className="flex items-center gap-2 text-teal-900 font-mono font-extrabold text-xs md:text-sm">
-              <span className="text-lg">🎙️</span>
+          <div className="bg-teal-50 border border-teal-200 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+            <div className="flex items-center gap-2 text-teal-900 font-mono font-semibold text-xs md:text-sm">
               <span>Ghi âm cuộc họp gốc (Audio Record):</span>
             </div>
             <audio controls src={audioBase64} className="h-10 rounded-lg max-w-full" />
@@ -454,9 +453,8 @@ export default function DocumentViewer({
         )}
 
         {(figmaUrl || docType === 'figma' || docType === 'wireframe') && (
-          <div className="bg-pink-50 border-2 border-pink-300 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
-            <div className="flex items-center gap-2 text-xs md:text-sm font-extrabold text-pink-950">
-              <span className="text-lg">🎨</span>
+          <div className="bg-pink-50 border border-pink-200 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+            <div className="flex items-center gap-2 text-xs md:text-sm font-semibold text-pink-950">
               <span>Thiết kế Figma (UI/UX Design File):</span>
             </div>
             {figmaUrl ? (
@@ -464,12 +462,12 @@ export default function DocumentViewer({
                 href={figmaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
               >
-                <span>Mở File Thiết kế Figma ↗</span>
+                <span>Mở File Thiết kế Figma</span>
               </a>
             ) : (
-              <span className="text-xs text-pink-700 font-bold italic">Chưa gắn URL Figma</span>
+              <span className="text-xs text-pink-700 font-medium italic">Chưa gắn URL Figma</span>
             )}
           </div>
         )}
@@ -494,19 +492,18 @@ export default function DocumentViewer({
         ) : (
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-xl text-xs font-bold text-amber-900">
+            <div className="flex items-center justify-between bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs font-medium text-amber-900">
               <span className="flex items-center gap-1.5">
-                <span>💡</span>
-                <span>Bạn đang ở chế độ <b>Chỉnh sửa trực tiếp</b>. Chỉnh sửa xong bấm nút <b>"💾 Lưu Thay đổi"</b>.</span>
+                <span>Bạn đang ở chế độ <b>Chỉnh sửa trực tiếp</b>. Chỉnh sửa xong bấm nút <b>"Lưu thay đổi"</b>.</span>
               </span>
               {canEdit && (
                 <button
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg font-extrabold transition-all shadow-xs disabled:opacity-50 text-xs"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg font-semibold transition-all shadow-xs disabled:opacity-50 text-xs"
                 >
-                  {saving ? 'Đang lưu...' : savedSuccess ? '✓ Đã lưu!' : '💾 Lưu Ngay'}
+                  {saving ? 'Đang lưu...' : savedSuccess ? 'Đã lưu!' : 'Lưu thay đổi'}
                 </button>
               )}
             </div>

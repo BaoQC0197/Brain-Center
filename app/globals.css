@@ -11,68 +11,72 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-roboto), 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: var(--font-inter), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 html {
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 14px;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'inter';
 }
 
 body {
   background-color: #f8fafc;
   color: #0f172a;
   font-family: var(--font-sans);
-  font-size: 13.5px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
 }
 
 /* Base Heading Overrides */
 h1, h2, h3, h4, h5, h6 {
   color: #0f172a;
   font-family: var(--font-sans);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.022em;
+  font-weight: 700;
 }
 
-/* Clean Light Mode Cards */
+/* Professional Enterprise Cards */
 .saas-card {
   background-color: #ffffff !important;
-  border: 2px solid #e2e8f0 !important;
-  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.06);
-  border-radius: 1rem;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  border-radius: 0.75rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .saas-card:hover {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
 }
 
 .saas-input {
   background-color: #ffffff !important;
-  border: 2px solid #cbd5e1 !important;
+  border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
   font-size: 14px !important;
+  border-radius: 0.5rem;
 }
 
 .saas-input::placeholder {
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }
 
 .saas-input:focus {
-  border-color: #4f46e5 !important;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* Mermaid Mindmap Visual Fixes */

@@ -54,21 +54,18 @@ export default function SettingsPage() {
       {/* Global Config Alert Banner */}
       <div className="bg-gradient-to-r from-indigo-950/70 via-purple-950/40 to-zinc-900 border border-indigo-500/30 rounded-2xl p-6 space-y-3 shadow-xl">
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">⚙️</span>
-            <div>
-              <h1 className="text-lg font-bold text-zinc-100">Cấu hình Hệ thống đã được Quản lý Tập trung</h1>
-              <p className="text-xs text-zinc-400 mt-1">
-                Toàn bộ **System Instructions ("AI là ai?")** và **Task Prompts ("Làm nhiệm vụ gì?")** hiện đã được quản lý tập trung ở mục <strong>System Configs (Global Configs)</strong> áp dụng cho tất cả các dự án.
-              </p>
-            </div>
+          <div>
+            <h1 className="text-lg font-bold text-zinc-100">Cấu hình Hệ thống đã được Quản lý Tập trung</h1>
+            <p className="text-xs text-zinc-400 mt-1">
+              Toàn bộ System Instructions ("AI là ai?") và Task Prompts ("Làm nhiệm vụ gì?") hiện đã được quản lý tập trung ở mục <strong>System Configs (Global Configs)</strong> áp dụng cho tất cả các dự án.
+            </p>
           </div>
 
           <Link
             href="/configs"
             className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20"
           >
-            ⚙️ Mở Cấu hình Hệ thống (System Configs) ➔
+            Mở Cấu hình Hệ thống (System Configs)
           </Link>
         </div>
       </div>
@@ -91,7 +88,7 @@ export default function SettingsPage() {
         />
 
         <div className="flex items-center justify-between">
-          {saved ? <span className="text-xs text-emerald-400 font-medium">✅ Đã lưu thành công!</span> : <span />}
+          {saved ? <span className="text-xs text-emerald-400 font-medium">Đã lưu thành công!</span> : <span />}
           <button
             type="button"
             onClick={handleSave}
