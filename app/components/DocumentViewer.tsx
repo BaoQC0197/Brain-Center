@@ -34,7 +34,8 @@ export default function DocumentViewer({
   onSaveContent,
 }: DocumentViewerProps) {
 
-  const [activeTab, setActiveTab] = useState<'formatted' | 'raw'>('formatted')
+  const isInitialTestCase = docType === 'test-cases' || docType === 'test-case' || docType === 'test-scenario'
+  const [activeTab, setActiveTab] = useState<'formatted' | 'grid' | 'raw'>('formatted')
 
   const normalizedContent = useMemo(() => {
     if (!content) return ''
@@ -119,10 +120,101 @@ export default function DocumentViewer({
   const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(-1)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
+  // ─── PARSE TEST CASES FOR VISUAL TESTER EDITOR ────────────────────────────
+  const parsedTestCases = useMemo(() => {
+    try {
+      let raw: any = content
+      if (typeof raw === 'string') {
+        const trimmed = raw.trim()
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+          try {
+            raw = JSON.parse(trimmed)
+          } catch {}
+        }
+      }
+
+      if (Array.isArray(raw)) {
+        return raw as any[]
+      }
+      if (raw && typeof raw === 'object') {
+        if (Array.isArray(raw.testCases)) return raw.testCases
+        if (Array.isArray(raw.scenarios)) return raw.scenarios
+        if (Array.isArray(raw.cases)) return raw.cases
+      }
+
+      // If raw is Markdown with test case blocks or tables
+      if (typeof normalizedContent === 'string') {
+        const tcs: any[] = []
+        const lines = normalizedContent.split('\n')
+        let currentTc: any = null
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim()
+          // Match ### [TC_ID] Title or ### TC_ID: Title
+          const headerMatch = line.match(/^###\s*(?:\[([^\]]+)\]|([A-Za-z0-9_-]+)[:\s])\s*(.*)$/)
+          if (headerMatch) {
+            if (currentTc) tcs.push(currentTc)
+            const id = headerMatch[1] || headerMatch[2] || `TC_${tcs.length + 1}`
+            const title = headerMatch[3] || ''
+            currentTc = {
+              id,
+              title,
+              feature: 'Tổng thể',
+              priority: 'P2',
+              preconditions: '',
+              steps: [],
+              expectedResult: '',
+              executionStatus: 'UNTRIED',
+              bugId: '',
+            }
+            continue
+          }
+
+          if (currentTc) {
+            if (line.toLowerCase().startsWith('- **phân hệ**:') || line.toLowerCase().startsWith('**phân hệ**:')) {
+              currentTc.feature = line.split(':')[1]?.trim() || currentTc.feature
+            } else if (line.toLowerCase().startsWith('- **tiền điều kiện**:') || line.toLowerCase().startsWith('**tiền điều kiện**:')) {
+              currentTc.preconditions = line.split(':')[1]?.trim() || ''
+            } else if (line.toLowerCase().startsWith('- **độ ưu tiên**:') || line.toLowerCase().startsWith('**độ ưu tiên**:')) {
+              const p = line.split(':')[1]?.trim() || ''
+              currentTc.priority = p.includes('P1') || p.toLowerCase().includes('cao') ? 'P1' : p.includes('P3') || p.toLowerCase().includes('thấp') ? 'P3' : 'P2'
+            } else if (line.toLowerCase().startsWith('- **kết quả mong đợi**:') || line.toLowerCase().startsWith('**kết quả mong đợi**:')) {
+              currentTc.expectedResult = line.split(':')[1]?.trim() || ''
+            } else if (line.toLowerCase().startsWith('- **trạng thái**:') || line.toLowerCase().startsWith('**trạng thái**:')) {
+              const s = line.split(':')[1]?.trim().toUpperCase() || 'UNTRIED'
+              currentTc.executionStatus = s.includes('PASS') ? 'PASS' : s.includes('FAIL') ? 'FAIL' : s.includes('BLOCK') ? 'BLOCKED' : 'UNTRIED'
+            } else if (/^\d+\.\s+/.test(line)) {
+              currentTc.steps.push(line.replace(/^\d+\.\s+/, ''))
+            }
+          }
+        }
+        if (currentTc) tcs.push(currentTc)
+        if (tcs.length > 0) return tcs
+      }
+    } catch (err) {
+      console.error('[DocumentViewer] error parsing test cases:', err)
+    }
+    return []
+  }, [content, normalizedContent])
+
+  const [visualTestCases, setVisualTestCases] = useState<any[]>(parsedTestCases)
+  const [tableSearch, setTableSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [priorityFilter, setPriorityFilter] = useState('ALL')
+  const [copiedTable, setCopiedTable] = useState(false)
+
+  useEffect(() => {
+    setVisualTestCases(parsedTestCases)
+  }, [parsedTestCases])
+
+  // Default active tab to visual editor if test cases are available
+  const isTestCaseDoc = docType === 'test-cases' || docType === 'test-case' || docType === 'test-scenario' || visualTestCases.length > 0
+
   useEffect(() => {
     setEditingContent(normalizedContent)
   }, [normalizedContent])
 
+  // Smooth search without focus stealing or jumping
   useEffect(() => {
     if (!searchTerm.trim()) {
       setMatchIndices([])
@@ -138,12 +230,7 @@ export default function DocumentViewer({
       pos += lowerSearch.length
     }
     setMatchIndices(matches)
-    if (matches.length > 0) {
-      setCurrentMatchIndex(0)
-      jumpToMatch(0, matches)
-    } else {
-      setCurrentMatchIndex(-1)
-    }
+    setCurrentMatchIndex(matches.length > 0 ? 0 : -1)
   }, [searchTerm, editingContent])
 
   function jumpToMatch(index: number, matches = matchIndices) {
@@ -153,7 +240,7 @@ export default function DocumentViewer({
     textarea.focus()
     textarea.setSelectionRange(start, end)
     
-    // Auto scroll into view
+    // Auto scroll smoothly
     const lineHeight = 20
     const linesBefore = textarea.value.substring(0, start).split('\n').length
     textarea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight)
@@ -186,6 +273,134 @@ export default function DocumentViewer({
     const updated = editingContent.replace(regex, replaceTerm)
     setEditingContent(updated)
   }
+
+  // ─── VISUAL TEST CASE ACTIONS ──────────────────────────────────────────────
+  function handleUpdateTestCase(index: number, field: string, value: any) {
+    setVisualTestCases(prev => {
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
+    })
+  }
+
+  function handleAddTestCase() {
+    const newTc = {
+      id: `TC_${visualTestCases.length + 1 < 10 ? '0' : ''}${visualTestCases.length + 1}`,
+      title: 'Kiểm thử kịch bản mới',
+      feature: 'Phân hệ chung',
+      priority: 'P2',
+      preconditions: 'Người dùng đã đăng nhập hệ thống',
+      steps: ['1. Mở màn hình chức năng', '2. Thực hiện thao tác kiểm thử'],
+      expectedResult: 'Hệ thống phản hồi chính xác và đúng luồng nghiệp vụ',
+      executionStatus: 'UNTRIED',
+      bugId: '',
+    }
+    setVisualTestCases(prev => [newTc, ...prev])
+  }
+
+  function handleCloneTestCase(index: number) {
+    const target = visualTestCases[index]
+    const cloned = {
+      ...target,
+      id: `${target.id || 'TC'}_COPY`,
+      title: `${target.title || ''} (Bản sao)`,
+      executionStatus: 'UNTRIED',
+    }
+    setVisualTestCases(prev => {
+      const updated = [...prev]
+      updated.splice(index + 1, 0, cloned)
+      return updated
+    })
+  }
+
+  function handleDeleteTestCase(index: number) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa Test Case này?')) {
+      setVisualTestCases(prev => prev.filter((_, idx) => idx !== index))
+    }
+  }
+
+  function handleCopyForSheets() {
+    let tsv = 'Mã TC\tPhân hệ\tTên Scenario / Test Case\tTiền điều kiện\tCác bước thực hiện\tKết quả mong đợi\tĐộ ưu tiên\tTrạng thái\tBug ID\n'
+    visualTestCases.forEach((tc, idx) => {
+      const stepsStr = Array.isArray(tc.steps) ? tc.steps.join('; ') : String(tc.steps || '')
+      tsv += `${tc.id || `TC_${idx + 1}`}\t${tc.feature || ''}\t${tc.title || ''}\t${tc.preconditions || ''}\t${stepsStr}\t${tc.expectedResult || ''}\t${tc.priority || 'P2'}\t${tc.executionStatus || 'UNTRIED'}\t${tc.bugId || ''}\n`
+    })
+    navigator.clipboard.writeText(tsv)
+    setCopiedTable(true)
+    setTimeout(() => setCopiedTable(false), 2500)
+  }
+
+  async function handleSaveVisualTable() {
+    setSaving(true)
+    try {
+      // Format updated test cases to Markdown or JSON
+      let contentToSave: string
+      try {
+        let isJson = false
+        if (typeof content === 'string') {
+          const trimmed = content.trim()
+          if (trimmed.startsWith('{') || trimmed.startsWith('[')) isJson = true
+        } else if (typeof content === 'object') {
+          isJson = true
+        }
+
+        if (isJson) {
+          contentToSave = JSON.stringify(visualTestCases, null, 2)
+        } else {
+          contentToSave = formatTestCasesToMarkdown(visualTestCases)
+        }
+      } catch {
+        contentToSave = formatTestCasesToMarkdown(visualTestCases)
+      }
+
+      setEditingContent(contentToSave)
+
+      if (onSaveContent) {
+        await onSaveContent(contentToSave)
+      } else if (projectId && docId) {
+        const res = await fetch(`/api/projects/${projectId}/documents/${docId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: contentToSave }),
+        })
+        if (!res.ok) throw new Error('Lỗi cập nhật tài liệu')
+      }
+      setSavedSuccess(true)
+      setTimeout(() => setSavedSuccess(false), 2500)
+    } catch (err) {
+      console.error(err)
+      alert('Lỗi lưu: ' + (err as Error).message)
+    }
+    setSaving(false)
+  }
+
+  // Filtered Test Cases for visual grid
+  const filteredTestCases = useMemo(() => {
+    return visualTestCases.filter(tc => {
+      if (statusFilter !== 'ALL' && (tc.executionStatus || 'UNTRIED') !== statusFilter) return false
+      if (priorityFilter !== 'ALL' && (tc.priority || 'P2') !== priorityFilter) return false
+      if (tableSearch.trim()) {
+        const q = tableSearch.toLowerCase()
+        const matchId = (tc.id || '').toLowerCase().includes(q)
+        const matchTitle = (tc.title || '').toLowerCase().includes(q)
+        const matchFeature = (tc.feature || '').toLowerCase().includes(q)
+        const matchSteps = Array.isArray(tc.steps) ? tc.steps.join(' ').toLowerCase().includes(q) : String(tc.steps || '').toLowerCase().includes(q)
+        const matchExpected = (tc.expectedResult || '').toLowerCase().includes(q)
+        if (!matchId && !matchTitle && !matchFeature && !matchSteps && !matchExpected) return false
+      }
+      return true
+    })
+  }, [visualTestCases, tableSearch, statusFilter, priorityFilter])
+
+  // Summary counts
+  const stats = useMemo(() => {
+    const total = visualTestCases.length
+    const pass = visualTestCases.filter(t => t.executionStatus === 'PASS').length
+    const fail = visualTestCases.filter(t => t.executionStatus === 'FAIL').length
+    const blocked = visualTestCases.filter(t => t.executionStatus === 'BLOCKED').length
+    const untried = total - pass - fail - blocked
+    return { total, pass, fail, blocked, untried }
+  }, [visualTestCases])
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -400,24 +615,42 @@ export default function DocumentViewer({
     <div className="bg-white w-full h-full flex flex-col overflow-hidden text-slate-900">
       {/* Action Bar Header */}
       <div className="bg-slate-100 border-b-2 border-slate-300 px-4 py-3 flex items-center justify-between flex-wrap gap-3 shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Tab Switcher */}
           <div className="bg-white p-1 rounded-xl border-2 border-slate-300 flex items-center gap-1">
             <button
               type="button"
               onClick={() => setActiveTab('formatted')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'formatted'
                   ? 'bg-indigo-600 text-white shadow-xs'
                   : 'text-slate-700 hover:text-slate-900'
               }`}
             >
-              Xem HTML Formatted
+              Xem Giao diện (HTML)
             </button>
+
+            {isTestCaseDoc && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('grid')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'grid'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-emerald-800 hover:text-emerald-950 bg-emerald-50'
+                }`}
+              >
+                <span>Bảng Test Cases (Tester Editor)</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${activeTab === 'grid' ? 'bg-white/20 text-white' : 'bg-emerald-200 text-emerald-900'}`}>
+                  {visualTestCases.length}
+                </span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => setActiveTab('raw')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'raw'
                   ? 'bg-indigo-600 text-white shadow-xs'
                   : 'text-slate-700 hover:text-slate-900'
@@ -502,7 +735,7 @@ export default function DocumentViewer({
             <button
               type="button"
               onClick={onClose}
-              className="bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 px-4 py-1.5 rounded-xl font-bold transition-all ml-1"
+              className="bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 px-4 py-1.5 rounded-xl font-bold transition-all ml-1 cursor-pointer"
               title="Đóng popup (Esc)"
             >
               Đóng
@@ -557,12 +790,265 @@ export default function DocumentViewer({
               />
             </div>
           )
+        ) : activeTab === 'grid' ? (
+          /* ─── VISUAL TEST CASES SPREADSHEET / GRID FOR TESTERS ─── */
+          <div className="flex-1 flex flex-col h-full bg-slate-900 text-slate-100 overflow-hidden font-sans">
+            {/* Top Toolbar for Grid */}
+            <div className="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between flex-wrap gap-3 shrink-0">
+              <div className="flex items-center gap-2 flex-wrap flex-1">
+                {/* Real-time Search Input */}
+                <div className="relative min-w-[260px] max-w-md flex-1">
+                  <input
+                    type="text"
+                    value={tableSearch}
+                    onChange={e => setTableSearch(e.target.value)}
+                    placeholder="Tìm nhanh mã TC, tên kịch bản, các bước, kết quả..."
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                  />
+                  {tableSearch && (
+                    <button
+                      onClick={() => setTableSearch('')}
+                      className="absolute right-2.5 top-1.5 text-slate-400 hover:text-slate-200 font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Status Filter */}
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="ALL">Tất cả trạng thái</option>
+                  <option value="PASS">Đã kiểm thử Đạt (PASS)</option>
+                  <option value="FAIL">Không đạt (FAIL)</option>
+                  <option value="BLOCKED">Bị chặn (BLOCKED)</option>
+                  <option value="UNTRIED">Chưa kiểm thử</option>
+                </select>
+
+                {/* Priority Filter */}
+                <select
+                  value={priorityFilter}
+                  onChange={e => setPriorityFilter(e.target.value)}
+                  className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="ALL">Tất cả độ ưu tiên</option>
+                  <option value="P1">Ưu tiên Cao (P1)</option>
+                  <option value="P2">Ưu tiên Trung bình (P2)</option>
+                  <option value="P3">Ưu tiên Thấp (P3)</option>
+                </select>
+              </div>
+
+              {/* Action Buttons for Tester */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleAddTestCase}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+                >
+                  <span>+ Thêm Test Case</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyForSheets}
+                  className="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                  title="Sao chép dạng bảng dán trực tiếp vào Google Sheets / Excel"
+                >
+                  <span>{copiedTable ? 'Đã sao chép!' : 'Sao chép cho Google Sheets'}</span>
+                </button>
+
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={handleSaveVisualTable}
+                    disabled={saving}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>{saving ? 'Đang lưu...' : savedSuccess ? 'Đã lưu thành công!' : 'Lưu thay đổi'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Stats Summary Bar */}
+            <div className="bg-slate-950/80 border-b border-slate-800 px-4 py-2 flex items-center gap-4 text-xs font-semibold overflow-x-auto shrink-0">
+              <span className="text-slate-400">Tổng số: <b className="text-slate-100">{stats.total}</b></span>
+              <span className="text-emerald-400">Đạt (PASS): <b className="text-emerald-300">{stats.pass}</b> ({stats.total > 0 ? Math.round((stats.pass / stats.total) * 100) : 0}%)</span>
+              <span className="text-rose-400">Không đạt (FAIL): <b className="text-rose-300">{stats.fail}</b></span>
+              <span className="text-amber-400">Bị chặn (BLOCKED): <b className="text-amber-300">{stats.blocked}</b></span>
+              <span className="text-slate-400">Chưa test: <b className="text-slate-300">{stats.untried}</b></span>
+              <span className="text-slate-500 ml-auto text-[11px]">Đang hiển thị {filteredTestCases.length} / {visualTestCases.length} cases</span>
+            </div>
+
+            {/* Interactive Grid Table */}
+            <div className="flex-1 overflow-auto bg-slate-950 p-3">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead className="bg-slate-900 text-slate-300 sticky top-0 z-20 border-b-2 border-slate-700 shadow-xs uppercase tracking-wider text-[11px] font-bold">
+                  <tr>
+                    <th className="p-3 w-12 text-center">STT</th>
+                    <th className="p-3 w-32">Mã TC</th>
+                    <th className="p-3 w-36">Phân hệ</th>
+                    <th className="p-3 min-w-[200px]">Tên Scenario / Test Case</th>
+                    <th className="p-3 min-w-[240px]">Các bước thực hiện</th>
+                    <th className="p-3 min-w-[220px]">Kết quả mong đợi</th>
+                    <th className="p-3 w-28 text-center">Ưu tiên</th>
+                    <th className="p-3 w-36 text-center">Trạng thái</th>
+                    <th className="p-3 w-24">Bug ID</th>
+                    <th className="p-3 w-24 text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800">
+                  {filteredTestCases.map((tc, idx) => {
+                    const originalIdx = visualTestCases.indexOf(tc)
+                    const statusColor = 
+                      tc.executionStatus === 'PASS' ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40 hover:border-emerald-400' :
+                      tc.executionStatus === 'FAIL' ? 'bg-rose-950/60 text-rose-300 border-rose-500/40 hover:border-rose-400' :
+                      tc.executionStatus === 'BLOCKED' ? 'bg-amber-950/60 text-amber-300 border-amber-500/40 hover:border-amber-400' :
+                      'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500'
+
+                    return (
+                      <tr key={tc.id || idx} className="hover:bg-slate-900/70 transition-colors group">
+                        {/* STT */}
+                        <td className="p-2.5 text-center text-slate-500 font-mono font-bold align-top">
+                          {idx + 1}
+                        </td>
+
+                        {/* Mã TC */}
+                        <td className="p-2 align-top">
+                          <input
+                            type="text"
+                            value={tc.id || ''}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'id', e.target.value)}
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded px-2 py-1 font-mono text-indigo-400 font-bold focus:outline-none"
+                          />
+                        </td>
+
+                        {/* Phân hệ */}
+                        <td className="p-2 align-top">
+                          <input
+                            type="text"
+                            value={tc.feature || ''}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'feature', e.target.value)}
+                            placeholder="Phân hệ..."
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded px-2 py-1 text-slate-300 focus:outline-none"
+                          />
+                        </td>
+
+                        {/* Tên Scenario */}
+                        <td className="p-2 align-top">
+                          <textarea
+                            value={tc.title || ''}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'title', e.target.value)}
+                            rows={2}
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded px-2 py-1 text-slate-100 font-semibold focus:outline-none resize-y"
+                          />
+                        </td>
+
+                        {/* Các bước */}
+                        <td className="p-2 align-top">
+                          <textarea
+                            value={Array.isArray(tc.steps) ? tc.steps.join('\n') : String(tc.steps || '')}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'steps', e.target.value.split('\n'))}
+                            rows={3}
+                            placeholder="1. Bước 1&#10;2. Bước 2..."
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded px-2 py-1 text-slate-300 font-mono text-[11px] leading-relaxed focus:outline-none resize-y"
+                          />
+                        </td>
+
+                        {/* Kết quả mong đợi */}
+                        <td className="p-2 align-top">
+                          <textarea
+                            value={tc.expectedResult || ''}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'expectedResult', e.target.value)}
+                            rows={3}
+                            placeholder="Kết quả mong đợi..."
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded px-2 py-1 text-emerald-300/90 text-[11px] leading-relaxed focus:outline-none resize-y"
+                          />
+                        </td>
+
+                        {/* Ưu tiên */}
+                        <td className="p-2 align-top text-center">
+                          <select
+                            value={tc.priority || 'P2'}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'priority', e.target.value)}
+                            className="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded px-2 py-1 font-bold focus:outline-none"
+                          >
+                            <option value="P1">Cao (P1)</option>
+                            <option value="P2">TB (P2)</option>
+                            <option value="P3">Thấp (P3)</option>
+                          </select>
+                        </td>
+
+                        {/* Trạng thái thực thi */}
+                        <td className="p-2 align-top text-center">
+                          <select
+                            value={tc.executionStatus || 'UNTRIED'}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'executionStatus', e.target.value)}
+                            className={`border rounded-lg px-2.5 py-1 text-xs font-bold focus:outline-none transition-all cursor-pointer ${statusColor}`}
+                          >
+                            <option value="PASS">PASS (Đạt)</option>
+                            <option value="FAIL">FAIL (Lỗi)</option>
+                            <option value="BLOCKED">BLOCKED</option>
+                            <option value="UNTRIED">Chưa test</option>
+                          </select>
+                        </td>
+
+                        {/* Bug ID */}
+                        <td className="p-2 align-top">
+                          <input
+                            type="text"
+                            value={tc.bugId || ''}
+                            onChange={e => handleUpdateTestCase(originalIdx, 'bugId', e.target.value)}
+                            placeholder="Bug ID..."
+                            className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded px-2 py-1 text-rose-400 font-mono text-xs focus:outline-none"
+                          />
+                        </td>
+
+                        {/* Thao tác */}
+                        <td className="p-2 align-top text-center">
+                          <div className="flex items-center justify-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <button
+                              type="button"
+                              onClick={() => handleCloneTestCase(originalIdx)}
+                              className="bg-slate-800 hover:bg-slate-700 text-slate-200 p-1.5 rounded text-xs transition-colors"
+                              title="Nhân bản Test Case này"
+                            >
+                              📋
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTestCase(originalIdx)}
+                              className="bg-rose-950/60 hover:bg-rose-900 text-rose-300 p-1.5 rounded text-xs transition-colors"
+                              title="Xóa Test Case"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {filteredTestCases.length === 0 && (
+                    <tr>
+                      <td colSpan={10} className="p-8 text-center text-slate-500 italic">
+                        Không tìm thấy Test Case nào phù hợp với bộ lọc tìm kiếm.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         ) : (
+          /* ─── RAW MARKDOWN / CODE EDITOR ─── */
           <div className="flex-1 flex flex-col space-y-3 h-full p-4 bg-slate-50 overflow-hidden">
             {/* Header info & Save Button */}
             <div className="flex items-center justify-between bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs font-medium text-amber-900 flex-wrap gap-2 shrink-0">
               <span className="flex items-center gap-1.5 font-semibold">
-                <span>Chế độ <b>Chỉnh sửa Markdown</b>. Có thể tìm từ khóa (Ctrl+F), chỉnh sửa và bấm <b>"Lưu thay đổi"</b>.</span>
+                <span>Chế độ <b>Chỉnh sửa Markdown / Code</b>. Có thể tìm từ khóa (Ctrl+F), chỉnh sửa và bấm <b>"Lưu thay đổi"</b>.</span>
               </span>
               {canEdit && (
                 <button
@@ -644,7 +1130,7 @@ export default function DocumentViewer({
                 <button
                   type="button"
                   onClick={() => setShowReplace(!showReplace)}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all border ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all border cursor-pointer ${
                     showReplace ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
